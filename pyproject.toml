@@ -1,0 +1,57 @@
+[project]
+name = "sugar"
+dynamic = ["version"]
+authors = [
+    {name = "Tom Eulenfeld"},
+]
+description = "Simple containers for RNA and DNA sequence analysis"
+readme = "README.md"
+license = {text = "MIT License"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = [
+    "bioinformatics", "RNA", "DNA", "sequence",
+    "fasta", "genbank", "stockholm", "entrez"
+]
+dependencies = [
+  "matplotlib",
+  "pandas",
+  "pytest",
+  "requests",
+  "seaborn",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/rnajena/sugar"
+"Bug Tracker" = "https://github.com/rnajena/sugar/issues"
+
+[project.scripts]
+sugar = "sugar.scripts:run_cmdline"
+
+[project.entry-points."sugar.io"]
+fasta = "sugar.io.fasta"
+sjson = "sugar.io.sjson"
+genbank = "sugar.io.genbank"
+stockholm = "sugar.io.stockholm"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "sugar.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["sugar*"]
+
+[tool.setuptools.package-data]
+sugar = ["pytest.ini"]
+"sugar.data.data_gcode" = ["*.*"]
+"sugar.data.data_submat" = ["*"]
+"sugar.tests.data" = ["*.*"]
+
+[tool.setuptools.exclude-package-data]
+"sugar.data.data_submat" = ["README*"]
