@@ -1,0 +1,102 @@
+"""
+IUPAC nucleotide code 	Base
+A 	Adenine
+C 	Cytosine
+G 	Guanine
+T (or U) 	Thymine (or Uracil)
+R 	A or G
+Y 	C or T
+S 	G or C
+W 	A or T
+K 	G or T
+M 	A or C
+B 	C or G or T
+D 	A or G or T
+H 	A or C or T
+V 	A or C or G
+N 	any base
+. or - 	gap
+
+IUPAC amino acid code 	Three letter code 	Amino acid
+A 	Ala 	Alanine
+C 	Cys 	Cysteine
+D 	Asp 	Aspartic Acid
+E 	Glu 	Glutamic Acid
+F 	Phe 	Phenylalanine
+G 	Gly 	Glycine
+H 	His 	Histidine
+I 	Ile 	Isoleucine
+K 	Lys 	Lysine
+L 	Leu 	Leucine
+M 	Met 	Methionine
+N 	Asn 	Asparagine
+P 	Pro 	Proline
+Q 	Gln 	Glutamine
+R 	Arg 	Arginine
+S 	Ser 	Serine
+T 	Thr 	Threonine
+V 	Val 	Valine
+W 	Trp 	Tryptophan
+Y 	Tyr 	Tyrosine
+"""
+
+from functools import lru_cache
+from importlib.resources import files
+import json
+from os.path import exists
+
+
+CODES = {'A': 'A', 'C': 'C', 'G': 'G', 'T':'T',
+         'R': 'AG', 'Y': 'CT', 'S': 'GC', 'W': 'AT', 'K': 'GT', 'M': 'AC',
+         'B': 'CGT', 'D': 'AGT', 'H': 'ACT', 'V': 'ACG', 'N': 'ACGT',
+         '.': '.', '-': '-'}
+
+
+@lru_cache
+def submat(fname):
+    if not exists(fname):
+        fname2 = str(files('sugar.data.data_submat').joinpath(fname.upper()))
+        if not exists(fname2):
+            raise FileNotFoundError(f'No file at {fname} or {fname2}')
+        fname = fname2
+    with open(fname) as f:
+        content = f.read()
+    mat = {}
+    letters = None
+    for line in content.splitlines():
+        if line.strip().startswith('#') or line.strip() == '':
+            continue
+        if letters is None:
+            letters = line.split()
+        else:
+            l1, rest = line.split(maxsplit=1)
+            if l1 not in letters:
+                from warnings import warn
+                warn(f'Letter {l1} not found in table header "{" ".join(letters)}"')
+            vals = map(float if '.' in rest else int, rest.split())
+            mat[l1] = {l2: v for l2, v in zip(letters, vals)}
+    return mat
+
+
+@lru_cache
+def scale_submat(sm, scale=1):
+    s = sum(abs(v) for row in sm.values() for v in row.values())
+    for k1 in sm:
+        for k2 in sm[k1]:
+            sm[k1][k2] = sm[k1][k2] / s * scale
+    return sm
+
+
+@lru_cache
+def gcode(tt=1):
+    from sugar import Attr
+    fname = files('sugar.data.data_gcode').joinpath('gc.json')
+    with open(fname) as f:
+        gcs = json.load(f)
+    gc = Attr(**gcs[str(tt)])
+    gc.ttinv = {k: set(v) for k, v in gc.ttinv.items()}
+    gc.starts = set(gc.starts)
+    gc.astarts = set(gc.astarts)
+    gc.stops = set(gc.stops)
+    gc.astops = set(gc.astops)
+    return gc
