@@ -1,0 +1,37 @@
+name: logo
+on:
+  schedule:
+    - cron:  '42 1 * * *'
+permissions:
+  contents: write
+jobs:
+  daily_update_logo:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: logo
+      - name: Setup conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: "3.12"
+      - name: install packages
+        run: |
+          conda install matplotlib
+          pip install -v --no-deps https://github.com/rnajena/sugar/archive/refs/heads/master.zip
+          wget https://raw.githubusercontent.com/rnajena/sugar/master/assets/create_sugar_logo.py
+      - name: create logo
+        run: |
+          python create_sugar_logo.py
+      - name: commit logo
+        run: |
+          git config --global user.name 'trichter'
+          git config --global user.email 'trichter@users.noreply.github.com'
+          git add sugar_logo*.png
+          # git commit -am "daily update of logo"
+          # git push
+          git commit -a --amend --no-edit
+          git push -f
