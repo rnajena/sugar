@@ -10,7 +10,10 @@ import itertools
 import operator
 import os.path
 from pathlib import PurePath
+import shutil
 import sys
+import tempfile
+from urllib.parse import urlparse
 
 from sugar import BioBasket, BioSeq
 
@@ -25,6 +28,9 @@ def _epsname_key(epsname):
 EPS = entry_points(group='sugar.io')
 FMTS = ['fasta', 'genbank', 'stockholm', 'sjson']
 FMTS_ALL = sorted(EPS.names, key=_epsname_key)
+
+ARCHIVE_EXTS = [ext.removeprefix('.') for fmt in shutil.get_unpack_formats()
+                for ext in fmt[1]]
 
 
 @contextmanager
@@ -67,10 +73,13 @@ def detect_ext(fname):
             if ext in module.EXT:
                 return fmt
 
+def __get_ext(fname):
+    return os.path.split(fname)[1].split('.', 1)[-1]
+
 
 def resolve_fname(reader):
     @wraps(reader)
-    def new_reader(fname=None, *args, **kw):
+    def new_reader(fname=None, *args, archive=None, **kw):
         if fname is None:
             fname = '!data/example.gb'
         elif isinstance(fname, PurePath):
@@ -85,16 +94,32 @@ def resolve_fname(reader):
                 import requests
                 r = requests.get(fname)
                 r.raise_for_status()
-                fname = io.StringIO(r.text)
+                bname = os.path.basename(urlparse(fname).path)
+                if (__get_ext(bname) in ARCHIVE_EXTS or
+                        archive is not None):
+                    with tempfile.NamedTemporaryFile(suffix=bname, delete=False) as f:
+                        f.write(r.content)
+                        f.close()
+                        return new_reader(f.name, *args, archive=archive, **kw)
+                else:
+                    fname = io.StringIO(r.text)
             elif glob.has_magic(fname):
-                fnames = glob.glob(fname)
+                fnames = glob.glob(fname, recursive=True)
                 if not fnames:
                     raise IOError(f'No file matching glob pattern {fname}')
-                seqs = [reader(fname, *args, **kw) for fname in fnames]
-                if isinstance(seqs[0], BioBasket):
+                seqs = [new_reader(fname, *args, archive=archive, **kw) for fname in fnames]
+                if isinstance(seqs[0], BioBasket):  # read was wrapped
                     return reduce(operator.add, seqs)
-                else:
-                    return reduce(itertools.chain, seqs)  # iterable
+                else:  # iter_ was wrapped
+                    return reduce(itertools.chain, seqs)
+            elif (__get_ext(fname) in ARCHIVE_EXTS or
+                  archive is not None):
+                if archive is True:
+                    archive = None
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    shutil.unpack_archive(fname, tmpdir, archive)
+                    globexpr = os.path.join(tmpdir, '**/*.*')
+                    return new_reader(globexpr, *args, **kw)
         return reader(fname, *args, **kw)
     return new_reader
 

@@ -2,8 +2,10 @@
 
 import glob
 from importlib.resources import files
-import tempfile
 from io import StringIO
+import os.path
+import shutil
+import tempfile
 
 import pytest
 import sugar
@@ -75,6 +77,15 @@ def test_read_glob():
     assert len(seqs) >= 2
     for seq in iter_(GLOBEXPR):
         assert isinstance(seq, sugar.BioSeq)
+
+
+def test_unpack():
+    rootdir = files('sugar.tests.data')._paths[0]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        shutil.make_archive(os.path.join(tmpdir, 'a1'),
+                            'gztar', rootdir)
+        seqs = read(os.path.join(tmpdir, '*.*'))
+    assert len(seqs) == 19
 
 
 def test_io_tool():
