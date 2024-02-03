@@ -10,6 +10,7 @@ import itertools
 import operator
 import os.path
 from pathlib import PurePath
+import sys
 
 from sugar import BioBasket, BioSeq
 
@@ -78,7 +79,9 @@ def resolve_fname(reader):
             if fname.startswith('!data/'):
                 fname = fname.removeprefix('!data/')
                 fname = str(files('sugar.tests.data').joinpath(fname))
-            if '://' in fname[:10]:
+            if fname == '-':
+                fname = io.StringIO(sys.stdin.read())
+            elif '://' in fname[:10]:
                 import requests
                 r = requests.get(fname)
                 r.raise_for_status()
