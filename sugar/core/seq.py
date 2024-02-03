@@ -190,7 +190,7 @@ class _Slicable():
 
 class MutableMetaString(collections.abc.Sequence):
     def __init__(self, data, id='', meta=None, type=None):
-        self.data = str(data)
+        self.data = str(data).upper()
         if hasattr(data, 'meta'):
             meta = data.meta
         elif 'meta' in data:
@@ -202,7 +202,12 @@ class MutableMetaString(collections.abc.Sequence):
             self.meta.id = id
         assert type in (None, 'nt', 'aa')
         if type is None:
-            type = 'nt' if all(nb in CODES for nb in self.data) else 'aa'
+            codes = set(CODES) | {'U'}
+            type = 'nt' if all(nb in codes for nb in self.data) else 'aa'
+        if type == 'nt' and 'U' in data:
+            from warnings import warn
+            warn('Found U in nucleotide sequence, '
+                 'some methods will not work as expected')
         self.type = type
 
     @property
