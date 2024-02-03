@@ -737,6 +737,8 @@ def _si_format(v, l=4):
 
 class BioBasket(collections.UserList):
     def __init__(self, data=None, meta=None):
+        if data is None:
+            data = []
         if hasattr(data, 'meta'):
             meta = data.meta
         elif 'meta' in data:
