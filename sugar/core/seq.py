@@ -516,7 +516,12 @@ class BioSeq(MutableMetaString):
 
     @property
     def gc(self):
-        return (self.count('G') + self.count('C')) / len(self)
+        GC = self.count('G') + self.count('C')
+        AT = self.count('A') + self.count('T') + self.count('U')
+        if GC + AT > 0:
+            return GC / (GC + AT)
+        else:
+            return 0
 
     @property
     def i(self):
