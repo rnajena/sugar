@@ -34,7 +34,7 @@ def iter_(f):
             elif ' ' not in line and '|' not in line:
                 id_ = line
             elif '|' in line:
-                id_ = line.split('|')[1]
+                id_ = line.split('|')[-2]
             else:
                 id_ = line.split(maxsplit=1)[0]
             data = []
