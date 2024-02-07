@@ -150,13 +150,15 @@ class FeatureList(collections.UserList):
         else:
             p.text(str(self))
 
-    def tostr(self, w=80, wt=12, wl=12, wle=6):
+    def tostr(self, w=80, wt=12, wl=12, wle=6, exclude_features=()):
         out = []
         for ft in self:
-            ignore = ('start', 'stop', 'stride', 'type', 'loc', 'translation')
-            ftstr = ' '.join(f'{k}:{v}' for k, v in vars(ft).items()
-                             if k not in ignore)
             t = getattr(ft, 'type', '')
+            if t in exclude_features:
+                continue
+            exclude_keys = ('start', 'stop', 'stride', 'type', 'loc', 'translation')
+            ftstr = ';'.join(f'{k}={v}' for k, v in vars(ft).items()
+                             if k not in exclude_keys)
             l = getattr(ft, 'loc', '')
             le = ft.stop - ft.start if getattr(ft, 'start', None) is not None else '?'
             le = f'({le})'
@@ -727,6 +729,8 @@ import math
 
 
 def _si_format(v, l=4):
+    if v == 0:
+        return '0'
     l2 = int(math.log10(v)) + 1
     if l2 > l:
         si = {1: 'k', 2: 'M', 3: 'G', 4: 'T'}

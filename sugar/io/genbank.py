@@ -17,7 +17,7 @@ def _parse_feature_location(loc):
     except Exception:
         return {}
     else:
-        assert start < stop
+        assert start <= stop
         return dict(start=start-1, stop=stop)
         # if start <= stop:
         #     kw = dict(start=start-1, stop=stop)
@@ -26,7 +26,8 @@ def _parse_feature_location(loc):
         #               stop=stop-2 if stop > 1 else None)
 
 
-def iter_(f, translation=True):
+def iter_(f, exclude=()):
+    # allowed entries in exclude: features, translation, seq
     content = f.read()
     for record in content.split('//'):
         if len(record.strip()) == 0:
@@ -72,16 +73,21 @@ def iter_(f, translation=True):
                     meta[key] = Attr(id=meta[key])
                     meta[key][subkey] = val
             elif parse == 'features':
+                if 'features' in exclude and 'seq' in exclude:
+                    break
+                elif 'features' in exclude:
+                    continue
                 if len(line[:20].strip()) > 0:
                     if feature is not None:
                         features.append(feature)
                         feature = None
-                    key = line[:20].strip().lower()
+                    key = line[:20].strip().lower().split()[0]
                     # subkey = None
                     if key == 'origin':
                         parse = 'origin'
                         meta.features = FeatureList(features)
                         continue
+                    key2 = None
                     val = line.strip()
                     try:
                         val = val.split(maxsplit=1)[1]
@@ -93,8 +99,9 @@ def iter_(f, translation=True):
                 elif len(line.strip()) > 0:
                     line = line.strip()
                     if line.startswith('/'):
+                        line = line.removeprefix('/')
                         if '=' in line:
-                            key, val = line[1:].split('=')
+                            key2, val = line.split('=')
                             if not val.startswith('"'):
                                 try:
                                     val = int(val)
@@ -102,12 +109,18 @@ def iter_(f, translation=True):
                                     pass
                             else:
                                 val = val.strip('"')
-                            feature[key] = val
+                            feature[key2] = val
                         else:
-                            feature.setdefault('misc', []).append(line[1:])
+                            feature.setdefault('misc', []).append(line)
+                    elif key2 is None:
+                        # location spanning multiple lines
+                        feature.loc = feature.loc + line
                     else:
-                        feature[key] = feature[key] + line.strip('"')
+                        feature[key2] = feature[key2] + line.strip('"')
             elif parse == 'origin':
+                if 'seq' in exclude:
+                    seq = ''
+                    break
                 if len(line) > 10:
                     seq = seq + line[10:].replace(' ', '')
             else:
@@ -115,13 +128,13 @@ def iter_(f, translation=True):
         assert len(misc) == 0
         assert feature is None
         if 'accession' in meta:
-            meta.id = meta.accession
+            meta.id = meta.accession.split()[0]
             del meta.accession
         try:
             del meta.reference  # TODO: references should be parsed in a list, not yet done
         except Exception:
             pass
-        if not translation and 'features' in meta:
+        if 'translation' in exclude and 'features' in meta:
             for feature in meta.features:
                 try:
                     del feature.translation

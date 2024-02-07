@@ -16,10 +16,10 @@ def _changedir(path):
         os.chdir(origin)
 
 
-def _start_ipy(obj):
+def _start_ipy(seqs):
     from IPython import start_ipython
-    print('Contents loaded into obj variable.')
-    start_ipython(argv=[], user_ns={'obj': obj}, display_banner=False)
+    print('Contents loaded into seqs variable.')
+    start_ipython(argv=[], user_ns={'seqs': seqs}, display_banner=False)
     print('Bye')
 
 
@@ -47,7 +47,7 @@ def run(command, pytest_args, fname=None, fmt=None, tool=None, **kw):
             pass
     elif command == 'load':
         from sugar import read
-        seqs = read(fname, fmt, tool=tool)
+        seqs = read(fname, fmt, tool=tool, **kw)
         _start_ipy(seqs)
     elif command == 'convert':
         convert(fname, fmt=fmt, tool=tool, **kw)
@@ -64,6 +64,9 @@ def run(command, pytest_args, fname=None, fmt=None, tool=None, **kw):
             status = pytest.main(pytest_args)
         sys.exit(status)
 
+
+def _str2tuple(t):
+    return tuple(tt.strip() for tt in t.split(','))
 
 def run_cmdline(cmd_args=None):
     """Main entry point from the command line"""
@@ -94,6 +97,7 @@ def run_cmdline(cmd_args=None):
         msg = 'format supported by Sugar (default: auto-detect)'
         p.add_argument('-f', '--fmt', help=msg)
         p.add_argument('-t', '--tool', help='tool for reading')
+        p.add_argument('-e', '--exclude', help='exclude contents', type=_str2tuple, default=argparse.SUPPRESS)
     p_print.add_argument('--h', help='max height, 0 for no restriction, default 19', default=19, type=int)
     p_print.add_argument('--w', help='max width, 0 for no restriction, default 80', default=80, type=int)
     p_print.add_argument('--wid', help='max id width, 0 for no restriction, default 19', default=19, type=int)
