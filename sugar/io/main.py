@@ -18,16 +18,24 @@ from urllib.parse import urlparse
 from sugar import BioBasket, BioSeq
 
 
-def _epsname_key(epsname):
+FMTS = ['fasta', 'genbank', 'stockholm', 'sjson']
+FMTS_FTS = ['gff', 'genbank']
+
+
+def _epsname_key(epsname, l=FMTS):
     try:
         return FMTS.index(epsname)
     except ValueError:
         return len(FMTS)
 
+def _epsname_fts_key(epsname):
+    return _epsname_key(epsname, l=FMTS_FTS)
+
 
 EPS = entry_points(group='sugar.io')
-FMTS = ['fasta', 'genbank', 'stockholm', 'sjson']
+EPS_FTS = entry_points(group='sugar.io.fts')
 FMTS_ALL = sorted(EPS.names, key=_epsname_key)
+FMTS_FTS_ALL = sorted(EPS_FTS.names, key=_epsname_fts_key)
 
 ARCHIVE_EXTS = [ext.removeprefix('.') for fmt in shutil.get_unpack_formats()
                 for ext in fmt[1]]
@@ -61,6 +69,22 @@ def detect(fname):
                     f.seek(fpos)
 
 
+def detect_fts(fname):
+    with file_opener(fname) as f:
+        fpos = f.tell()
+        for fmt in FMTS_FTS_ALL:
+            module = EPS_FTS[fmt].load()
+            if hasattr(module, 'is_format_fts'):
+                f.seek(0)
+                try:
+                    if module.is_format_fts(f):
+                        return fmt
+                except Exception:
+                    pass
+                finally:
+                    f.seek(fpos)
+
+
 def detect_ext(fname):
     try:
         _, ext = os.path.splitext(fname)
@@ -73,58 +97,74 @@ def detect_ext(fname):
             if ext in module.EXT:
                 return fmt
 
+
+def detect_ext_fts(fname):
+    try:
+        _, ext = os.path.splitext(fname)
+        ext = ext.removeprefix('.')
+    except Exception:
+        return
+    for fmt in FMTS_FTS_ALL:
+        module = EPS_FTS[fmt].load()
+        if hasattr(module, 'EXT_FTS'):
+            if ext in module.EXT_FTS:
+                return fmt
+
+
 def __get_ext(fname):
     return os.path.split(fname)[1].split('.', 1)[-1]
 
 
-def resolve_fname(reader):
-    @wraps(reader)
-    def new_reader(fname=None, *args, archive=None, **kw):
-        if fname is None:
-            fname = '!data/example.gb'
-        elif isinstance(fname, PurePath):
-            fname = str(fname)
-        if isinstance(fname, str):
-            if fname.startswith('!data/'):
-                fname = fname.removeprefix('!data/')
-                fname = str(files('sugar.tests.data').joinpath(fname))
-            if fname == '-':
-                fname = io.StringIO(sys.stdin.read())
-            elif '://' in fname[:10]:
-                import requests
-                r = requests.get(fname)
-                r.raise_for_status()
-                bname = os.path.basename(urlparse(fname).path)
-                if (__get_ext(bname) in ARCHIVE_EXTS or
-                        archive is not None):
-                    with tempfile.NamedTemporaryFile(suffix=bname, delete=False) as f:
-                        f.write(r.content)
-                        f.close()
-                        return new_reader(f.name, *args, archive=archive, **kw)
-                else:
-                    fname = io.StringIO(r.text)
-            elif glob.has_magic(fname):
-                fnames = glob.glob(fname, recursive=True)
-                if not fnames:
-                    raise IOError(f'No file matching glob pattern {fname}')
-                seqs = [new_reader(fname, *args, archive=archive, **kw) for fname in fnames]
-                if isinstance(seqs[0], BioBasket):  # read was wrapped
-                    return reduce(operator.add, seqs)
-                else:  # iter_ was wrapped
-                    return reduce(itertools.chain, seqs)
-            elif (__get_ext(fname) in ARCHIVE_EXTS or
-                  archive is not None):
-                if archive is True:
-                    archive = None
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    shutil.unpack_archive(fname, tmpdir, archive)
-                    globexpr = os.path.join(tmpdir, '**/*.*')
-                    return new_reader(globexpr, *args, **kw)
-        return reader(fname, *args, **kw)
-    return new_reader
+def resolve_fname(example_fname='!data/example.gb'):
+    def wrapper(reader):
+        @wraps(reader)
+        def new_reader(fname=None, *args, archive=None, **kw):
+            if fname is None:
+                fname = example_fname
+            elif isinstance(fname, PurePath):
+                fname = str(fname)
+            if isinstance(fname, str):
+                if fname.startswith('!data/'):
+                    fname = fname.removeprefix('!data/')
+                    fname = str(files('sugar.tests.data').joinpath(fname))
+                if fname == '-':
+                    fname = io.StringIO(sys.stdin.read())
+                elif '://' in fname[:10]:
+                    import requests
+                    r = requests.get(fname)
+                    r.raise_for_status()
+                    bname = os.path.basename(urlparse(fname).path)
+                    if (__get_ext(bname) in ARCHIVE_EXTS or
+                            archive is not None):
+                        with tempfile.NamedTemporaryFile(suffix=bname, delete=False) as f:
+                            f.write(r.content)
+                            f.close()
+                            return new_reader(f.name, *args, archive=archive, **kw)
+                    else:
+                        fname = io.StringIO(r.text)
+                elif glob.has_magic(fname):
+                    fnames = glob.glob(fname, recursive=True)
+                    if not fnames:
+                        raise IOError(f'No file matching glob pattern {fname}')
+                    seqs = [new_reader(fname, *args, archive=archive, **kw) for fname in fnames]
+                    if isinstance(seqs[0], BioBasket):  # read was wrapped
+                        return reduce(operator.add, seqs)
+                    else:  # iter_ was wrapped
+                        return reduce(itertools.chain, seqs)
+                elif (__get_ext(fname) in ARCHIVE_EXTS or
+                      archive is not None):
+                    if archive is True:
+                        archive = None
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        shutil.unpack_archive(fname, tmpdir, archive)
+                        globexpr = os.path.join(tmpdir, '**/*.*')
+                        return new_reader(globexpr, *args, **kw)
+            return reader(fname, *args, **kw)
+        return new_reader
+    return wrapper
 
 
-@resolve_fname
+@resolve_fname()
 def iter_(fname, fmt=None, tool=None, mode='r', **kw):
     if fmt is None:
         fmt = detect(fname)
@@ -154,7 +194,7 @@ def iter_(fname, fmt=None, tool=None, mode='r', **kw):
             raise RuntimeError(f'No read support for format {fmt}')
 
 
-@resolve_fname
+@resolve_fname()
 def read(fname, fmt=None, mode='r', tool=None, **kw):
     if fmt is None:
         fmt = detect(fname)
@@ -181,6 +221,21 @@ def read(fname, fmt=None, mode='r', tool=None, **kw):
     return seqs
 
 
+@resolve_fname(example_fname='!data/fts_example.gff')
+def read_fts(fname, fmt=None, mode='r', **kw):
+    if fmt is None:
+        fmt = detect_fts(fname)
+    if fmt is None:
+        raise IOError('Format cannot be auto-detected')
+    module = EPS_FTS[fmt].load()
+    if hasattr(module, 'read_fts'):
+        with file_opener(fname, mode=mode) as f:
+            fts = module.read_fts(f, **kw)
+    else:
+        raise RuntimeError(f'No read support for format {fmt}')
+    return fts
+
+
 def write(seqs, fname, fmt=None, mode='w', tool=None, **kw):
     if fmt is None:
         fmt = detect_ext(fname)
@@ -203,5 +258,18 @@ def write(seqs, fname, fmt=None, mode='w', tool=None, **kw):
         with file_opener(fname, mode=mode) as f:
             for seq in seqs:
                 module.append(seq, f, **kw)
+    else:
+        raise RuntimeError(f'No write support for format {fmt}')
+
+
+def write_fts(fts, fname, fmt=None, mode='w', **kw):
+    if fmt is None:
+        fmt = detect_ext_fts(fname)
+    if fmt is None:
+        raise IOError('Format cannot be auto-detected')
+    module = EPS_FTS[fmt].load()
+    if hasattr(module, 'write_fts'):
+        with file_opener(fname, mode=mode) as f:
+            module.write_fts(fts, f, **kw)
     else:
         raise RuntimeError(f'No write support for format {fmt}')

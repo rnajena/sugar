@@ -2,28 +2,37 @@
 # https://www.insdc.org/submitting-standards/feature-table/
 
 from sugar.core.seq import Attr, BioSeq, Meta, Feature, FeatureList
+from sugar.io.genbank_loc import _parse_locs
 
 
 def is_format(f):
     content = f.read(5)
     return content.lower() == 'locus'
 
+is_format_fts = is_format
 
-def _parse_feature_location(loc):
-    try:
-        # TODO, this does not cover all stuff
-        # join, complement, <, >, ^, etc
-        start, stop = map(int, loc.split('..'))
-    except Exception:
-        return {}
-    else:
-        assert start <= stop
-        return dict(start=start-1, stop=stop)
+# def _parse_feature_location(loc):
+#     try:
+#         # TODO, this does not cover all stuff
+#         # join, complement, <, >, ^, etc
+#         start, stop = map(int, loc.split('..'))
+#     except Exception:
+#         return {}
+#     else:
+#         assert start <= stop
+#         return dict(start=start-1, stop=stop)
         # if start <= stop:
         #     kw = dict(start=start-1, stop=stop)
         # else:
         #     kw = dict(start=start-1, stride=-1,
         #               stop=stop-2 if stop > 1 else None)
+
+
+def read_fts(f, exclude=()):
+    fts = FeatureList()
+    for seq in iter_(f, exclude=('seq',) + exclude):
+        fts.extend(seq.fts)
+    return fts
 
 
 def iter_(f, exclude=()):
@@ -35,7 +44,9 @@ def iter_(f, exclude=()):
         meta = Meta()
         features = []
         misc = []
-        feature = None
+        fttype = None
+        ftmeta=None
+        locs = None
         val = None
         key = None
         subkey = None
@@ -78,15 +89,20 @@ def iter_(f, exclude=()):
                 elif 'features' in exclude:
                     continue
                 if len(line[:20].strip()) > 0:
-                    if feature is not None:
-                        features.append(feature)
-                        feature = None
-                    key = line[:20].strip().lower().split()[0]
+                    if fttype is not None:
+                        ft = Feature(type=fttype, locs=_parse_locs(locs),
+                                          meta=ftmeta)
+                        features.append(ft)
+                        fttype = None
+                    key = line[:20].strip().split()[0]
                     # subkey = None
-                    if key == 'origin':
+                    if key.lower() == 'origin':
                         parse = 'origin'
                         meta.features = FeatureList(features)
                         continue
+                    fttype = key
+                    locs = ''
+                    ftmeta = {}
                     key2 = None
                     val = line.strip()
                     try:
@@ -94,8 +110,7 @@ def iter_(f, exclude=()):
                     except Exception:
                         pass
                     else:
-                        feature = Feature(type=key, loc=val,
-                                          **_parse_feature_location(val))
+                        locs = val
                 elif len(line.strip()) > 0:
                     line = line.strip()
                     if line.startswith('/'):
@@ -109,14 +124,14 @@ def iter_(f, exclude=()):
                                     pass
                             else:
                                 val = val.strip('"')
-                            feature[key2] = val
+                            ftmeta[key2] = val
                         else:
-                            feature.setdefault('misc', []).append(line)
+                            ftmeta.setdefault('misc', []).append(line)
                     elif key2 is None:
                         # location spanning multiple lines
-                        feature.loc = feature.loc + line
+                        locs = locs + line
                     else:
-                        feature[key2] = feature[key2] + line.strip('"')
+                        ftmeta[key2] = ftmeta[key2] + line.strip('"')
             elif parse == 'origin':
                 if 'seq' in exclude:
                     seq = ''
@@ -126,7 +141,7 @@ def iter_(f, exclude=()):
             else:
                 assert False
         assert len(misc) == 0
-        assert feature is None
+        assert fttype is None
         if 'accession' in meta:
             meta.id = meta.accession.split()[0]
             del meta.accession
@@ -137,7 +152,7 @@ def iter_(f, exclude=()):
         if 'translation' in exclude and 'features' in meta:
             for feature in meta.features:
                 try:
-                    del feature.translation
+                    del feature.meta.translation
                 except Exception:
                     pass
         yield BioSeq(seq.upper(), meta=meta)

@@ -1,9 +1,17 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 import sugar
 from sugar import __version__
-from sugar.core.seq import SUGAR
 import json
 
+
+from sugar.core.fts import Location, Defect, Strand, Feature, FeatureList
+from sugar.core.meta import Attr, Meta
+from sugar.core.seq import BioBasket, BioSeq
+
+SUGAR = (Location, Defect, Strand, Feature, FeatureList,
+         Attr, Meta,
+         BioBasket, BioSeq
+         )
 
 EXT = ['sjson', 'json']
 COMMENT = f'sugar JSON format written by sugar v{__version__}'
@@ -11,7 +19,11 @@ COMMENT = f'sugar JSON format written by sugar v{__version__}'
 
 class SJSONEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, SUGAR):
+        if isinstance(o, (Strand, Defect)):
+            obj = {'_cls': type(o).__name__,
+                   'value': o.value}
+            return obj
+        elif isinstance(o, SUGAR):
             obj = {k: v for k, v in o.__dict__.items()
                    if not k.startswith("_") or k == '_fmtcomment'}
             obj['_cls'] = type(o).__name__
@@ -24,7 +36,11 @@ class SJSONEncoder(json.JSONEncoder):
 def json_hook(d):
     if cls := d.pop('_cls', None):
         d.pop('_fmtcomment', None)
-        return getattr(sugar, cls)(**d)
+        cls = globals()[cls]
+        if isinstance(cls, (Strand, Feature)):
+            return cls(d['value'])
+        else:
+            return cls(**d)
     else:
         return d
 

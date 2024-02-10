@@ -9,6 +9,8 @@ import sys
 import io
 
 from sugar.data import CODES
+from sugar.core.meta import Attr, Meta
+from sugar.core.fts import Feature, FeatureList
 
 CODES_INV = {frozenset(v): k for k, v in CODES.items()}
 COMPLEMENT = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G', '.': '.', '-': '-'}
@@ -16,169 +18,59 @@ COMPLEMENT_ALL = {c: CODES_INV[frozenset(COMPLEMENT[nt] for nt in nts)] for c, n
 COMPLEMENT_TRANS = str.maketrans(COMPLEMENT_ALL)
 
 
-class Attr(collections.abc.MutableMapping):
-    """
-    A class which behaves like a dictionary.
-
-    :type data: dict, optional
-    :param data: Dictionary with initial keywords.
-
-    .. rubric:: Basic Usage
-
-    You may use the following syntax to change or access data in this class.
-
-    >>> meta = Meta()
-    >>> meta.comment = 'bla'
-    >>> meta['another_comment'] = 'yeah'
-    >>> print(stats.get('comment'))
-    bla
-    >>> print(stats['comment'])
-    bla
-    >>> print(stats.comment)
-    bla
-    """
-
-    def __init__(self, *args, **kwargs):
-        """
-        A Meta object can be initialized in two ways. It can be given an
-        existing dictionary as a simple argument or alternatively all keyword
-        arguments will become (key, value) pairs.
-
-        >>> meta1 = Meta({'a':1, 'b':2})
-        >>> meta2 = Meta(a=1, b=2)
-        """
-        self.update(dict(*args, **kwargs))
-
-    def __repr__(self):
-        items = (f'{k}={v!r}' for k, v in self.__dict__.items())
-        return '{}({})'.format(type(self).__name__, ', '.join(items))
-
-    def __getitem__(self, key):
-        return self.__dict__[key]
-
-    def __setitem__(self, key, value):
-        if (isinstance(value, collections.abc.Mapping) and not
-                isinstance(value, Attr)):
-            self.__dict__[key] = Attr(value)
-        else:
-            self.__dict__[key] = value
-
-    def __delitem__(self, name):
-        del self.__dict__[name]
-
-    def __getattr__(self, name):
-        try:
-            return self.__getitem__(name)
-        except KeyError as e:
-            raise AttributeError(e.args[0])
-
-    __setattr__ = __setitem__
-    __delattr__ = __delitem__
-
-    def copy(self):
-        return copy.deepcopy(self)
-
-    def update(self, adict={}):
-        for (key, value) in adict.items():
-            self.__setitem__(key, value)
-
-    def __iter__(self):
-        return iter(self.__dict__)
-
-    def __len__(self):
-        return len(self.__dict__)
 
 
-class Meta(Attr):
-    def __str__(self):
-        return self.tostr()
 
-    def _repr_pretty_(self, p, cycle):
-        if cycle:
-            p.text('...')
-        else:
-            p.text(str(self))
-
-    def tostr(self, w=80):
-        def _key2str():
-            line = f'{k:>{lenkey}}: {self[k]}'
-            if len(line) > w:
-                line = line[:w-3] + '...'
-            out.append(line + '\n')
-        out = []
-        keys = set(self)
-        if len(keys) == 0:
-            return ''
-        lenkey = max(len(k) for k in keys)
-        for k in ('id',):
-            if k in self:
-                _key2str()
-                keys.discard(k)
-        for k in sorted(keys - {'features'}):
-            if not k.startswith('_'):
-                _key2str()
-        for k in sorted(keys - {'features'}):
-            if k.startswith('_'):
-                _key2str()
-        if 'features' in self:
-            out.append(f'{"features":>{lenkey}}:\n')
-            for ft in self.features:
-                ftstr = str(ft)
-                if len(ftstr) > w - 25:
-                    ftstr = ftstr[:w-28] + '...'
-                out.append('{:>13} {:<10} {}\n'.format(
-                    getattr(ft, 'type', ''), getattr(ft, 'loc', ''), ftstr))
-        return ''.join(out)
+# class Feature(Attr):
+#     def _slice(self):
+#         stride = getattr(self, 'stride', 1)
+#         return slice(self.start, self.stop, stride)
 
 
-class Feature(Attr):
-    def _slice(self):
-        stride = getattr(self, 'stride', 1)
-        return slice(self.start, self.stop, stride)
+# class FeatureList(collections.UserList):
+#     def __init__(self, data=None):
+#         super().__init__(data)
+
+#     def __str__(self):
+#         return self.tostr()
+
+#     def _repr_pretty_(self, p, cycle):
+#         if cycle:
+#             p.text('...')
+#         else:
+#             p.text(str(self))
+
+#     def tostr(self, w=80, wt=12, wl=12, wle=6, exclude_features=()):
+#         out = []
+#         for ft in self:
+#             t = getattr(ft, 'type', '')
+#             if t in exclude_features:
+#                 continue
+#             exclude_keys = ('start', 'stop', 'stride', 'type', 'loc', 'translation')
+#             ftstr = ';'.join(f'{k}={v}' for k, v in vars(ft).items()
+#                              if k not in exclude_keys)
+#             l = getattr(ft, 'loc', '')
+#             le = ft.stop - ft.start if getattr(ft, 'start', None) is not None else '?'
+#             le = f'({le})'
+#             ftstr = f'{t:>{wt}} {l:<{wl}} {le:<{wle}}  {ftstr}'
+#             if w and len(ftstr) > w:
+#                 ftstr = ftstr[:w-3] + '...'
+#             out.append(ftstr)
+#         return '\n'.join(out)
+
+#     def get(self, type_):
+#         for ft in self.data:
+#             if ft.type == type_:
+#                 return ft
+
+#     def geta(self, type_):
+#         features = []
+#         for ft in self.data:
+#             if ft.type == type_:
+#                 features.append(ft)
+#         return FeatureList(features)
 
 
-class FeatureList(collections.UserList):
-    def __init__(self, data=None):
-        super().__init__(data)
-
-    def __str__(self):
-        return self.tostr()
-
-    def _repr_pretty_(self, p, cycle):
-        if cycle:
-            p.text('...')
-        else:
-            p.text(str(self))
-
-    def tostr(self, w=80, wt=12, wl=12, wle=6, exclude_features=()):
-        out = []
-        for ft in self:
-            t = getattr(ft, 'type', '')
-            if t in exclude_features:
-                continue
-            exclude_keys = ('start', 'stop', 'stride', 'type', 'loc', 'translation')
-            ftstr = ';'.join(f'{k}={v}' for k, v in vars(ft).items()
-                             if k not in exclude_keys)
-            l = getattr(ft, 'loc', '')
-            le = ft.stop - ft.start if getattr(ft, 'start', None) is not None else '?'
-            le = f'({le})'
-            ftstr = f'{t:>{wt}} {l:<{wl}} {le:<{wle}}  {ftstr}'
-            if w and len(ftstr) > w:
-                ftstr = ftstr[:w-3] + '...'
-            out.append(ftstr)
-        return '\n'.join(out)
-
-    def get(self, type_):
-        for ft in self.data:
-            if ft.type == type_:
-                return ft
-
-    def geta(self, type_):
-        features = []
-        for ft in self.data:
-            if ft.type == type_:
-                features.append(ft)
-        return FeatureList(features)
 
 
 class _Slicable():
@@ -540,12 +432,16 @@ class BioSeq(MutableMetaString):
         except:
             if isinstance(index, str):
                 index = self.meta.features.get(index)
-            if isinstance(index, Feature):
-                index = index._slice()
                 if index is None:
-                    msg = f'Feature {index.type} of seq {self.id} has no location'
-                    raise TypeError(msg)
-                subseq = super().__getitem__(index)
+                    raise TypeError('Feature not found')
+            if isinstance(index, Feature):
+                from sugar.core.fts import _slice_locs
+                subseq = _slice_locs(self, index.locs)
+                # index = index._slice()
+                # if index is None:
+                #     msg = f'Feature {index.type} of seq {self.id} has no location'
+                #     raise TypeError(msg)
+                # subseq = super().__getitem__(index)
             else:
                 raise TypeError('Index not supported')
         return subseq
@@ -953,4 +849,5 @@ class BioBasket(collections.UserList):
         return [seq.match(*args, **kw) for seq in self]
 
 
-SUGAR = (Attr, BioBasket, BioSeq, Feature, FeatureList, Meta)
+from sugar.core.fts import Location, Defect, Strand
+SUGAR = (Attr, BioBasket, BioSeq, Feature, FeatureList, Meta, Location, Defect, Strand)

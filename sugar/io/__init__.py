@@ -20,4 +20,5 @@ append()  # function for appending a single sequence to a file
 # See for example sugar.io.fasta
 """
 
-from sugar.io.main import detect, detect_ext, iter_, read, write
+from sugar.io.main import (detect, detect_fts, detect_ext, detect_ext_fts,
+                           iter_, read, write, read_fts, write_fts)

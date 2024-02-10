@@ -10,10 +10,13 @@ import tempfile
 import pytest
 import sugar
 from sugar.io.main import detect, detect_ext, read, iter_
+from sugar.io.main import detect_fts, detect_ext_fts, read_fts
 
 
-GLOBEXPR = str(files('sugar.tests.data').joinpath('*.*'))
+GLOBEXPR = str(files('sugar.tests.data').joinpath('example*.*'))
+GLOBEXPR_FTS = str(files('sugar.tests.data').joinpath('fts_example*.*'))
 FNAMES = glob.glob(GLOBEXPR)
+FNAMES_FTS = glob.glob(GLOBEXPR_FTS)
 # formats with read and write support in sugar.io module
 TESTIOFMTS = ('fasta', 'sjson', 'stockholm')
 
@@ -21,6 +24,18 @@ TESTIOFMTS = ('fasta', 'sjson', 'stockholm')
 def test_detect():
     for fname in FNAMES:
         assert (detect(fname) == detect_ext(fname) != None) or detect_ext(fname) is None
+
+def test_detect_fts():
+    for fname in FNAMES_FTS:
+        assert (detect_fts(fname) == detect_ext_fts(fname) != None) or detect_ext_fts(fname) is None
+
+
+def test_read_fts():
+    for fname in FNAMES_FTS:
+        fts = read_fts(fname)
+        assert isinstance(fts, sugar.FeatureList)
+        assert len(fts) > 0
+
 
 
 def test_read():
@@ -80,19 +95,18 @@ def test_read_glob():
 
 
 def test_unpack():
-    rootdir = files('sugar.tests.data')._paths[0]
+    # rootdir = files('sugar.tests.data')._paths[0]
     with tempfile.TemporaryDirectory() as tmpdir:
+        for fname in FNAMES:
+            shutil.copy(fname, tmpdir)
         shutil.make_archive(os.path.join(tmpdir, 'a1'),
-                            'gztar', rootdir)
-        seqs = read(os.path.join(tmpdir, '*.*'))
+                            'gztar', tmpdir)
+        seqs = read(os.path.join(tmpdir, 'a1*.*'))
     assert len(seqs) == 19
 
 
 def test_io_tool():
-    try:
-        import Bio
-    except ImportError:
-        pytest.skip('test needs biopython')
+    pytest.importorskip('Bio', reason='needs biopython')
     seqs = read()
     with tempfile.NamedTemporaryFile() as f:
         seqs.write(f.name, 'fasta', tool='biopython')

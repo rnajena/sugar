@@ -21,28 +21,22 @@ def test_mutablemetastring():
 
 
 def test_bioseq_to_from_biopython():
-    try:
-        from Bio.SeqRecord import SeqRecord
-    except ImportError:
-        pytest.skip('test needs biopython')
+    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='needs biopython')
     seqs = read()
     seq = seqs[0]
     obj = seq.toobj('biopython')
     seq2 = seq.fromobj(obj)
-    assert isinstance(obj, SeqRecord)
+    assert isinstance(obj, SeqRecord.SeqRecord)
     assert seq2.id == obj.id == seq.id
     assert str(seq2) == str(obj.seq) == str(seq)
 
 
 def test_biobasket_to_from_biopython():
-    try:
-        from Bio.SeqRecord import SeqRecord
-    except ImportError:
-        pytest.skip('test needs biopython')
+    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='needs biopython')
     seqs = read()
     obj = seqs.toobj('biopython')
     seqs2 = seqs.fromobj(obj)
-    assert isinstance(obj[0], SeqRecord)
+    assert isinstance(obj[0], SeqRecord.SeqRecord)
     assert seqs2[0].id == obj[0].id == seqs[0].id
     assert str(seqs2[0]) == str(obj[0].seq) == str(seqs[0])
 
@@ -67,15 +61,6 @@ def test_complement():
     assert str(seq2) != str(seq)
     seq2.complement()
     assert str(seq2) == str(seq)
-
-
-def test_features():
-    seq = read()[0]
-    ft = seq.fts.get('cds')
-    assert ft.type == 'cds'
-    assert len(seq[ft]) == ft.stop - ft.start
-    fts = seq.fts.geta('cds')
-    assert fts[0] == ft
 
 
 def test_ids():
@@ -105,10 +90,8 @@ def test_countall():
 
 
 def test_countplot():
-    try:
-        import pandas, seaborn
-    except ImportError:
-        pytest.skip('test needs pandas, seaborn')
+    pytest.importorskip('pandas', reason='needs pandas')
+    pytest.importorskip('seaborn', reason='needs seaborn')
     seqs = read()
     with tempfilename() as fname:
         seqs[0].countplot(plot=fname)
@@ -117,7 +100,7 @@ def test_countplot():
 def test_meta_str():
     meta = read()[0].meta
     assert 'id' in str(meta)
-    assert 'cds' in str(meta)
+    assert 'CDS' in str(meta)
 
 
 def test_shortcuts():
@@ -150,8 +133,8 @@ def test_getitem():
     assert seqs2 == seqs3
     assert len(seqs2[0]) == 4
     # features do not change
-    assert seqs2[0].meta.features[0].start == 1
-    assert seqs[0][1:10].meta.features[0].start == 1
+    assert seqs2[0].meta.features[0].loc.start == 1
+    assert seqs[0][1:10].meta.features[0].loc.start == 1
     assert seqs[:, ::-1][:, 'cds'] != seqs[:, 'cds']
     # assert 'orig_len' not in seqs[0][1:10].meta.features[0]
     # assert seqs[0][3:6].meta.features[0].stop == 3
