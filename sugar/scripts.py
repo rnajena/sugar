@@ -58,7 +58,7 @@ def run(command, pytest_args, fname=None, fmt=None, tool=None, **kw):
             msg = ("\nsugar's test suite uses pytest. "
                    "Please install pytest before running the tests.")
             sys.exit(msg)
-        path = Path(__file__).parent
+        path = Path(__file__).parent / 'tests'
         print(f'Run pytest in directory {path}')
         with _changedir(path):
             status = pytest.main(pytest_args)
