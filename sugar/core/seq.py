@@ -411,7 +411,7 @@ class BioSeq(MutableMetaString):
 
     @fts.setter
     def fts(self, value):
-        self.meta.features = value
+        self.meta.features = FeatureList(value)
 
     @property
     def gc(self):
@@ -434,7 +434,10 @@ class BioSeq(MutableMetaString):
                 index = self.meta.features.get(index)
                 if index is None:
                     raise TypeError('Feature not found')
-            if isinstance(index, Feature):
+            if isinstance(index, Location):
+                from sugar.core.fts import _slice_locs
+                subseq = _slice_locs(self, [index])
+            elif isinstance(index, Feature):
                 from sugar.core.fts import _slice_locs
                 subseq = _slice_locs(self, index.locs)
                 # index = index._slice()
@@ -552,8 +555,7 @@ class BioSeq(MutableMetaString):
         else:
             raise ValueError(f'Unsupported tool: {tool}')
 
-    def match(self, sub, *, orf=None,
-               start=0, gap=None, findall=False):
+    def match(self, *args, **kwargs):
         """
         Return match object for first found occurence of regex sub, None if not found
 
@@ -570,6 +572,15 @@ class BioSeq(MutableMetaString):
         Returns:
             match (match or None)
         """
+        return self._match(*args, **kwargs)
+
+    def matchall(self, *args, **kwargs):
+        kwargs['matchall'] = True
+        return self._match(*args, **kwargs)
+
+
+    def _match(self, sub, *, orf=None,
+               start=0, gap=None, matchall=False):
         from bisect import bisect
         import re
 
@@ -594,12 +605,12 @@ class BioSeq(MutableMetaString):
             if (start is None or (i := m.start()) >= start and (orf is None or (
                     (i - start - bisect(gaps, i)) % 3 == orf
                     if gaps else (i - start) % 3 == orf))):
-                     # bisect(i, gaps) gives number of gaps before index i
-                if findall:
+                     # bisect(gaps, i) gives number of gaps before index i
+                if matchall:
                     matches.append(m)
                 else:
                     return m
-        if findall:
+        if matchall:
             return matches
 
     def tofmtstr(self, *args, **kw):
@@ -680,7 +691,7 @@ class BioBasket(collections.UserList):
             seqs = self.data[i]
         elif isinstance(i, slice):
             seqs = self.__class__(self.data[i], meta=self.meta)
-        elif isinstance(i, (str, Feature)):
+        elif isinstance(i, (str, Feature, Location)):
             seqs = self.__class__(self.data, meta=self.meta)
             seqs.data = [seq[i] for seq in seqs.data]
         elif len(i) == 2:
@@ -847,6 +858,21 @@ class BioBasket(collections.UserList):
 
     def match(self, *args, **kw):
         return [seq.match(*args, **kw) for seq in self]
+
+    def consensus(self, gap='-'):
+        n = len(self)
+        data = [seq.data for seq in seqs]
+        cons = []
+        perc = []
+        percnongaps = []
+        for nt in zip(*data):
+            max_count = 0
+            nt = str(nt)
+            num_gaps = nt.count(gap)
+            for letter in list(set(nt) - {gap}):
+                count = nt.count(letter)
+
+
 
 
 from sugar.core.fts import Location, Defect, Strand

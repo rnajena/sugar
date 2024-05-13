@@ -5,10 +5,10 @@
 from sugar.core.seq import Attr, BioSeq, BioBasket
 
 
-EXT = ['stk', 'stockholm']
+filename_extensions = ['stk', 'stockholm']
 
 
-def is_format(f):
+def is_format(f, **kw):
     content = f.read(11)
     return content == '# STOCKHOLM'
 
@@ -55,21 +55,21 @@ def read(f):
         seqs.append(seq)
     for seq in seqs:
         if seq.id in gs:
-            seq.meta.setdefault('stk', Attr()).GS = gs[seq.id]
+            seq.meta.setdefault('_stockholm', Attr()).GS = gs[seq.id]
         if seq.id in gr:
-            seq.meta.setdefault('stk', Attr()).GR = gr[seq.id]
+            seq.meta.setdefault('_stockholm', Attr()).GR = gr[seq.id]
     seqs = BioBasket(seqs)
     if len(gf) > 0:
-        seqs.meta.setdefault('stk', Attr()).GF = gf
+        seqs.meta.setdefault('_stockholm', Attr()).GF = gf
     if len(gc) > 0:
-        seqs.meta.setdefault('stk', Attr()).GC = gc
+        seqs.meta.setdefault('_stockholm', Attr()).GC = gc
     return seqs
 
 
 def write(seqs, f):
     lines = ['# STOCKHOLM 1.0']
     try:
-        gf = seqs.meta.stk.GF
+        gf = seqs.meta._stockholm.GF
     except AttributeError:
         pass
     else:
@@ -77,7 +77,7 @@ def write(seqs, f):
             lines.append(f'#=GF {key} {value}')
     for seq in seqs:
         try:
-            gs = seq.meta.stk.GS
+            gs = seq.meta._stockholm.GS
         except (AttributeError, KeyError):
             pass
         else:
@@ -86,14 +86,14 @@ def write(seqs, f):
     for seq in seqs:
         lines.append(f'{seq.id} {seq}')
         try:
-            gr = seq.meta.stk.GR
+            gr = seq.meta._stockholm.GR
         except (AttributeError, KeyError):
             pass
         else:
             for key, value in gr.items():
                 lines.append(f'#=GR {seq.id} {key} {value}')
     try:
-        gc = seqs.meta.stk.GC
+        gc = seqs.meta._stockholm.GC
     except AttributeError:
         pass
     else:

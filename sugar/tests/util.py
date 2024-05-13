@@ -20,3 +20,20 @@ def normalize_content(fname, ignore=()):
         return ' '.join([l for line in f.read().strip().split('\n')
                            if not any(line.startswith(pre) for pre in ignore)
                            for l in line.strip().split()])
+
+
+def _clean_fts(fts):
+    for ft in fts:
+        for key in list(ft.meta):
+            if key.startswith('_'):
+                delattr(ft.meta, key)
+    return fts
+
+def _clean_seqs(seqs):
+    for seq in seqs:
+        for key in list(seq.meta):
+            if key.startswith('_'):
+                delattr(seq.meta, key)
+        if fts := seq.meta.get('features'):
+           _clean_fts(fts)
+    return seqs

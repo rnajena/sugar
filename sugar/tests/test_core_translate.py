@@ -21,4 +21,4 @@ def test_biotranslate():
 
 def test_biotranslate_method():
     seqs = read()['cds'].biotranslate()
-    assert str(seqs[0]) == seqs[0].fts.get('cds').meta.translation
+    assert str(seqs[0]) == seqs[0].fts.get('cds').meta._genbank.translation

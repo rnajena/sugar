@@ -15,11 +15,12 @@ import sys
 import tempfile
 from urllib.parse import urlparse
 
-from sugar import BioBasket, BioSeq
+from sugar.core.seq import BioBasket, BioSeq
+from sugar.core.fts import FeatureList
 
 
-FMTS = ['fasta', 'genbank', 'stockholm', 'sjson']
-FMTS_FTS = ['gff', 'genbank']
+FMTS = ['fasta', 'genbank', 'stockholm', 'gff', 'sjson']
+FMTS_FTS = ['gff', 'genbank', 'blast']
 
 
 def _epsname_key(epsname, l=FMTS):
@@ -53,15 +54,15 @@ def file_opener(f, mode='r'):
             yield fh
 
 
-def detect(fname):
+def detect(fname, **kw):
     with file_opener(fname) as f:
         fpos = f.tell()
         for fmt in FMTS_ALL:
             module = EPS[fmt].load()
             if hasattr(module, 'is_format'):
-                f.seek(0)
+                f.seek(fpos)
                 try:
-                    if module.is_format(f):
+                    if module.is_format(f, **kw):
                         return fmt
                 except Exception:
                     pass
@@ -69,15 +70,15 @@ def detect(fname):
                     f.seek(fpos)
 
 
-def detect_fts(fname):
+def detect_fts(fname, **kw):
     with file_opener(fname) as f:
         fpos = f.tell()
         for fmt in FMTS_FTS_ALL:
             module = EPS_FTS[fmt].load()
             if hasattr(module, 'is_format_fts'):
-                f.seek(0)
+                f.seek(fpos)
                 try:
-                    if module.is_format_fts(f):
+                    if module.is_format_fts(f, **kw):
                         return fmt
                 except Exception:
                     pass
@@ -93,8 +94,8 @@ def detect_ext(fname):
         return
     for fmt in FMTS_ALL:
         module = EPS[fmt].load()
-        if hasattr(module, 'EXT'):
-            if ext in module.EXT:
+        if hasattr(module, 'filename_extensions'):
+            if ext in module.filename_extensions:
                 return fmt
 
 
@@ -106,8 +107,8 @@ def detect_ext_fts(fname):
         return
     for fmt in FMTS_FTS_ALL:
         module = EPS_FTS[fmt].load()
-        if hasattr(module, 'EXT_FTS'):
-            if ext in module.EXT_FTS:
+        if hasattr(module, 'filename_extensions_fts'):
+            if ext in module.filename_extensions_fts:
                 return fmt
 
 
@@ -146,11 +147,11 @@ def resolve_fname(example_fname='!data/example.gb'):
                     fnames = glob.glob(fname, recursive=True)
                     if not fnames:
                         raise IOError(f'No file matching glob pattern {fname}')
-                    seqs = [new_reader(fname, *args, archive=archive, **kw) for fname in fnames]
-                    if isinstance(seqs[0], BioBasket):  # read was wrapped
-                        return reduce(operator.add, seqs)
+                    objs = [new_reader(fname, *args, archive=archive, **kw) for fname in fnames]
+                    if isinstance(objs[0], (BioBasket, FeatureList)):  # read or read_fts was wrapped
+                        return reduce(operator.add, objs)
                     else:  # iter_ was wrapped
-                        return reduce(itertools.chain, seqs)
+                        return reduce(itertools.chain, objs)
                 elif (__get_ext(fname) in ARCHIVE_EXTS or
                       archive is not None):
                     if archive is True:
@@ -167,7 +168,7 @@ def resolve_fname(example_fname='!data/example.gb'):
 @resolve_fname()
 def iter_(fname, fmt=None, tool=None, mode='r', **kw):
     if fmt is None:
-        fmt = detect(fname)
+        fmt = detect(fname, **kw)
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
     if tool == 'biopython':
@@ -197,7 +198,7 @@ def iter_(fname, fmt=None, tool=None, mode='r', **kw):
 @resolve_fname()
 def read(fname, fmt=None, mode='r', tool=None, **kw):
     if fmt is None:
-        fmt = detect(fname)
+        fmt = detect(fname, **kw)
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
     if tool == 'biopython':
@@ -224,7 +225,7 @@ def read(fname, fmt=None, mode='r', tool=None, **kw):
 @resolve_fname(example_fname='!data/fts_example.gff')
 def read_fts(fname, fmt=None, mode='r', **kw):
     if fmt is None:
-        fmt = detect_fts(fname)
+        fmt = detect_fts(fname, **kw)
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
     module = EPS_FTS[fmt].load()
@@ -233,7 +234,9 @@ def read_fts(fname, fmt=None, mode='r', **kw):
             fts = module.read_fts(f, **kw)
     else:
         raise RuntimeError(f'No read support for format {fmt}')
-    return fts
+    for ft in fts:
+        ft.meta._fmt = fmt
+    return FeatureList(fts)
 
 
 def write(seqs, fname, fmt=None, mode='w', tool=None, **kw):

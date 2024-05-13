@@ -3,9 +3,9 @@
 from sugar import BioSeq
 
 
-EXT = ['fasta']
+filename_extensions = ['fasta', 'fa']
 
-def is_format(f):
+def is_format(f, **kw):
     content = f.read(50)
     return content.strip().startswith('>')
 
@@ -19,11 +19,10 @@ def create_bioseq(datalines, id_, header):
 
 
 def iter_(f):
-    content = f.read()
     id_ = None
     header = None
     data = None
-    for line in content.splitlines():
+    for line in f:
         if line.startswith('>'):
             if data is not None:
                 yield create_bioseq(data, id_, header)
@@ -44,14 +43,11 @@ def iter_(f):
         yield create_bioseq(data, id_, header)
 
 
-def append(seq, f, wrap=None):
+def append(seq, f):
     id_ = seq.id or ''
-    if '_fasta' in seq.meta and 'comment' in seq.meta._fasta:
-        comment = ' ' + seq.meta._fasta.comment
+    if '_fasta' in seq.meta and 'header' in seq.meta._fasta:
+        header = ' ' + seq.meta._fasta.header
     else:
-        comment = ''
-    content = f'> {id_}{comment}\n{seq.data}\n'
-    if wrap:
-        from textwrap import fill
-        content = fill(content, width=wrap)
+        header = ''
+    content = f'>{id_}{header}\n{seq.data}\n'
     f.write(content)

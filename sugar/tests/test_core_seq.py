@@ -159,11 +159,11 @@ def test_match():
     seq2 = BioSeq('-UU-U-AG')
     assert seq.match('stop').start() == 3
     assert seq.match('start').end() == len(seq)
-    matches = seq.match('stop', findall=True)
+    matches = seq.matchall('stop')
     assert matches[0].span() == seq.match('stop').span()
     assert len(matches) == 2
     assert seqs.match('stop')[0].start() == 3
-    matches = seq2.match('stop', findall=True)
+    matches = seq2.matchall('stop')
     assert len(matches) == 0
     match = seq2.match('stop', gap='-')
     assert match.group() == 'U-AG'

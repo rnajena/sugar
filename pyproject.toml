@@ -1,11 +1,10 @@
 [project]
 name = "sugar"
-dynamic = ["version"]
+dynamic = ["readme", "version"]
 authors = [
     {name = "Tom Eulenfeld"},
 ]
 description = "Simple containers for RNA and DNA sequence analysis"
-readme = "README.md"
 license = {text = "MIT License"}
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -17,6 +16,7 @@ keywords = [
     "fasta", "genbank", "stockholm", "entrez"
 ]
 dependencies = [
+  "binarysearchfile",
   "matplotlib",
   "pandas",
   "pytest",
@@ -36,10 +36,12 @@ fasta = "sugar.io.fasta"
 sjson = "sugar.io.sjson"
 genbank = "sugar.io.genbank"
 stockholm = "sugar.io.stockholm"
+gff = "sugar.io.gff"
 
 [project.entry-points."sugar.io.fts"]
-gff = "sugar.io.gff.core"
+gff = "sugar.io.gff"
 genbank = "sugar.io.genbank"
+blast = "sugar.io.blast"
 
 [build-system]
 requires = ["setuptools>=61.0"]

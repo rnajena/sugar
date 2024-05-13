@@ -38,6 +38,37 @@ def convert(fname, fmt=None, out=None, fmtout=None,
         seqs.write(out, fmt=fmtout, tool=toolout)
 
 
+def index(idxcommand, dbname, mode=None, path=None, seqids=None,
+          fnames=None, out='-'):
+    from sugar.io.fastaindex import FastaIndex as Index
+    match idxcommand:
+        case 'info':
+            print(Index(dbname))
+        case 'create':
+            Index(dbname, create=True, mode=mode, path=path)
+        case 'add':
+            index = Index(dbname)
+            index.add(fnames)
+        case 'print':
+            index = Index(dbname)
+            print(index.get(seqids))
+        case 'load':
+            index = Index(dbname)
+            seqs = index.get(seqids)
+            _start_ipy(seqs)
+        case 'fetch':
+            index = Index(dbname)
+            print(index.get_fasta(seqids))
+            # seqid, i, j = seqids.split()
+            # seqs = index.get_fasta([(seqid, int(i), int(j))])
+            # if out == '-':
+            #     print(seqs)
+        case 'fetchh':
+            index = Index(dbname)
+            print(index.get_fastaheader(seqids))
+
+
+
 def run(command, pytest_args, fname=None, fmt=None, tool=None, **kw):
     if command == 'print':
         from sugar import read
@@ -51,6 +82,8 @@ def run(command, pytest_args, fname=None, fmt=None, tool=None, **kw):
         _start_ipy(seqs)
     elif command == 'convert':
         convert(fname, fmt=fmt, tool=tool, **kw)
+    elif command == 'index':
+        index(**kw)
     elif command == 'test':
         try:
             import pytest
@@ -109,6 +142,27 @@ def run_cmdline(cmd_args=None):
     p_convert.add_argument('-fo', '--fmtout', help='format out')
     p_convert.add_argument('-t', '--tool', help='tool for reading')
     p_convert.add_argument('-to', '--toolout', help='tool for writing')
+
+    p_index = sub.add_parser('index', help='indexer')
+    p_index.add_argument('dbname', help='database file')
+    sub_index = p_index.add_subparsers(title='commands', dest='idxcommand')
+    p_idxinfo = sub_index.add_parser('info')
+    p_idxcreate = sub_index.add_parser('create', help='create stuff')
+    p_idxcreate.add_argument('-m', '--mode', choices=('binary', 'db'), default='binary')
+    p_idxcreate.add_argument('-p', '--path', default='{dbpath}')
+    p_idxadd = sub_index.add_parser('add', help='add fasta files')
+    p_idxadd.add_argument('fnames', nargs='+')
+    p_idxfetch = sub_index.add_parser('fetch', help='fetch fasta')
+    p_idxprint = sub_index.add_parser('print', help='print seqs')
+    p_idxload = sub_index.add_parser('load', help='load seqs')
+    for p in (p_idxfetch, p_idxprint, p_idxload):
+        p.add_argument('seqids')
+    p_idxfetch.add_argument('-o', '--out', default='-')
+
+
+
+
+
 
     # Get command line arguments and start run function
     args, pytest_args = parser.parse_known_args(cmd_args)

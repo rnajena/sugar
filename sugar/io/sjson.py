@@ -13,7 +13,7 @@ SUGAR = (Location, Defect, Strand, Feature, FeatureList,
          BioBasket, BioSeq
          )
 
-EXT = ['sjson', 'json']
+filename_extensions = ['sjson', 'json']
 COMMENT = f'sugar JSON format written by sugar v{__version__}'
 
 
@@ -45,7 +45,7 @@ def json_hook(d):
         return d
 
 
-def is_format(f):
+def is_format(f, **kw):
     content = f.read(51)
     return COMMENT[:17].lower() in content.lower()
 

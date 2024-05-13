@@ -102,7 +102,7 @@ def test_unpack():
         shutil.make_archive(os.path.join(tmpdir, 'a1'),
                             'gztar', tmpdir)
         seqs = read(os.path.join(tmpdir, 'a1*.*'))
-    assert len(seqs) == 19
+    assert len(seqs) == 20
 
 
 def test_io_tool():
