@@ -5,7 +5,7 @@ on:
 permissions:
   contents: write
 jobs:
-  daily_update_logo:
+  update_logo:
     runs-on: ubuntu-latest
     defaults:
       run:

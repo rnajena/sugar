@@ -46,14 +46,14 @@ jobs:
             options: full
           - os: ubuntu-latest
             python: "3.12"
-            options: warnings full            
+            options: warnings full
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ contains(matrix.options, 'warnings') }}
     env:
       # set additional runtest options (--web, -W error)
       test_options: ${{ contains(matrix.options, 'full') && '--web' || '' }} ${{ contains(matrix.options, 'warnings') && '-W error' || '' }}
       # set additional dependencies for full test
-      deps: ${{ contains(matrix.options, 'full') && 'matplotlib pandas seaborn requests biopython' || ''  }}
+      deps: ${{ contains(matrix.options, 'full') && 'binarysearchfile matplotlib pandas seaborn requests biopython' || ''  }}
     defaults:
       run:
         shell: bash -l {0}
@@ -78,4 +78,7 @@ jobs:
           mkdir empty; cd empty
           sugar test --cov sugar --cov-report=xml:$PWD/coverage.xml --cov-append ${{ env.test_options }}
       - name: upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # required
+          fail_ci_if_error: true
