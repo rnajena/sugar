@@ -1,0 +1,8 @@
+# BLASTN 2.15.0+
+# Query: test
+# Database: test
+# Fields: query id, subject id, bit score, evalue, % identity, alignment length, mismatches, gap opens, q. start, q. end, query length, s. start, s. end, subject strand, subject length
+# 2 hits found
+testq	tests1	1312	0.0	100.000	710	0	0	1	710	710	333	555	plus	3949
+testq	tests2	1267	0.0	98.873	710	8	0	1	710	710	600	100	minus	2530
+# BLAST processed 1 queries
