@@ -1,51 +1,59 @@
 """
-IUPAC nucleotide code 	Base
-A 	Adenine
-C 	Cytosine
-G 	Guanine
-T (or U) 	Thymine (or Uracil)
-R 	A or G
-Y 	C or T
-S 	G or C
-W 	A or T
-K 	G or T
-M 	A or C
-B 	C or G or T
-D 	A or G or T
-H 	A or C or T
-V 	A or C or G
-N 	any base
-. or - 	gap
+sugar.data -- Use genetic code and substitution matrices
 
-IUPAC amino acid code 	Three letter code 	Amino acid
-A 	Ala 	Alanine
-C 	Cys 	Cysteine
-D 	Asp 	Aspartic Acid
-E 	Glu 	Glutamic Acid
-F 	Phe 	Phenylalanine
-G 	Gly 	Glycine
-H 	His 	Histidine
-I 	Ile 	Isoleucine
-K 	Lys 	Lysine
-L 	Leu 	Leucine
-M 	Met 	Methionine
-N 	Asn 	Asparagine
-P 	Pro 	Proline
-Q 	Gln 	Glutamine
-R 	Arg 	Arginine
-S 	Ser 	Serine
-T 	Thr 	Threonine
-V 	Val 	Valine
-W 	Trp 	Tryptophan
-Y 	Tyr 	Tyrosine
+For reference the IUPAC nucleotide code:
+
+    IUPAC nucleotide code 	Base
+    A 	Adenine
+    C 	Cytosine
+    G 	Guanine
+    T (or U) 	Thymine (or Uracil)
+    R 	A or G
+    Y 	C or T
+    S 	G or C
+    W 	A or T
+    K 	G or T
+    M 	A or C
+    B 	C or G or T
+    D 	A or G or T
+    H 	A or C or T
+    V 	A or C or G
+    N 	any base
+    . or - 	gap
+
+And the amino acid codes:
+
+    IUPAC amino acid code 	Three letter code 	Amino acid
+    A 	Ala 	Alanine
+    C 	Cys 	Cysteine
+    D 	Asp 	Aspartic Acid
+    E 	Glu 	Glutamic Acid
+    F 	Phe 	Phenylalanine
+    G 	Gly 	Glycine
+    H 	His 	Histidine
+    I 	Ile 	Isoleucine
+    K 	Lys 	Lysine
+    L 	Leu 	Leucine
+    M 	Met 	Methionine
+    N 	Asn 	Asparagine
+    P 	Pro 	Proline
+    Q 	Gln 	Glutamine
+    R 	Arg 	Arginine
+    S 	Ser 	Serine
+    T 	Thr 	Threonine
+    V 	Val 	Valine
+    W 	Trp 	Tryptophan
+    Y 	Tyr 	Tyrosine
 """
 
 from functools import lru_cache
 from importlib.resources import files
 import json
 from os.path import exists
+from pathlib import Path
 
 
+# IUPAC nucleotid code
 CODES = {'A': 'A', 'C': 'C', 'G': 'G', 'T':'T',
          'R': 'AG', 'Y': 'CT', 'S': 'GC', 'W': 'AT', 'K': 'GT', 'M': 'AC',
          'B': 'CGT', 'D': 'AGT', 'H': 'ACT', 'V': 'ACG', 'N': 'ACGT',
@@ -54,10 +62,19 @@ CODES = {'A': 'A', 'C': 'C', 'G': 'G', 'T':'T',
 
 @lru_cache
 def submat(fname):
+    """
+    Return substition matrix as a dict of dicts
+
+    >>> bl = submat('blosum62')
+    >>> bl['A']['A']
+    4
+    """
     if not exists(fname):
         fname2 = str(files('sugar.data.data_submat').joinpath(fname.upper()))
         if not exists(fname2):
-            raise FileNotFoundError(f'No file at {fname} or {fname2}')
+            fnames = ', '.join(f.name for f in files('sugar.data.data_submat').iterdir())
+            msg = f'No file at {fname} or {fname2}, available matrices: {fnames}'
+            raise FileNotFoundError(msg)
         fname = fname2
     with open(fname) as f:
         content = f.read()
@@ -80,6 +97,14 @@ def submat(fname):
 
 @lru_cache
 def scale_submat(sm, scale=1):
+    """
+    Return Scaled substition matrix
+
+    The matrix values are divided by the sum of all entries and
+    multiplied with the scale factor.
+
+    :param scale: scale factor
+    """
     s = sum(abs(v) for row in sm.values() for v in row.values())
     for k1 in sm:
         for k2 in sm[k1]:
@@ -89,6 +114,17 @@ def scale_submat(sm, scale=1):
 
 @lru_cache
 def gcode(tt=1):
+    """
+    Return a genetic code object
+
+    :param tt: number of the translation table (default: 1)
+
+    >>> gc = gcode()
+    >>> gc.tt['TAG']
+    '*'
+    >>> gc.starts  # doctest: +SKIP
+    {'ATG', 'CTG', 'TTG'}
+    """
     from sugar import Attr
     fname = files('sugar.data.data_gcode').joinpath('gc.json')
     with open(fname) as f:
