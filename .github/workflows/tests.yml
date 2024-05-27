@@ -47,13 +47,17 @@ jobs:
           - os: ubuntu-latest
             python: "3.12"
             options: warnings full
+          - os: ubuntu-latest
+            python: "3.12"
+            options: subset
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ contains(matrix.options, 'warnings') }}
     env:
       # set additional runtest options (--web, -W error)
       test_options: ${{ contains(matrix.options, 'full') && '--web' || '' }} ${{ contains(matrix.options, 'warnings') && '-W error' || '' }}
       # set additional dependencies for full test
-      deps: ${{ contains(matrix.options, 'full') && 'binarysearchfile matplotlib pandas seaborn requests biopython' || ''  }}
+      deps: ${{ contains(matrix.options, 'full') && 'matplotlib pandas seaborn requests biopython tqdm' || ''  }}
+      depspip: ${{ contains(matrix.options, 'full') && 'binarysearchfile' || contains(matrix.options, 'subset') && 'binarysearchfile' || ''  }}
     defaults:
       run:
         shell: bash -l {0}
@@ -66,6 +70,10 @@ jobs:
       - name: install dependencies
         run: |
           conda install -y pytest pytest-cov ${{ env.deps }}
+      - name: install pip dependencies
+        if: contains(matrix.options, 'full') || contains(matrix.options, 'subset')
+        run:
+          pip install ${{ env.depspip }}
       - name: print conda environment info
         run: |
           conda info -a
