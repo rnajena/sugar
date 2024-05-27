@@ -2,16 +2,19 @@
 
 ## Simple containers for biological sequences
 [![build status](https://github.com/rnajena/sugar/workflows/tests/badge.svg)](https://github.com/rnajena/sugar/actions)
+[![docs status](https://readthedocs.org/projects/sugar/badge/?version=latest)](https://sugar.readthedocs.io)
 [![codecov](https://codecov.io/gh/rnajena/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/rnajena/sugar)
 [![pypi version](https://img.shields.io/pypi/v/sugar.svg)](https://pypi.python.org/pypi/sugar)
 [![python version](https://img.shields.io/pypi/pyversions/sugar.svg)](https://python.org)
 [![DOI](https://zenodo.org/badge/DOI/)](https://doi.org/)
 
-This project aims to provide a lightweight framework for bioinformatics.
+The sugar project aims to provide a lightweight framework for bioinformatics.
 
 ### Documentation
 
-* Basic tutorial: [notebook](https://nbviewer.jupyter.org/github/rnajena/sugar/blob/master/assets/sugar_tutorial.ipynb)
+* [API documentation](https://sugar.readthedocs.io)
+* Short tutorial: [notebook](https://nbviewer.jupyter.org/github/rnajena/sugar/blob/master/docs/notebooks/sugar_tutorial.ipynb)
+* Consult and contribute to wiki
 
 ### Installation
 
