@@ -1,0 +1,97 @@
+# (C) 2024, Tom Eulenfeld, MIT license
+
+from contextlib import redirect_stdout
+from importlib.resources import files
+import os
+import pytest
+import tempfile
+from sugar import FastaIndex
+from sugar.scripts import cli
+
+# Disable tqdm output
+from tqdm import tqdm
+from functools import partialmethod
+tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
+
+
+def test_fastaindex():
+    fastafiles = str(files('sugar.tests.data').joinpath('example*.fasta'))
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fname = os.path.join(tmpdir, 'test_bsf.sugarindex')
+        fname2 = os.path.join(tmpdir, 'test_db.sugarindex')
+        f1 = FastaIndex(fname, create=True, mode='binary')
+        with FastaIndex(fname2, create=True, mode='db') as f2:
+            f1.add(fastafiles, silent=True)
+            f2.add(fastafiles)
+            assert f1.totalsize < f2.totalsize
+            id_ = 'BTBSCRYR'
+            assert f1.get(id_)[0].startswith('tgcaccaaacatgtcta'.upper())
+            assert id_ in f1.get_fasta(id_)
+            assert id_ in f1.get_fastaheader(id_)
+            assert f1.get(id_) == f2.get(id_)
+            assert f1.get_fasta(id_) == f2.get_fasta(id_)
+            assert f1.get_fastaheader(id_) == f2.get_fastaheader(id_)
+            assert('dbname' in str(f1))
+            assert('dbname' in str(f2))
+            seqids = (id_, 'MCHU')
+            assert len(list(f1.iter(seqids))) == 2
+            assert len(list(f1.iter_fasta(seqids))) == 2
+            assert len(list(f1.iter_fastaheader(seqids))) == 2
+            assert list(f1.iter(seqids)) == list(f2.iter(seqids))
+            assert list(f1.iter_fasta(seqids)) == list(f2.iter_fasta(seqids))
+            assert list(f1.iter_fastaheader(seqids)) == list(f2.iter_fastaheader(seqids))
+            assert len(f1) == len(f2)
+
+        # reload files
+        # extracting only part of sequence
+        f1 = FastaIndex(fname)
+        with FastaIndex(fname2) as f2:
+            id1, id2 = 'BTBSCRYR', 'MCHU'
+            assert f1.get((id1, None, 10)) == f1.get(id1)[:, :10]
+            assert f1.get([(id1, None, 10), (id2, None, 10)]) == f1.get([id1, id2])[:, :10]
+            assert f1.get([(id1, 5, 9), (id2, 5, 9)]) == f1.get([id1, id2])[:, 5:9]
+            assert f1.get([(id1, None, None), (id2, None, None)]) == f1.get([id1, id2])
+            with pytest.warns(UserWarning, match='Start index'):
+                assert f1.get([(id1, -10, None), (id2, -10, None)]) == f1.get([id1, id2])
+            with pytest.warns(UserWarning, match='End index'):
+                assert f1.get([(id1, None, 1000), (id2,  None, 1000)]) == f1.get([id1, id2])
+
+        # recreate files
+        # check readding stuff
+        os.remove(fname)
+        os.remove(fname2)
+        with pytest.warns(UserWarning, match='new file'):
+            f1 = FastaIndex(fname, mode='binary')
+        f1.add(fastafiles, seek=10)
+        assert len(f1) == 1
+        with pytest.raises(ValueError, match='performance'):
+            f1.add(fastafiles)
+        f1.add(fastafiles, seek=10, force=True)
+        assert len(f1) == 2
+        with FastaIndex(fname2, create=True, mode='db') as f2:
+            f2.add(fastafiles, seek=10)
+            assert len(f2) == 1
+            f2.add(fastafiles, seek=10)
+            assert len(f2) == 1
+
+
+def test_fastaindex_script():
+    fastafiles = str(files('sugar.tests.data').joinpath('example*.fasta'))
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fname = os.path.join(tmpdir, 'test.sugarindex')
+        cli(f'index create -m binary {fname}'.split())
+        with redirect_stdout(None):
+            cli('index info'.split())
+        # with redirect_stderr(None):
+        cli(f'index add {fastafiles}'.split())
+        with redirect_stdout(None):
+            cli('index print BTBSCRYR'.split())
+            cli('index print BTBSCRYR,1,5'.split())
+        data = """BTBSCRYR, 5, 10
+        MCHU, 5, 10"""
+        fnameinp = os.path.join(tmpdir, 'inp.txt')
+        with open(fnameinp, 'w') as f:
+            f.write(data)
+        with redirect_stdout(None):
+            cli(f'index fetch {fnameinp}'.split())
+        # os.system(f'cat {fnameinp} | sugar index fetch -')
