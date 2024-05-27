@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 
-from sugar.io.main import read, iter_
+from sugar import read, iter_
 
 def test_in():
     seqs = read('!data/example.fasta')

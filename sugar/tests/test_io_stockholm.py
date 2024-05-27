@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 
-from sugar.io.main import read, iter_
+from sugar import read, iter_
 from sugar.tests.util import normalize_content, tempfilename
 
 

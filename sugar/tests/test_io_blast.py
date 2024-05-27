@@ -4,12 +4,13 @@ from sugar import read_fts
 
 
 def test_blast():
-    fts = read_fts('!data/fts_example.blastn', fttype='testq')
+    fts = read_fts('!data/fts_example.blastn', ftype='testq')
     assert fts[0].loc.start == 332
     assert fts[0].loc.strand == '+'
     assert fts[0].type == 'testq'
     assert fts[0].meta.seqid == 'tests1'
     assert fts[1].loc.strand == '-'
+
 
 def test_blast_outfmt():
     fname = str(files('sugar.tests.data').joinpath('fts_example.blastn'))

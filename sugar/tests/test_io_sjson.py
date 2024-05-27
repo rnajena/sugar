@@ -2,7 +2,7 @@
 
 import tempfile
 
-from sugar.io.main import read
+from sugar import read
 from sugar.tests.util import _clean_seqs
 
 

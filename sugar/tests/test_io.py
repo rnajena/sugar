@@ -3,21 +3,19 @@
 import glob
 from importlib.resources import files
 from io import StringIO
-import os.path
-import shutil
 import tempfile
 
 import pytest
 import sugar
-from sugar.io.main import detect, detect_ext, read, iter_
-from sugar.io.main import detect_fts, detect_ext_fts, read_fts
+from sugar import read, iter_, read_fts
+from sugar._io.main import detect, detect_ext
 
 
 GLOBEXPR = str(files('sugar.tests.data').joinpath('example*.*'))
 GLOBEXPR_FTS = str(files('sugar.tests.data').joinpath('fts_example*.*'))
 FNAMES = glob.glob(GLOBEXPR)
 FNAMES_FTS = glob.glob(GLOBEXPR_FTS)
-# formats with read and write support in sugar.io module
+# formats with read and write support in sugar._io module
 TESTIOFMTS = ('fasta', 'sjson', 'stockholm')
 
 
@@ -27,7 +25,7 @@ def test_detect():
 
 def test_detect_fts():
     for fname in FNAMES_FTS:
-        assert (detect_fts(fname) == detect_ext_fts(fname) != None) or detect_ext_fts(fname) is None
+        assert (detect(fname, 'fts') == detect_ext(fname, 'fts') != None) or detect_ext(fname, 'fts') is None
 
 
 def test_read_fts():
@@ -94,15 +92,33 @@ def test_read_glob():
         assert isinstance(seq, sugar.BioSeq)
 
 
-def test_unpack():
-    # rootdir = files('sugar.tests.data')._paths[0]
-    with tempfile.TemporaryDirectory() as tmpdir:
-        for fname in FNAMES:
-            shutil.copy(fname, tmpdir)
-        shutil.make_archive(os.path.join(tmpdir, 'a1'),
-                            'gztar', tmpdir)
-        seqs = read(os.path.join(tmpdir, 'a1*.*'))
-    assert len(seqs) == 20
+def test_uncompress():
+    assert read('!data/io_test.gz', archive='gz') == read()
+    assert read('!data/io_test.gz') == read()
+
+
+def test_archive():
+    assert read()[0] in read('!data/io_test.zip')
+
+
+@pytest.mark.webtest
+def test_download():
+    url = 'https://raw.githubusercontent.com/rnajena/sugar/master/sugar/tests/data/example.gb'
+    assert read(url) == read()
+
+
+@pytest.mark.xfail
+@pytest.mark.webtest
+def test_download_uncompress():
+    url = 'https://raw.githubusercontent.com/rnajena/sugar/master/sugar/tests/data/io_test.gz'
+    assert read(url) == read()
+
+
+@pytest.mark.xfail
+@pytest.mark.webtest
+def test_download_zip():
+    url = 'https://raw.githubusercontent.com/rnajena/sugar/master/sugar/tests/data/io_test.zip'
+    assert read()[0] in read(url)
 
 
 def test_io_tool():
