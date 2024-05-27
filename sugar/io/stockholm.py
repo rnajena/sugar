@@ -1,8 +1,12 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 # https://en.wikipedia.org/wiki/Stockholm_format
 # TODO: convert feature GC line to FeatureList and vice versa
+"""
+Stockholm IO
+"""
 
 from sugar.core.seq import Attr, BioSeq, BioBasket
+from sugar._io.util import _add_fmt_doc
 
 
 filename_extensions = ['stk', 'stockholm']
@@ -13,7 +17,11 @@ def is_format(f, **kw):
     return content == '# STOCKHOLM'
 
 
+@_add_fmt_doc('read')
 def read(f):
+    """
+    Read Stockholm file
+    """
     seqs = []
     gf = Attr()
     gc = Attr()
@@ -66,7 +74,11 @@ def read(f):
     return seqs
 
 
+@_add_fmt_doc('write')
 def write(seqs, f):
+    """
+    Write sequences to Stockholm file
+    """
     lines = ['# STOCKHOLM 1.0']
     try:
         gf = seqs.meta._stockholm.GF

@@ -1,6 +1,10 @@
 # (C) 2024, Tom Eulenfeld, MIT license
+"""
+FASTA IO
+"""
 
 from sugar import BioSeq
+from sugar._io.util import _add_fmt_doc
 
 
 filename_extensions = ['fasta', 'fa']
@@ -10,7 +14,7 @@ def is_format(f, **kw):
     return content.strip().startswith('>')
 
 
-def create_bioseq(datalines, id_, header):
+def _create_bioseq(datalines, id_, header):
     data = ''.join(datalines)
     seq = BioSeq(data, id=id_)
     seq.meta._fasta = {}
@@ -18,14 +22,18 @@ def create_bioseq(datalines, id_, header):
     return seq
 
 
+@_add_fmt_doc('read')
 def iter_(f):
+    """
+    Iterate through a FASTA file and yield `.BioSeq` sequences
+    """
     id_ = None
     header = None
     data = None
     for line in f:
         if line.startswith('>'):
             if data is not None:
-                yield create_bioseq(data, id_, header)
+                yield _create_bioseq(data, id_, header)
             line = line.lstrip('>').strip()
             header = line
             if line == '':
@@ -40,10 +48,14 @@ def iter_(f):
         else:
             data.append(line.strip())
     if data is not None:
-        yield create_bioseq(data, id_, header)
+        yield _create_bioseq(data, id_, header)
 
 
+@_add_fmt_doc('write')
 def append(seq, f):
+    """
+    Append a `.BioSeq` sequence to a FASTA file
+    """
     id_ = seq.id or ''
     if '_fasta' in seq.meta and 'header' in seq.meta._fasta:
         header = ' ' + seq.meta._fasta.header

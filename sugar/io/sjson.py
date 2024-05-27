@@ -1,4 +1,7 @@
 # (C) 2024, Tom Eulenfeld, MIT license
+"""
+SJson IO, custom lossless sugar format
+"""
 import sugar
 from sugar import __version__
 import json
@@ -7,6 +10,8 @@ import json
 from sugar.core.fts import Location, Defect, Strand, Feature, FeatureList
 from sugar.core.meta import Attr, Meta
 from sugar.core.seq import BioBasket, BioSeq
+from sugar._io.util import _add_fmt_doc
+
 
 SUGAR = (Location, Defect, Strand, Feature, FeatureList,
          Attr, Meta,
@@ -17,7 +22,7 @@ filename_extensions = ['sjson', 'json']
 COMMENT = f'sugar JSON format written by sugar v{__version__}'
 
 
-class SJSONEncoder(json.JSONEncoder):
+class _SJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, (Strand, Defect)):
             obj = {'_cls': type(o).__name__,
@@ -33,7 +38,7 @@ class SJSONEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, o)
 
 
-def json_hook(d):
+def _json_hook(d):
     if cls := d.pop('_cls', None):
         d.pop('_fmtcomment', None)
         cls = globals()[cls]
@@ -50,12 +55,20 @@ def is_format(f, **kw):
     return COMMENT[:17].lower() in content.lower()
 
 
+@_add_fmt_doc('read')
 def read(f):
-    return json.load(f, object_hook=json_hook)
+    """
+    Read SJson file
+    """
+    return json.load(f, object_hook=_json_hook)
 
 
+@_add_fmt_doc('write')
 def write(seqs, f):
+    """
+    Write sequences into SJson file
+    """
     seqs.__dict__ = dict(_fmtcomment=COMMENT,
                          **seqs.__dict__)
-    json.dump(seqs, f, cls=SJSONEncoder)
+    json.dump(seqs, f, cls=_SJSONEncoder)
     del seqs._fmtcomment

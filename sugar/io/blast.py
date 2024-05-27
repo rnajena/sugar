@@ -1,7 +1,11 @@
 # (C) 2024, Tom Eulenfeld, MIT license
+"""
+BLAST reader for output generated with option outfmt 7 (preferred), 6, or 11
+"""
 
 from sugar.core.fts import Feature, FeatureList, Location
 from sugar.core.meta import Meta
+from sugar._io.util import _add_fmt_doc
 
 
 OUTFMT = """
@@ -51,6 +55,12 @@ assert len(OUTFMT) == len(HEADERFMT) == len(TYPES)
 
 
 def extract_seqs(fts, x='source', change_id=False):
+    """
+    Extract sequences from BLAST features and return `.BioBasket`
+
+    :param x: One of ``'source'`` or ``'query'``
+    """
+    # TODO remove change_id parameter
     from sugar import BioSeq, BioBasket
     x = x[0]
     seqs = []
@@ -69,6 +79,9 @@ def extract_seqs(fts, x='source', change_id=False):
     return BioBasket(seqs)
 
 def get_query_fts(fts):
+    """
+    Convert BLAST source features to query features
+    """
     fts = fts.copy()
     for ft in fts:
         _b = ft.meta._blast
@@ -101,7 +114,15 @@ def _convert2ind(headers, l=OUTFMT):
     return inds
 
 
-def read_fts(f, *, sep='\t', outfmt=None, fttype=None):
+@_add_fmt_doc('read_fts')
+def read_fts(f, *, sep='\t', outfmt=None, ftype=None):
+    """
+    BLAST reader for output generated with option outfmt 7 (preferred), 6, or 11
+
+    :param str sep: Separator of fields, use ``','`` for outfmt 11, default ``'\\t'``
+    :param str outfmt: The outfmt string passed to BLAST, can be ommited for outfmt 7
+    :param str ftype: Parameter used as ftype
+    """
     fts = []
     inds = None
     if outfmt is not None:
@@ -132,7 +153,7 @@ def read_fts(f, *, sep='\t', outfmt=None, fttype=None):
                 strand = attrs.get('sstrand', '.')
             loc = Location(start-1, stop, strand)
 
-            ft = Feature(attrs.get(fttype, fttype), [loc],
+            ft = Feature(attrs.get(ftype, ftype), [loc],
                          meta=Meta(_blast=attrs))
             for blastattr, metaattr in copyattrs:
                 if blastattr in ft.meta._blast:

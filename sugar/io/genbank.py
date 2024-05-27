@@ -1,8 +1,13 @@
 # (C) 2023, Tom Eulenfeld, MIT license
-# https://www.insdc.org/submitting-standards/feature-table/
+"""
+Genbank reader
+
+The format is defined `here <https://www.insdc.org/submitting-standards/feature-table/>`_.
+"""
 
 from sugar.core.seq import Attr, BioSeq, Meta, Feature, FeatureList
-from sugar.io.genbank_loc import _parse_locs
+from sugar._io._genbank_loc import _parse_locs
+from sugar._io.util import _add_fmt_doc
 
 
 def is_format(f, **kw):
@@ -13,14 +18,30 @@ def is_format(f, **kw):
 is_format_fts = is_format
 
 
+@_add_fmt_doc('read_fts')
 def read_fts(f, exclude=()):
+    """
+    Read Genbank feature records from file into `.FeatureList`
+
+    :param tuple exclude: Tuple of feature names to exclude,
+        possible options are ``'translation', 'features'``,
+        sequences are excluded anyway.
+    """
     fts = FeatureList()
     for seq in iter_(f, exclude=('seq',) + exclude):
         fts.extend(seq.fts)
     return fts
 
 
+@_add_fmt_doc('read')
 def iter_(f, exclude=()):
+    """
+    Read Genbank records and sequences from file into `.BioBasket`
+
+    :param tuple exclude: Tuple of feature names to exclude,
+        possible options are ``'seq', 'translation', 'features'``.
+
+    """
     # allowed entries in exclude: features, translation, seq
     meta = Meta()
     attrs = Attr()

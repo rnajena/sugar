@@ -1,11 +1,16 @@
 # (C) 2024, Tom Eulenfeld, MIT license
+"""
+Generic feature format IO
+"""
+
 
 from urllib.parse import quote, unquote
 from warnings import warn
 
 from sugar.core.fts import FeatureList, Location, Feature
 from sugar.core.meta import Attr, Meta
-from sugar.io import read as read_seqs, write as write_seqs
+from sugar._io import read as read_seqs, write as write_seqs
+from sugar._io.util import _add_fmt_doc
 
 
 filename_extensions = ['gff']
@@ -30,7 +35,14 @@ copyattrs = [('Name', 'name'), ('ID', 'id'), ('score', 'score'),
              ('seqid', 'seqid'), ('phase', 'phase')]
 
 
-def read_fts(f, ftype=None, filt=None):
+@_add_fmt_doc('read_fts')
+def read_fts(f, filt=None, default_ftype=None):
+    """
+    Read a GFF file and return `.FeatureList`
+
+    :param tuple filt: Return only Features of type ftype, default: all
+    :param str default_ftype: default ftype for entries without type
+    """
     fts = []
     lastid = None
     for line in f:
@@ -41,7 +53,7 @@ def read_fts(f, ftype=None, filt=None):
         *cols, attrcol = line.strip().split('\t')
         seqid, source, type_, start, stop, score, strand, phase = map(unquote, cols)
         if type_ == '.':
-            type_ = ftype
+            type_ = default_ftype
         if filt and type_ not in filt:
             continue
         loc = Location(int(start)-1, int(stop), strand=strand)
@@ -94,7 +106,11 @@ def read_fts(f, ftype=None, filt=None):
     return FeatureList(fts)
 
 
+@_add_fmt_doc('read')
 def read(f):
+    """
+    Read sequences and their features from GFF file
+    """
     fts = read_fts(f).todict()
     seqs = read_seqs(f, fmt='fasta')
     for seq in seqs:
@@ -107,7 +123,11 @@ def read(f):
     return seqs
 
 
+@_add_fmt_doc('write_fts')
 def write_fts(fts, f):
+    """
+    Write features to GFF file
+    """
     f.write('##gff-version 3\n')
     for ft in fts:
         meta = ft.meta.copy()
@@ -150,7 +170,11 @@ def write_fts(fts, f):
             f.write(f'{seqid}\t{source}\t{type_}\t{loc.start+1}\t{loc.stop}\t{nscore}\t{loc.strand}\t{nphase}\t{attrstr}\n')
 
 
+@_add_fmt_doc('write')
 def write(seqs, f):
+    """
+    Write sequences and their features to GFF file
+    """
     for seq in seqs:
         if seq.id is not None and 'features' in seq.meta:
             for ft in seq.fts:
