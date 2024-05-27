@@ -8,6 +8,8 @@ import tempfile
 from sugar import FastaIndex
 from sugar.scripts import cli
 
+pytest.importorskip('binarysearchfile')
+
 # Disable tqdm output
 from tqdm import tqdm
 from functools import partialmethod

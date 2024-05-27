@@ -18,8 +18,10 @@ try:
 except ImportError:
     tqdm = None
 import os
-
-from binarysearchfile import BinarySearchFile
+try:
+    from binarysearchfile import BinarySearchFile
+except ImportError:
+    BinarySearchFile = object
 import sugar
 
 
