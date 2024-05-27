@@ -30,15 +30,14 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-# This code is adapted from the biotite package
+# This code is adapted from the biotite package, 2024 Tom Eulenfeld
 
 __all__ = ["Location", "Feature", "FeatureList"]
 
 from copy import deepcopy
-import numbers
 import collections
 import sys
-from enum import Flag, StrEnum, Enum, auto
+from enum import Flag, StrEnum, auto
 from sugar.core.meta import Meta
 # from .sequence import Sequence
 # from ..copyable import Copyable
@@ -233,23 +232,7 @@ class Feature():
     type : str
         The name of the feature class, e.g. *gene*, *CDS* or
         *regulatory*.
-    locs : iterable object of Location
-        A list of feature locations. In most cases this list will only
-        contain one location, but multiple ones are also possible for
-        example in eukaryotic CDS (due to splicing).
-    meta : dict, optional
-        Maps feature metaifiers to their corresponding values.
-        The types are always strings. A value is either a string or
-        ``None`` if the metaifier type do not has a value.
-        If type has multiple values, the values are separated by a
-        line break.
-
-    Attributes
-    ----------
-    type : str
-        The name of the feature class, e.g. *gene*, *CDS* or
-        *regulatory*.
-    locs : iterable object of Location
+    locs : list
         A list of feature locations. In most cases this list will only
         contain one location, but multiple ones are also possible for
         example in eukaryotic CDS (due to splicing).
@@ -409,23 +392,22 @@ class Feature():
 
 class FeatureList(collections.UserList):
     """
-    An :class:`FeatureList` is a set of features belonging to one
-    sequence.
+    A `FeatureList` is a set of features belonging to one sequence.
 
     Its advantage over a simple list is the base/residue position based
     indexing:
-    When using slice indices in FeatureList objects, a subannotation is
+    When using the `slice()` method call, a subannotation is
     created, containing copies of all :class:`Feature` objects whose
     start and stop base/residue are in range of the slice.
     If the slice starts after the start base/residue or/and the slice
     ends before the stop residue, the position out of range is set to
-    the boundaries of the slice (the :class:`Feature` is truncated).
+    the boundaries of the slice (the `Feature` is truncated).
     In this case the :class:`Feature` obtains the
-    :attr:`Location.Defect.MISS_LEFT` and/or
-    :attr:`Location.Defect.MISS_RIGHT` defect.
-    The third case occurs when a :class:`Feature` starts after the slice
-    ends or a :class:`Feature` ends before the slice starts.
-    In this case the :class:`Feature` will not appear in the
+    `Location.Defect.MISS_LEFT` and/or
+    `Location.Defect.MISS_RIGHT` defect.
+    The third case occurs when a `Feature` starts after the slice
+    ends or a `Feature` ends before the slice starts.
+    In this case the`Feature` will not appear in the
     subannotation.
 
     The start or stop position in the slice indices can be omitted, then
@@ -435,25 +417,20 @@ class FeatureList(collections.UserList):
     contain a not truncated :class:`Feature` only if its stop
     base/residue is smaller than the stop value of the slice.
 
-    Integers or other index types are not supported. If you want to
-    obtain the :class:`Feature` instances from the :class:`FeatureList`
-    you need to  iterate over it.
-    The iteration has no defined order.
-    Alternatively, you can obtain a copy of the internal
-    :class:`Feature` set via :func:`get_features()`.
-
     Multiple :class:`FeatureList` objects can be concatenated to one
     :class:`FeatureList` object using the '+' operator.
-    Single :class:`Feature` instances can be added this way, too.
     If a feature is present in both :class:`FeatureList` objects, the
     resulting :class:`FeatureList` will contain this feature twice.
 
     Parameters
     ----------
-    features : iterable object of Feature, optional
+    features : list
         The features to create the :class:`FeatureList` from. if not
         provided, an empty :class:`FeatureList` is created.
 
+    """
+    # TODO
+    """
     Examples
     --------
     Creating an annotation from a feature list:
@@ -608,9 +585,27 @@ class FeatureList(collections.UserList):
         return start, stop
 
 
-    def write(self, fname):
-        from sugar.io import write_fts
-        write_fts(self, fname)
+    def write(self, fname, fmt=None, **kw):
+        """
+        Write features to file
+
+        This method calls the underlaying writer routines via `~.main.write_fts()`
+
+        :param fname: filename or file-like object
+        :param fmt: format of the file (defaul: auto-detect with file extension)
+        :param mode: mode for opening the file, change this only if you know what
+            you do
+        :param encoding: encoding of the file
+
+        All other kwargs are passed to the underlaying writer routine.
+
+        The following formats are supported, for documentation of supported kwargs
+        follow the provided links.
+
+        {format_table}
+        """
+        from sugar._io import write_fts
+        write_fts(self, fname, fmt=fmt, **kw)
 
 
     def slice(self, start, stop):

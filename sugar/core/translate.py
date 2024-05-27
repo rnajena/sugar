@@ -4,8 +4,25 @@ from sugar.data import gcode
 import warnings
 
 
-def biotranslate(seq, complete=False, gap='-', gap_after=2,
-                 astop='X', warn=False, check_stop=False, tt=1):
+def translate(seq, complete=False, gap='-', gap_after=2,
+              astop='X', warn=False, check_stop=False, tt=1):
+    """
+    Translate a string or `.BioSeq` object into an amino acid string
+
+    :param bool complete: If set to ``True`` ignores stop codons
+    :param str gap: gap character, default ``'-'``, set to ``None``
+       to raise an error for non nucleotide characters
+    :param int gap_after: A single gap in the amino acis string is
+        written after the first ``gap_after`` gaps in the
+        nucleotide sequence and afterwards after each third gap,
+        defaults to 2
+    :param str astop: Symbol for ambigious stop codons
+    :param bool warn: Warn if start codon might not be a start codon and
+        warn for amigious stop codons for
+        ``complete=False``
+    :param bool check_stop: Chek that last codon is a stop codon for
+        ``complete=False``
+    """
     gc = gcode(tt)
     aas = []
     codon = ''

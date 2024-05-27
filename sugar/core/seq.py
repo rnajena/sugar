@@ -9,16 +9,14 @@ import sys
 import io
 
 from sugar.data import CODES
-from sugar.core.meta import Attr, Meta
 from sugar.core.fts import Feature, FeatureList
+from sugar.core.meta import Attr, Meta
+
 
 CODES_INV = {frozenset(v): k for k, v in CODES.items()}
 COMPLEMENT = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G', '.': '.', '-': '-'}
 COMPLEMENT_ALL = {c: CODES_INV[frozenset(COMPLEMENT[nt] for nt in nts)] for c, nts in CODES.items()}
 COMPLEMENT_TRANS = str.maketrans(COMPLEMENT_ALL)
-
-
-
 
 
 # class Feature(Attr):
@@ -381,7 +379,7 @@ class MutableMetaString(collections.abc.Sequence):
     # def title(self):
     #     return self.__class__(self.data.title())
 
-    def translate(self, *args):
+    def strtranslate(self, *args):
         self.data = self.data.translate(*args)
         return self
 
@@ -425,6 +423,10 @@ class BioSeq(MutableMetaString):
     @property
     def i(self):
         return _Slicable(self)
+
+    @property
+    def rc(self):
+        return self.reverse().complement()
 
     def __getitem__(self, index):
         try:
@@ -517,16 +519,19 @@ class BioSeq(MutableMetaString):
 
 
     def biotranslate(self, *args, **kw):
-        from sugar.core.translate import biotranslate
-        self.data = biotranslate(self.data, *args, **kw)
+        from sugar.core.translate import translate
+        import warnings
+        msg = 'BioSeq.biotranslate() is deprecated, use translate() method'
+        warnings.warn(msg, DeprecationWarning, stacklevel=2)
+        self.data = translate(self.data, *args, **kw)
         self.type = 'aa'
         return self
 
     def complement(self):
         if 'U' in self.data:
-            self.replace('U', 'T').translate(COMPLEMENT_TRANS).replace('T', 'U')
+            self.replace('U', 'T').strtranslate(COMPLEMENT_TRANS).replace('T', 'U')
         else:
-            self.translate(COMPLEMENT_TRANS)
+            self.strtranslate(COMPLEMENT_TRANS)
         return self
 
     def countall(self, **kw):
@@ -560,13 +565,13 @@ class BioSeq(MutableMetaString):
         Return match object for first found occurence of regex sub, None if not found
 
         Args:
-            sub (str): regex or `'start'` or `'stop'` to find start/stop codon
-            orf (int, optional): May be set to an integer between 0 and 2
+            sub (str): regex or ``'start'`` or ``'stop'`` to find start/stop codon
+            orf (int): May be set to an integer between 0 and 2
                 inclusive to respect the corresponding open reading frame.
                 Defaults to None to use all 3 ORFs.
-            start (int, optional): Index of nucleobase to start matching. Defaults to 0.
-            gap (str, optional): Consider gaps of given character, Defaults to None.
-            findall (bool, optional): False will return first match, True will
+            start (int): Index of nucleobase to start matching. Defaults to 0.
+            gap (str): Consider gaps of given character, Defaults to None.
+            findall (bool): False will return first match, True will
                 return all matches. Defaults to False.
 
         Returns:
@@ -628,6 +633,12 @@ class BioSeq(MutableMetaString):
         self.data = self.data[::-1]
         return self
 
+    def translate(self, *args, **kw):
+        from sugar.core.translate import translate
+        self.data = translate(self.data, *args, **kw)
+        self.type = 'aa'
+        return self
+
     def write(self, *args, **kw):
         BioBasket([self]).write(*args, **kw)
 
@@ -672,6 +683,10 @@ class BioBasket(collections.UserList):
     @property
     def ids(self):
         return [seq.meta.id for seq in self]
+
+    @property
+    def rc(self):
+        return self.reverse().complement()
 
     def __str__(self):
         return self.tostr(add_hint=True)
@@ -722,13 +737,21 @@ class BioBasket(collections.UserList):
             raise TypeError('Index not supported')
 
     def biotranslate(self, *args, **kw):
+        import warnings
+        msg = 'BioBasket.biotranslate() is deprecated, use translate() method'
+        warnings.warn(msg, DeprecationWarning, stacklevel=2)
         for seq in self:
-            seq.biotranslate(*args, **kw)
+            seq.translate(*args, **kw)
         return self
 
     def complement(self):
         for seq in self:
             seq.complement()
+        return self
+
+    def strtranslate(self, *args, **kw):
+        for seq in self:
+            seq.strtranslate(*args, **kw)
         return self
 
     def translate(self, *args, **kw):
@@ -804,8 +827,9 @@ class BioBasket(collections.UserList):
     @classmethod
     def fromfmtstr(cls, in_, **kw):
         from sugar import read
-        in_ = io.StringIO(in_)
-        return read(in_, **kw)
+        if not isinstance(in_, bytes):
+            in_ = in_.encode('latin1')
+        return read(io.BytesIO(in_), **kw)
 
     def todict(self):
         return {seq.id: seq for seq in self}
@@ -852,25 +876,43 @@ class BioBasket(collections.UserList):
         else:
             raise ValueError(f'Unsupported tool: {tool}')
 
-    def write(self, *args, **kw):
-        from sugar.io import write
-        write(self, *args, **kw)
+    def write(self, fname, fmt=None, **kw):
+        """
+        Write sequences to file
+
+        This method calls the underlaying writer routines via `~.main.write()`
+
+        :param fname: filename or file-like object
+        :param fmt: format of the file (defaul: auto-detect with file extension)
+        :param mode: mode for opening the file, change this only if you know what
+            you do
+        :param encoding: encoding of the file
+
+        All other kwargs are passed to the underlaying writer routine.
+
+        The following formats are supported, for documentation of supported kwargs
+        follow the provided links.
+
+        {format_table}
+        """
+        from sugar._io import write
+        write(self, fname, fmt=fmt, **kw)
 
     def match(self, *args, **kw):
         return [seq.match(*args, **kw) for seq in self]
 
-    def consensus(self, gap='-'):
-        n = len(self)
-        data = [seq.data for seq in seqs]
-        cons = []
-        perc = []
-        percnongaps = []
-        for nt in zip(*data):
-            max_count = 0
-            nt = str(nt)
-            num_gaps = nt.count(gap)
-            for letter in list(set(nt) - {gap}):
-                count = nt.count(letter)
+    # def consensus(self, gap='-'):
+    #     n = len(self)
+    #     data = [seq.data for seq in self]
+    #     cons = []
+    #     perc = []
+    #     percnongaps = []
+    #     for nt in zip(*data):
+    #         max_count = 0
+    #         nt = str(nt)
+    #         num_gaps = nt.count(gap)
+    #         for letter in list(set(nt) - {gap}):
+    #             count = nt.count(letter)
 
 
 

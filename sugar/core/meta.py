@@ -8,8 +8,7 @@ class Attr(collections.abc.MutableMapping):
     """
     A class which behaves like a dictionary.
 
-    :type data: dict, optional
-    :param data: Dictionary with initial keywords.
+    :param dict data: Dictionary with initial keywords.
 
     .. rubric:: Basic Usage
 
@@ -78,6 +77,9 @@ class Attr(collections.abc.MutableMapping):
 
 
 class Meta(Attr):
+    """
+    A class representing sequence metadata
+    """
     def __str__(self):
         return self.tostr()
 
