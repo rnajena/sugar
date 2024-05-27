@@ -11,9 +11,13 @@ from sugar.scripts import cli
 pytest.importorskip('binarysearchfile')
 
 # Disable tqdm output
-from tqdm import tqdm
-from functools import partialmethod
-tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
+try:
+    from tqdm import _tqdm
+except ImportError:
+    pass
+else:
+    from functools import partialmethod
+    _tqdm.__init__ = partialmethod(_tqdm.__init__, disable=True)
 
 
 def test_fastaindex():
