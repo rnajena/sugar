@@ -1,0 +1,37 @@
+þŠftsbintestformat
+##gff-version 3
+NC_072478.1	RefSeq	region	1	108689991	.	+	.	ID=NC_072478.1%3A1..108689991;Dbxref=taxon%3A29078;Name=6;chromosome=6;collected-by=David%20Ray;collection-date=2020-07-16;country=USA%3A%20Silver%20Falls%20Park%20-%20Crosbyton%2C%20TX;dev-stage=adult;gbkey=Src;genome=chromosome;isolate=TK198812;mol_type=genomic%20DNA;sex=male;tissue-type=liver
+NC_072478.1	Gnomon	pseudogene	43130	43626	.	-	.	ID=gene-LOC103298147;Dbxref=GeneID%3A103298147;Name=LOC103298147;description=translationally-controlled%20tumor%20protein-like;gbkey=Gene;gene=LOC103298147;gene_biotype=pseudogene;pseudo=true
+NC_072478.1	Gnomon	exon	43130	43626	.	-	.	ID=id-LOC103298147;Parent=gene-LOC103298147;Dbxref=GeneID%3A103298147;gbkey=exon;gene=LOC103298147;model_evidence=Supporting%20evidence%20includes%20similarity%20to%3A%2017%20Proteins;pseudo=true
+NC_072478.1	Gnomon	gene	61870	98682	.	+	.	ID=gene-AP1AR;Dbxref=GeneID%3A103298148;Name=AP1AR;description=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein;gbkey=Gene;gene=AP1AR;gene_biotype=protein_coding
+NC_072478.1	Gnomon	mRNA	61870	98682	.	+	.	ID=rna-XM_054717066.1;Parent=gene-AP1AR;Dbxref=GeneID%3A103298148,GenBank%3AXM_054717066.1;Name=XM_054717066.1;gbkey=mRNA;gene=AP1AR;model_evidence=Supporting%20evidence%20includes%20similarity%20to%3A%202%20Proteins;product=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein%2C%20transcript%20variant%20X5;transcript_id=XM_054717066.1
+NC_072478.1	Gnomon	exon	61870	62065	.	+	.	ID=exon-XM_054717066.1-1;Parent=rna-XM_054717066.1;Dbxref=GeneID%3A103298148,GenBank%3AXM_054717066.1;gbkey=mRNA;gene=AP1AR;product=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein%2C%20transcript%20variant%20X5;transcript_id=XM_054717066.1
+NC_072478.1	Gnomon	exon	75478	75526	.	+	.	ID=exon-XM_054717066.1-2;Parent=rna-XM_054717066.1;Dbxref=GeneID%3A103298148,GenBank%3AXM_054717066.1;gbkey=mRNA;gene=AP1AR;product=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein%2C%20transcript%20variant%20X5;transcript_id=XM_054717066.1
+NC_072478.1	Gnomon	exon	76999	77025	.	+	.	ID=exon-XM_054717066.1-3;Parent=rna-XM_054717066.1;Dbxref=GeneID%3A103298148,GenBank%3AXM_054717066.1;gbkey=mRNA;gene=AP1AR;product=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein%2C%20transcript%20variant%20X5;transcript_id=XM_054717066.1
+NC_072478.1	Gnomon	exon	80392	80417	.	+	.	ID=exon-XM_054717066.1-4;Parent=rna-XM_054717066.1;Dbxref=GeneID%3A103298148,GenBank%3AXM_054717066.1;gbkey=mRNA;gene=AP1AR;product=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein%2C%20transcript%20variant%20X5;transcript_id=XM_054717066.1
+NC_072478.1	Gnomon	exon	82621	82717	.	+	.	ID=exon-XM_054717066.1-5;Parent=rna-XM_054717066.1;Dbxref=GeneID%3A103298148,GenBank%3AXM_054717066.1;gbkey=mRNA;gene=AP1AR;product=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein%2C%20transcript%20variant%20X5;transcript_id=XM_054717066.1
+NC_072478.1	Gnomon	exon	83975	84123	.	+	.	ID=exon-XM_054717066.1-6;Parent=rna-XM_054717066.1;Dbxref=GeneID%3A103298148,GenBank%3AXM_054717066.1;gbkey=mRNA;gene=AP1AR;product=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein%2C%20transcript%20variant%20X5;transcript_id=XM_054717066.1
+NC_072478.1	Gnomon	exon	86530	86621	.	+	.	ID=exon-XM_054717066.1-7;Parent=rna-XM_054717066.1;Dbxref=GeneID%3A103298148,GenBank%3AXM_054717066.1;gbkey=mRNA;gene=AP1AR;product=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein%2C%20transcript%20variant%20X5;transcript_id=XM_054717066.1
+NC_072478.1	Gnomon	exon	88007	88135	.	+	.	ID=exon-XM_054717066.1-8;Parent=rna-XM_054717066.1;Dbxref=GeneID%3A103298148,GenBank%3AXM_054717066.1;gbkey=mRNA;gene=AP1AR;product=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein%2C%20transcript%20variant%20X5;transcript_id=XM_054717066.1
+NC_072478.1	Gnomon	exon	96922	98682	.	+	.	ID=exon-XM_054717066.1-9;Parent=rna-XM_054717066.1;Dbxref=GeneID%3A103298148,GenBank%3AXM_054717066.1;gbkey=mRNA;gene=AP1AR;product=adaptor%20related%20protein%20complex%201%20associated%20regulatory%20protein%2C%20transcript%20variant%20X5;transcript_id=XM_054717066.1
+NC_072478.1	Gnomon	CDS	61944	62065	.	+	0	ID=cds-XP_054573041.1;Parent=rna-XM_054717066.1;Dbxref=GeneID%3A103298148,GenBank%3AXP_054573041.1;Name=XP_054573041.1;gbkey=CDS;gene=AP1AR;product=AP-1%20complex-associated%20regulatory%20protein%20isoform%20X5;protein_id=XP_054573041.1
+NC_072478.1	Gnomon	CDS	75478	75526	.	+	1	ID=cds-XP_054573041.1
+NC_072478.1	Gnomon	CDS	76999	77025	.	+	0	ID=cds-XP_054573041.1
+NC_072478.1	Gnomon	CDS	80392	80417	.	+	0	ID=cds-XP_054573041.1
+NC_072478.1	Gnomon	CDS	82621	82717	.	+	1	ID=cds-XP_054573041.1
+NC_072478.1	Gnomon	CDS	83975	84123	.	+	0	ID=cds-XP_054573041.1
+NC_072478.1	Gnomon	CDS	86530	86621	.	+	1	ID=cds-XP_054573041.1
+NC_072478.1	Gnomon	CDS	88007	88135	.	+	2	ID=cds-XP_054573041.1
+NC_072478.1	Gnomon	CDS	96922	97199	.	+	2	ID=cds-XP_054573041.1
+NC_072478.1	RefSeq	cDNA_match	101892790	101892867	.	-	.	ID=87a4256a-f752-4561-b07c-11c6bd1432bf;Target=XM_054717047.1%201492%201569%20%2B;for_remapping=2;gap_count=1;num_ident=2472;num_mismatch=0;pct_coverage=99.9596;pct_coverage_hiqual=99.9596;pct_identity_gap=99.9596;pct_identity_ungap=100;rank=1
+NC_072478.1	RefSeq	cDNA_match	101891225	101891380	.	-	.	Target=XM_054717047.1%201570%201725%20%2B;ID=87a4256a-f752-4561-b07c-11c6bd1432bf
+NC_072478.1	RefSeq	cDNA_match	101888623	101889370	.	-	.	Target=XM_054717047.1%201726%202473%20%2B;ID=87a4256a-f752-4561-b07c-11c6bd1432bf
+NC_072478.1	RefSeq	cDNA_match	103170529	103170945	.	-	.	ID=760497a4-de14-4bf4-a47b-0ac115a30e2e;Target=XM_054718145.1%201%20417%20%2B;for_remapping=2;gap_count=1;num_ident=1344;num_mismatch=0;pct_coverage=99.9257;pct_coverage_hiqual=99.9257;pct_identity_gap=99.9257;pct_identity_ungap=100;rank=1
+NC_072478.1	RefSeq	cDNA_match	103164315	103164415	.	-	.	Target=XM_054718145.1%20418%20519%20%2B;Gap=M56%20I1%20M45;ID=760497a4-de14-4bf4-a47b-0ac115a30e2e
+NC_072478.1	RefSeq	cDNA_match	103147424	103147660	.	-	.	Target=XM_054718145.1%20520%20756%20%2B;ID=760497a4-de14-4bf4-a47b-0ac115a30e2e
+NC_072478.1	RefSeq	cDNA_match	103140201	103140789	.	-	.	Target=XM_054718145.1%20757%201345%20%2B;ID=760497a4-de14-4bf4-a47b-0ac115a30e2e
+NC_072478.1	RefSeq	cDNA_match	103951495	103952028	.	-	.	ID=da49447a-9756-4601-8f9b-154b1b711264;Target=XM_054718156.1%201%20536%20%2B;for_remapping=2;gap_count=1;num_ident=1594;num_mismatch=0;pct_coverage=99.8747;pct_coverage_hiqual=99.8747;pct_identity_gap=99.8747;pct_identity_ungap=100;rank=1;Gap=M326%20I2%20M208
+NC_072478.1	RefSeq	cDNA_match	103949297	103949421	.	-	.	Target=XM_054718156.1%20537%20661%20%2B;ID=da49447a-9756-4601-8f9b-154b1b711264
+NC_072478.1	RefSeq	cDNA_match	103946743	103946939	.	-	.	Target=XM_054718156.1%20662%20858%20%2B;ID=da49447a-9756-4601-8f9b-154b1b711264
+NC_072478.1	RefSeq	cDNA_match	103944893	103945630	.	-	.	Target=XM_054718156.1%20859%201596%20%2B;ID=da49447a-9756-4601-8f9b-154b1b711264
+NC_072478.1	RefSeq	cDNA_match	107859807	107862198	.	-	.	ID=c19a14b0-b9a5-4a4f-9db2-ecf95f279cd3;Target=XM_054717054.1%201%202391%20%2B;for_remapping=2;gap_count=1;num_ident=2391;num_mismatch=0;pct_coverage=100;pct_coverage_hiqual=100;pct_identity_gap=99.9582;pct_identity_ungap=100;rank=1;Gap=M822%20D1%20M1569
