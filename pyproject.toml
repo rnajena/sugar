@@ -13,12 +13,14 @@ classifiers = [
 ]
 keywords = [
     "bioinformatics", "RNA", "DNA", "sequence",
-    "fasta", "genbank", "stockholm", "entrez"
+    "fasta", "genbank", "stockholm", "blast", "entrez",
+    "index"
 ]
 dependencies = [
   "binarysearchfile",
   "matplotlib",
   "pandas",
+  "platformdirs",
   "pytest",
   "requests",
   "seaborn",
@@ -29,19 +31,20 @@ dependencies = [
 "Bug Tracker" = "https://github.com/rnajena/sugar/issues"
 
 [project.scripts]
-sugar = "sugar.scripts:run_cmdline"
+sugar = "sugar.scripts:cli"
+sugar-runtests = "sugar.tests.runtests:cli"
 
 [project.entry-points."sugar.io"]
-fasta = "sugar.io.fasta"
-sjson = "sugar.io.sjson"
-genbank = "sugar.io.genbank"
-stockholm = "sugar.io.stockholm"
-gff = "sugar.io.gff"
+fasta = "sugar._io.fasta"
+sjson = "sugar._io.sjson"
+genbank = "sugar._io.genbank"
+stockholm = "sugar._io.stockholm"
+gff = "sugar._io.gff"
 
 [project.entry-points."sugar.io.fts"]
-gff = "sugar.io.gff"
-genbank = "sugar.io.genbank"
-blast = "sugar.io.blast"
+gff = "sugar._io.gff"
+genbank = "sugar._io.genbank"
+blast = "sugar._io.blast"
 
 [build-system]
 requires = ["setuptools>=61.0"]
