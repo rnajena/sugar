@@ -107,14 +107,12 @@ def test_download():
     assert read(url) == read()
 
 
-@pytest.mark.xfail
 @pytest.mark.webtest
 def test_download_uncompress():
     url = 'https://raw.githubusercontent.com/rnajena/sugar/master/sugar/tests/data/io_test.gz'
     assert read(url) == read()
 
 
-@pytest.mark.xfail
 @pytest.mark.webtest
 def test_download_zip():
     url = 'https://raw.githubusercontent.com/rnajena/sugar/master/sugar/tests/data/io_test.zip'
