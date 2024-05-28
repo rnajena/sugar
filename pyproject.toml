@@ -57,9 +57,9 @@ version = {attr = "sugar.__version__"}
 include = ["sugar*"]
 
 [tool.setuptools.package-data]
-sugar = ["pytest.ini"]
 "sugar.data.data_gcode" = ["*.*"]
 "sugar.data.data_submat" = ["*"]
+"sugar.tests" = ["pytest.ini"]
 "sugar.tests.data" = ["*.*"]
 
 [tool.setuptools.exclude-package-data]
