@@ -21,15 +21,13 @@ def pytest_collection_modifyitems(config, items):
 
 @pytest.fixture(scope='session', autouse=True)
 def fix_entrypoints_in_pytest_session():
-    from importlib.metadata import EntryPoint
+    from importlib.metadata import EntryPoint, EntryPoints
     from sugar._io import util
     ep = EntryPoint(name='testbin', value='sugar.tests.test_io_binary_plugin', group='sugar.io')
     ep2 = EntryPoint(name='testbin', value='sugar.tests.test_io_binary_plugin', group='sugar.io.fts')
     original_EPS = deepcopy(util.EPS)
-    util.EPS['seqs'] = dict(util.EPS['seqs'])
-    util.EPS['fts'] = dict(util.EPS['fts'])
-    util.EPS['seqs'][ep.name] = ep
-    util.EPS['fts'][ep2.name] = ep2
+    util.EPS['seqs'] = EntryPoints(util.EPS['seqs'] + (ep,))
+    util.EPS['fts'] = EntryPoints(util.EPS['fts'] + (ep2,))
     util.FMTS['seqs'].append('testbin')
     util.FMTS_ALL['seqs'].append('testbin')
     util.FMTS['fts'].append('testbin')
