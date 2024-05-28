@@ -75,7 +75,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.autosummary',
               'sphinx.ext.viewcode',
               'sphinx.ext.napoleon',
-              'sphinx_rtd_theme',
+              # 'sphinx_rtd_theme',
               ]
 
 autodoc_default_options = {
@@ -136,5 +136,6 @@ html_theme_options = {
 }
 
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3/', None)
-                       }
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None)
+    }
