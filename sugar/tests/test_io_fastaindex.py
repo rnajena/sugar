@@ -65,7 +65,13 @@ def test_fastaindex():
         # recreate files
         # check readding stuff
         os.remove(fname)
-        os.remove(fname2)
+        try:
+            os.remove(fname2)
+        except FileNotFoundError:
+            # work-around for dbm.dumb, which creates 3 files
+            from glob import glob
+            for _fname in glob(fname2 + '.*'):
+                os.remove(_fname)
         with pytest.warns(UserWarning, match='new file'):
             f1 = FastaIndex(fname, mode='binary')
         f1.add(fastafiles, seek=10)

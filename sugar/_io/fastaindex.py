@@ -156,7 +156,7 @@ def _cache_dbname(dbname):
     else:
         cachedir = user_cache_dir('sugar', 'rnajena')
         fname = os.path.join(cachedir, 'last_used_fastaindexfile.txt')
-        if dbname is None and os.path.exists(fname):
+        if dbname is None and (os.path.exists(fname) or dbm.whichdb(fname)):
                 with open(fname) as f:
                     dbname = f.read().strip()
         elif dbname is not None:
@@ -184,7 +184,7 @@ class FastaIndex():
 
     def __init__(self, dbname=None, create=False, path='{dbpath}', mode=None):
         self.dbname = _cache_dbname(dbname)
-        exists = os.path.exists(self.dbname)
+        exists = self._exists()
         if mode not in (None, 'binary', 'db'):
             raise ValueError(f"Mode '{mode}' is not a valid mode")
         if create or not exists:  # new index file
@@ -232,7 +232,7 @@ class FastaIndex():
             self.path, *self.files = map(str.strip, self.db.read_header().decode('latin1').split('\n')[1].split(','))
 
     def add(self, fnameexpr, seek=None, force=False, silent=False):
-        if self.mode == 'binary' and os.path.exists(self.dbname) and len(self)>0 and not force:
+        if self.mode == 'binary' and self._exists() and len(self)>0 and not force:
             raise ValueError('For best performance of binary search index creation '
                              'use the add command only once. '
                              'Force update of the file with the force flag/keyword.')
@@ -325,6 +325,11 @@ class FastaIndex():
         """
         return ''.join(self.iter_fastaheader(seqids))
 
+    def _exists(self):
+        # work-around for dbm.dumb, which creates 3 files
+        return os.path.exists(self.dbname) or dbm.whichdb(self.dbname)
+
+
     def __len__(self):
         if self.mode == 'db':
             return len(self.db) - 1
@@ -332,7 +337,7 @@ class FastaIndex():
             return len(self.db)
 
     def __str__(self):
-        if not os.path.exists(self.dbname): #self.files:
+        if not self._exists(): #self.files:
             return f'File {self.dbname} does not exist yet'
         if self.mode == 'binary':
             try:
@@ -362,7 +367,13 @@ class FastaIndex():
 
     @property
     def totalsize(self):
-        return os.path.getsize(self.dbname)
+        try:
+            return os.path.getsize(self.dbname)
+        except FileNotFoundError:
+            if self._exists():
+                # work-around for dbm.dumb, which creates 3 files
+                return os.path.getsize(self.dbname+'.dat')
+            raise
 
 
 def _parse_cmd_seqids(seqids):
