@@ -21,7 +21,7 @@ def test_mutablemetastring():
 
 
 def test_bioseq_to_from_biopython():
-    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='needs biopython')
+    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='need biopython')
     seqs = read()
     seq = seqs[0]
     obj = seq.toobj('biopython')
@@ -32,7 +32,7 @@ def test_bioseq_to_from_biopython():
 
 
 def test_biobasket_to_from_biopython():
-    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='needs biopython')
+    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='need biopython')
     seqs = read()
     obj = seqs.toobj('biopython')
     seqs2 = seqs.fromobj(obj)
@@ -90,8 +90,8 @@ def test_countall():
 
 
 def test_countplot():
-    pytest.importorskip('pandas', reason='needs pandas')
-    pytest.importorskip('seaborn', reason='needs seaborn')
+    pytest.importorskip('pandas', reason='need pandas')
+    pytest.importorskip('seaborn', reason='need seaborn')
     seqs = read()
     with tempfilename() as fname:
         seqs[0].countplot(plot=fname)

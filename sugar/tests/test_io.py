@@ -120,7 +120,7 @@ def test_download_zip():
 
 
 def test_io_tool():
-    pytest.importorskip('Bio', reason='needs biopython')
+    pytest.importorskip('Bio', reason='need biopython')
     seqs = read()
     with tempfile.NamedTemporaryFile() as f:
         seqs.write(f.name, 'fasta', tool='biopython')
