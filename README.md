@@ -12,7 +12,7 @@ The sugar project aims to provide a lightweight framework for bioinformatics.
 
 ### Documentation
 
-* [API documentation](https://sugar.readthedocs.io)
+* [API documentation](https://rnajena-sugar.readthedocs.io)
 * Short tutorial: [notebook](https://nbviewer.jupyter.org/github/rnajena/sugar/blob/master/docs/notebooks/sugar_tutorial.ipynb)
 * Consult and contribute to wiki
 
