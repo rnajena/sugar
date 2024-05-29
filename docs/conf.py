@@ -12,7 +12,7 @@ from pathlib import Path
 from sphinx.ext import apidoc
 
 os.environ['SPHINX_BUILD'] = '1'
-rootpath = Path(__file__).parent.resolve()
+rootpath = Path(__file__).parent.parent.resolve()  # docs path
 
 
 ### First run sphinx-apidoc to generate the documentation
@@ -28,23 +28,23 @@ rootpath = Path(__file__).parent.resolve()
 #   -E, --no-headings     don't create headings for the module/package packages (e.g. when the docstrings already contain them)
 #   -M, --module-first    put module documentation before submodule documentation
 
-spath = rootpath.parent / 'sugar'
-src = rootpath / 'src_api'
+sugar_path = rootpath.parent / 'sugar'
+src_build = rootpath / 'src_build'
 exclude = ['tests', 'scripts.py']
-call = f"sphinx-apidoc -d 3 -f -M -e -T -P -o {src} {spath} " + ' '.join(str(spath / ex) for ex in exclude)
+call = f"sphinx-apidoc -d 3 -f -M -e -T -P -o {src_build} {sugar_path} " + ' '.join(str(sugar_path / ex) for ex in exclude)
 print(call)
 apidoc.main(call.split()[1:])
 
 
 ### Now modify some stuff in the generated apidoc
-index_orig = src / 'sugar.rst'
+index_orig = src_build / 'sugar.rst'
 # index = src / 'index.rst'
 # print(f'move and modify {index_orig} -> {index}')
 # data = index_orig.read_text()
 # index.write_text(data)
 index_orig.unlink()
 import shutil
-shutil.copy(rootpath / 'src/index.rst', src)
+shutil.copy(rootpath / 'src/index.rst', src_build)
 #shutil.copy(rootpath / 'src/sidebar_toc.rst', src)
 
 
@@ -63,7 +63,7 @@ release = sugar.__version__
 root_doc = 'index'
 default_role = 'py:obj'
 nitpicky = True  # Show warnings for unreferenced targets
-templates_path = ['_templates']
+templates_path = [str(rootpath / '_templates')]
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 rst_epilog = """
 .. _BinarySeachFile: https://github.com/trichter/binarysearchfile
@@ -109,7 +109,7 @@ def download_logo():
 
 html_theme = 'alabaster'
 #html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_static_path = [str(rootpath / '_static')]
 html_show_sphinx  = False
 html_show_sourcelink = True
 html_sidebars = {
