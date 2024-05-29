@@ -7,5 +7,6 @@ build:
   jobs:
     pre_build:
       - cp docs/conf.py docs/src_build/
+      - python -m pip install . --no-deps
 sphinx:
   configuration: docs/src_build/conf.py
