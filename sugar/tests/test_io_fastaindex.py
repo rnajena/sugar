@@ -16,12 +16,12 @@ except ImportError:
 
 # Disable tqdm output
 try:
-    from tqdm import _tqdm
+    import tqdm.std
 except ImportError:
     pass
 else:
     from functools import partialmethod
-    _tqdm.__init__ = partialmethod(_tqdm.__init__, disable=True)
+    tqdm.std.__init__ = partialmethod(tqdm.std.__init__, disable=True)
 
 
 def test_fastaindex():
