@@ -68,7 +68,7 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, tool=None, *
     elif command == 'convert':
         convert(fname, fmt=fmt, tool=tool, **kw)
     elif command == 'index':
-        from sugar._io.fastaindex import _fastaindex_cmd
+        from sugar.index.fastaindex import _fastaindex_cmd
         _fastaindex_cmd(**kw)
     elif command == 'test':
         try:
