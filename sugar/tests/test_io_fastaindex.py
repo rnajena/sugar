@@ -9,6 +9,10 @@ from sugar import FastaIndex
 from sugar.scripts import cli
 
 pytest.importorskip('binarysearchfile')
+try:
+    import platformdirs
+except ImportError:
+    platformdirs = None
 
 # Disable tqdm output
 try:
@@ -92,18 +96,19 @@ def test_fastaindex_script():
     with tempfile.TemporaryDirectory() as tmpdir:
         fname = os.path.join(tmpdir, 'test.sugarindex')
         cli(f'index create -m binary {fname}'.split())
+        odb = f'-d {fname}' if platformdirs is None else ''
         with redirect_stdout(None):
-            cli('index info'.split())
+            cli(f'index info {odb}'.split())
         # with redirect_stderr(None):
-        cli(f'index add {fastafiles}'.split())
+        cli(f'index add {odb} {fastafiles}'.split())
         with redirect_stdout(None):
-            cli('index print BTBSCRYR'.split())
-            cli('index print BTBSCRYR,1,5'.split())
+            cli(f'index print {odb} BTBSCRYR'.split())
+            cli(f'index print {odb} BTBSCRYR,1,5'.split())
         data = """BTBSCRYR, 5, 10
         MCHU, 5, 10"""
         fnameinp = os.path.join(tmpdir, 'inp.txt')
         with open(fnameinp, 'w') as f:
             f.write(data)
         with redirect_stdout(None):
-            cli(f'index fetch {fnameinp}'.split())
+            cli(f'index fetch {odb} {fnameinp}'.split())
         # os.system(f'cat {fnameinp} | sugar index fetch -')
