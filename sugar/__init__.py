@@ -52,7 +52,7 @@ Call ``sugar -h`` for an overview of available commands.
 The test suite can be run with ``sugar test``.
 """
 
-__version__ = '0.1.1'
+__version__ = '0.1.2-dev'
 
 from sugar.core.meta import Attr, Meta
 from sugar.core.fts import Feature, FeatureList, Location
