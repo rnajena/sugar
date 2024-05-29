@@ -9,6 +9,3 @@ build:
       - cp docs/conf.py docs/src_build/
 sphinx:
   configuration: docs/src_build/conf.py
-python:
-  install:
-    - requirements: docs/requirements.txt

@@ -1,3 +1,0 @@
-# requirements to build the docs
-alabaster
-sphinx
