@@ -50,15 +50,6 @@ matrices (i.e. BLOSUM62) with the `sugar.data` package.
 The command line interface of sugar can be used for common tasks.
 Call ``sugar -h`` for an overview of available commands.
 The test suite can be run with ``sugar test``.
-
-Sugar's functionality is provided through the following packages:
-
-.. autosummary::
-
-    core
-    _io
-    data
-    web
 """
 
 __version__ = '0.0.1-dev'

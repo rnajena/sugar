@@ -1,5 +1,5 @@
 """
-sugar._io -- Input/Output support for different sequence file formats
+sugar._io -- Input/Output support for different sequence and feature file formats
 
 IO support is discovered via plugins, you can simply install your own plugins.
 
