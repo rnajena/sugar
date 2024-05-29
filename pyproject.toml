@@ -1,5 +1,5 @@
 [project]
-name = "sugar"
+name = "rnajena-sugar"
 dynamic = ["readme", "version"]
 authors = [
     {name = "Tom Eulenfeld"},
