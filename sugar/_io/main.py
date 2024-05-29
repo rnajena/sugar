@@ -210,6 +210,15 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     Iterate over a file and yield `.BioSeq` objects of each sequence
 
     See `read()` function.
+
+    Example
+    -------
+
+    >>> from sugar import iter_
+    >>> for seq in iter_():  # use the example file
+    ...     print(f'GC content of seq {seq.id} is {100*seq.gc:.0f}%.')
+    GC content of seq AB047639 is 58%.
+    GC content of seq AB677533 is 57%.
     """
     if fmt is None:
         fmt = detect(fname, encoding=encoding, **kw)
@@ -272,6 +281,7 @@ def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     AB047639  9678  ACCTGCCCCTAATAGGGGCGACACTCCGCCATGAATCACTCCCCTGTGA...  GC:58.26%
     AB677533  9471  GCCCGCCCCCTGATGGGGGCGACACTCCGCCATGAATCACTCCCCTGTG...  GC:57.46%
       customize output with BioBasket.tostr() method
+
     >>> url = 'https://raw.githubusercontent.com/rnajena/sugar/master/sugar/tests/data/io_test.zip'
     >>> seqs = read(url)  # load an archive from the web  # doctest: +SKIP
     >>> print(seqs)  # doctest: +SKIP
