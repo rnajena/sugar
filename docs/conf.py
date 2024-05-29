@@ -49,8 +49,6 @@ shutil.copy(rootpath / 'src/index.rst', src_build)
 
 
 ### Now configure sphinx-build
-sys.path.insert(0, str(rootpath.parent))
-print(sys.path)
 import sugar
 
 project = 'sugar'
