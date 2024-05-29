@@ -26,7 +26,7 @@ def _binary(module, what='seqs'):
 
 
 @contextmanager
-def file_opener(f, mode='r', binary=False, encoding=None):
+def _file_opener(f, mode='r', binary=False, encoding=None):
     if isinstance(f, str):
         if binary and 'b' not in mode:
             mode = mode + 'b'
@@ -48,10 +48,12 @@ class _NonClosingTextIOWrapper(io.TextIOWrapper):
 def detect(fname, what='seqs', *, encoding=None, **kw):
     """
     Try to detect file format from contents
+
+    :param what: ``'seqs'`` or ``'fts'``
     """
     assert what in ('seqs', 'fts')
     suf = '' if what == 'seqs' else '_fts'
-    with file_opener(fname, binary=True) as f:
+    with _file_opener(fname, binary=True) as f:
         fpos = f.tell()
         for fmt in FMTS_ALL[what]:
             module = EPS[what][fmt].load()
@@ -90,6 +92,8 @@ def detect(fname, what='seqs', *, encoding=None, **kw):
 def detect_ext(fname, what='seqs'):
     """
     Try to detect file format for writing from extension
+
+    :param what: ``'seqs'`` or ``'fts'``
     """
     assert what in ('seqs', 'fts')
     suf = '' if what == 'seqs' else '_fts'
@@ -125,7 +129,7 @@ def __get_ext(fname):
 
 
 
-def resolve_fname(example_fname='!data/example.gb'):
+def _resolve_fname(example_fname='!data/example.gb'):
     """
     Decorator, takes filename as string and resolved the filename
 
@@ -200,7 +204,7 @@ def resolve_fname(example_fname='!data/example.gb'):
     return wrapper
 
 
-@resolve_fname()
+@_resolve_fname()
 def iter_(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     """
     Iterate over a file and yield `.BioSeq` objects of each sequence
@@ -219,7 +223,7 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
         raise ValueError(f'Unrecognized tool: {tool}')
     else:
         module = EPS['seqs'][fmt].load()
-        with file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
+        with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
             if hasattr(module, 'iter_'):
                 seqs = module.iter_(f, **kw)
                 for seq in seqs:
@@ -234,7 +238,7 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
             yield seq
 
 
-@resolve_fname()
+@_resolve_fname()
 def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     """
     Read a file or file-like object with sequences into `.BioBasket`
@@ -256,6 +260,28 @@ def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     follow the provided links.
 
     {format_table}
+
+    Example
+    -------
+
+    >>> from sugar import read
+    >>> seqs = read('crazy_virus.fasta')  # read a local file  # doctest: +SKIP
+    >>> seqs = read()  # load example file
+    >>> print(seqs)  # doctest: +SKIP
+    2 seqs in basket
+    AB047639  9678  ACCTGCCCCTAATAGGGGCGACACTCCGCCATGAATCACTCCCCTGTGA...  GC:58.26%
+    AB677533  9471  GCCCGCCCCCTGATGGGGGCGACACTCCGCCATGAATCACTCCCCTGTG...  GC:57.46%
+      customize output with BioBasket.tostr() method
+    >>> url = 'https://raw.githubusercontent.com/rnajena/sugar/master/sugar/tests/data/io_test.zip'
+    >>> seqs = read(url)  # load an archive from the web  # doctest: +SKIP
+    >>> print(seqs)  # doctest: +SKIP
+    5 seqs in basket
+    MCHU         150  MADQLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEA...
+    AAD44166.1   284  LCLYTHIGRNIYYGSYLYSETWNTGIMLLLITMATAFMGYVLPWGQM...
+    BTBSCRYR     620  TGCACCAAACATGTCTAAAGCTGGAACCAAAATTACTTTCTTTGAAG...  GC:52.58%
+    AB047639    9678  ACCTGCCCCTAATAGGGGCGACACTCCGCCATGAATCACTCCCCTGT...  GC:58.26%
+    AB677533    9471  GCCCGCCCCCTGATGGGGGCGACACTCCGCCATGAATCACTCCCCTG...  GC:57.46%
+      customize output with BioBasket.tostr() method
     """
     if fmt is None:
         fmt = detect(fname, **kw)
@@ -268,7 +294,7 @@ def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     elif tool:
         raise ValueError(f'Unrecognized tool: {tool}')
     module = EPS['seqs'][fmt].load()
-    with file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
+    with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
         if hasattr(module, 'read'):
             seqs = module.read(f, **kw)
         elif hasattr(module, 'iter_'):
@@ -281,7 +307,7 @@ def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     return seqs
 
 
-@resolve_fname(example_fname='!data/fts_example.gff')
+@_resolve_fname(example_fname='!data/fts_example.gff')
 def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
     """
     Read a file or file-like object with features into `.FeatureList`
@@ -307,7 +333,7 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
     module = EPS['fts'][fmt].load()
-    with file_opener(fname, mode=mode, binary=_binary(module, 'fts'), encoding=encoding) as f:
+    with _file_opener(fname, mode=mode, binary=_binary(module, 'fts'), encoding=encoding) as f:
         if hasattr(module, 'read_fts'):
             fts = module.read_fts(f, **kw)
         else:
@@ -331,7 +357,7 @@ def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
     elif tool:
         raise ValueError(f'Unrecognized tool: {tool}')
     module = EPS['seqs'][fmt].load()
-    with file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
+    with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
         if hasattr(module, 'append') and 'a' in mode:
             for seq in seqs:
                 module.append(seq, f, **kw)
@@ -353,7 +379,7 @@ def write_fts(fts, fname, fmt=None, *, mode='w', **kw):
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
     module = EPS['fts'][fmt].load()
-    with file_opener(fname, mode=mode, binary=_binary(module, 'fts')) as f:
+    with _file_opener(fname, mode=mode, binary=_binary(module, 'fts')) as f:
         if hasattr(module, 'binary_fmt_fts') and module.binary_fmt_fts and 'b' not in mode:
             mode = 'b' + mode
         if hasattr(module, 'write_fts'):
