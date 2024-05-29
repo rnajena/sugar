@@ -26,3 +26,8 @@ def test_docs_data():
 def test_docs_core():
     from sugar import core
     doctest_module(core)
+
+def test_docs_io():
+    from sugar import _io
+    doctest_module(_io)
+    doctest_module(_io.main)
