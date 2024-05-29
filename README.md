@@ -21,7 +21,7 @@ The sugar project aims to provide a lightweight framework for bioinformatics.
 Use pip, e.g.
 
 ```
-pip install sugar
+pip install rnajena-sugar
 ```
 
 All dependencies are optional. To get a minimal install use the `--no-deps` flag of pip.
