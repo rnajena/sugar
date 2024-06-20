@@ -35,15 +35,53 @@ def convert(fname, fmt=None, out=None, fmtout=None,
     """Convert files to different format (sugar convert)"""
     from sugar import read
     seqs = read(fname, fmt, tool=tool)
-    if out is None and fmtout is None:
-        raise ValueError('fmt need to be specified for out=None')
-    elif out is None:
+    if out is None:
         try:
-            print(seqs.tofmtstr(fmtout))
+            print(seqs.tofmtstr(fmtout or fmt or seqs[0].meta._fmt))
         except BrokenPipeError:
             pass
     else:
         seqs.write(out, fmt=fmtout, tool=toolout)
+
+
+def convertf(fname, fmt=None, out=None, fmtout=None):
+    """Convert files to different format (sugar convert)"""
+    from sugar import read_fts
+    fts = read_fts(fname, fmt)
+    if out is None:
+        try:
+            print(fts.tofmtstr(fmtout or fmt or fts[0].meta._fmt))
+        except BrokenPipeError:
+            pass
+    else:
+        fts.write(out, fmt=fmtout)
+
+
+def translate(fname, fmt, out=None, fmtout=None, cds=False, **kw):
+    from sugar import read
+
+    try:
+        seqs = read(fname, fmt)
+    except Exception as ex1:
+        try:
+            from sugar.core.translate import translate as trans
+            for line in fname.splitlines():
+                print(trans(line, **kw))
+            return
+        except Exception as ex2:
+            raise ExceptionGroup(
+                'Expect sequence file or nucleotide string as input',
+                [ex1, ex2])
+    if cds:
+        seqs = seqs['cds']
+    seqs.translate(**kw)
+    if out is None:
+        try:
+            print(seqs.tofmtstr(fmtout or fmt or seqs[0].meta._fmt))
+        except BrokenPipeError:
+            pass
+    else:
+        seqs.write(out, fmt=fmtout)
 
 
 def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, tool=None, **kw):
@@ -61,15 +99,29 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, tool=None, *
             print(read(fname, fmt, tool=tool).tostr(**kw))
         except BrokenPipeError:
             pass
+    elif command == 'printf':
+        from sugar import read_fts
+        try:
+            print(read_fts(fname, fmt).tostr(**kw))
+        except BrokenPipeError:
+            pass
     elif command == 'load':
         from sugar import read
         seqs = read(fname, fmt, tool=tool, **kw)
         _start_ipy(seqs)
+    elif command == 'loadf':
+        from sugar import read_fts
+        fts = read_fts(fname, fmt, **kw)
+        _start_ipy(fts)
     elif command == 'convert':
         convert(fname, fmt=fmt, tool=tool, **kw)
+    elif command == 'convertf':
+        convertf(fname, fmt=fmt, **kw)
     elif command == 'index':
         from sugar.index.fastaindex import _fastaindex_cmd
         _fastaindex_cmd(**kw)
+    elif command == 'translate':
+        translate(fname, fmt=fmt, **kw)
     elif command == 'test':
         try:
             import pytest
@@ -82,6 +134,8 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, tool=None, *
         with _changedir(path):
             status = pytest.main(pytest_args)
         sys.exit(status)
+    else:
+        raise ValueError(f'Unknown command: {command}')
 
 
 def _str2tuple(t):
@@ -94,19 +148,18 @@ def cli(cmd_args=None):
     msg = ('Sugar for your RNA')
     epilog = 'To get help on a subcommand run: sugar command -h'
     parser = argparse.ArgumentParser(description=msg, epilog=epilog)
-    version = '%(prog)s ' + __version__
-    parser.add_argument('--version', action='version', version=version)
-    msg = 'Start the debugger upon exception'
-    parser.add_argument('--pdb', action='store_true', help=msg)
+    parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('--pdb', action='store_true', help='Start the debugger upon exception')
 
     sub = parser.add_subparsers(title='commands', dest='command')
     sub.required = True
-    msg = 'print contents of seq file'
-    p_print = sub.add_parser('print', help=msg)
-    msg = 'convert between different file formats'
-    p_convert = sub.add_parser('convert', help=msg)
-    msg = 'load objects into IPython session'
-    p_load = sub.add_parser('load', help=msg)
+    p_print = sub.add_parser('print', help='print contents of seq file')
+    p_printf = sub.add_parser('printf', help='print contents of fts file')
+    p_convert = sub.add_parser('convert', help='convert between different seq file formats')
+    p_convertf = sub.add_parser('convertf', help='convert between different fts file formats')
+    p_load = sub.add_parser('load', help='load seq file into IPython session')
+    p_loadf = sub.add_parser('loadf', help='load fts file into IPython session')
+    p_trans = sub.add_parser('translate', help='translate nucleotide sequence')
     p_index = sub.add_parser('index', help='index FASTA files, query the database')
     msg = 'run sugar test suite'
     msg2 = ('The test suite uses pytest. You can call pytest directly or use '
@@ -114,24 +167,31 @@ def cli(cmd_args=None):
             'See pytest -h. Use the --web option to additionally run web tests.')
     p_test = sub.add_parser('test', help=msg, description=msg2)
 
-    for p in (p_print, p_load):
+    for p in (p_print, p_printf, p_load, p_loadf):
         p.add_argument('fname', help='filenames')
-        msg = 'format supported by Sugar (default: auto-detect)'
-        p.add_argument('-f', '--fmt', help=msg)
+        p.add_argument('-f', '--fmt', help='format supported by Sugar (default: auto-detect)')
+    for p in (p_print, p_load):
         p.add_argument('-t', '--tool', help='tool for reading')
         p.add_argument('-e', '--exclude', help='exclude contents', type=_str2tuple, default=argparse.SUPPRESS)
-    p_print.add_argument('--h', help='max height, 0 for no restriction, default 19', default=19, type=int)
-    p_print.add_argument('--w', help='max width, 0 for no restriction, default 80', default=80, type=int)
+    p_print.add_argument('--raw', help='just print the letters, one sequence on each line', action='store_true')
+    p_printf.add_argument('--raw', help='just print a table with type, start index, stop index, name', action='store_true')
+    for p in (p_print, p_printf):
+        p.add_argument('--h', help='max height, 0 for no restriction, default 19', default=19, type=int)
+        p.add_argument('--w', help='max width, 0 for no restriction, default 80', default=80, type=int)
     p_print.add_argument('--wid', help='max id width, 0 for no restriction, default 19', default=19, type=int)
     # p_print.add_argument('--showgc', help='show GC content', default=True, action=argparse.BooleanOptionalAction)
     p_print.add_argument('--no-showgc', help='do not show GC content', action='store_false', dest='showgc')
-    p_convert.add_argument('fname', help='filename in')
-    p_convert.add_argument('-o', '--out', help='filename out')
-    p_convert.add_argument('-f', '--fmt', help='format in')
-    p_convert.add_argument('-fo', '--fmtout', help='format out')
+    for p in (p_convert, p_convertf, p_trans):
+        p.add_argument('fname', help='filename in')
+        p.add_argument('-o', '--out', help='filename out')
+        p.add_argument('-f', '--fmt', help='format in')
+        p.add_argument('-fo', '--fmtout', help='format out')
     p_convert.add_argument('-t', '--tool', help='tool for reading')
     p_convert.add_argument('-to', '--toolout', help='tool for writing')
 
+    p_trans.add_argument('-tt', '--translation-table', help='number of translation table, default 1', default=1, type=int, dest='tt')
+    p_trans.add_argument('-c', '--complete', help='weather to ignore stop codons', action='store_true')
+    p_trans.add_argument('--cds', help='cut out CDS feature before translation', action='store_true')
 
     sub_index = p_index.add_subparsers(title='commands', dest='idxcommand')
     p_idxinfo = sub_index.add_parser('info')

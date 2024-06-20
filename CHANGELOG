@@ -1,5 +1,6 @@
 v0.2.0:
   * io: add option to write files automatically into an archive
   * io.gff: allow to store comment lines while reading
+  * scripts: add translate and feature commands
 v0.1.0:
   * initial release
