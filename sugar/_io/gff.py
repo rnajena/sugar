@@ -36,12 +36,14 @@ copyattrs = [('Name', 'name'), ('ID', 'id'), ('score', 'score'),
 
 
 @_add_fmt_doc('read_fts')
-def read_fts(f, filt=None, default_ftype=None):
+def read_fts(f, filt=None, default_ftype=None, comments=None):
     """
     Read a GFF file and return `.FeatureList`
 
     :param tuple filt: Return only Features of type ftype, default: all
     :param str default_ftype: default ftype for entries without type
+    :param list comments: comment lines inside the file are stored in
+        the comments list (optional)
     """
     fts = []
     lastid = None
@@ -49,6 +51,8 @@ def read_fts(f, filt=None, default_ftype=None):
         if line.startswith('##FASTA'):
             break
         elif line.startswith('#') or line.strip() == '':
+            if comments is not None:
+                comments.append(line)
             continue
         *cols, attrcol = line.strip().split('\t')
         seqid, source, type_, start, stop, score, strand, phase = map(unquote, cols)
@@ -124,11 +128,13 @@ def read(f):
 
 
 @_add_fmt_doc('write_fts')
-def write_fts(fts, f):
+def write_fts(fts, f, header=None):
     """
     Write features to GFF file
     """
     f.write('##gff-version 3\n')
+    if header:
+        f.write(header)
     for ft in fts:
         meta = ft.meta.copy()
         meta.setdefault('_gff', {})

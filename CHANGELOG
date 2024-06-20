@@ -1,0 +1,4 @@
+v0.2.0:
+  * io.gff: allow to store comment lines while reading
+v0.1.0:
+  * initial release
