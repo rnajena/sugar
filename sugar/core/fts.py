@@ -36,6 +36,7 @@ __all__ = ["Location", "Feature", "FeatureList"]
 
 from copy import deepcopy
 import collections
+import io
 import sys
 from enum import Flag, StrEnum, auto
 from sugar.core.meta import Meta
@@ -484,13 +485,24 @@ class FeatureList(collections.UserList):
         else:
             p.text(str(self))
 
-    def tostr(self, w=80, wt=12, wl=20, h=80, exclude_features=()):
+    def tostr(self, raw=False, w=80, wt=12, wl=20, h=80, exclude_features=()):
         def _sort_meta_key(m):
             order = ['name', 'gene']
             try:
                 return order.index(m[0])
             except ValueError:
                 return len(order) + m[0].startswith('_')
+        if raw:
+            out = []
+            for ft in self:
+                if str(getattr(ft, 'type', None)) in exclude_features:
+                    continue
+                for l in ft.locs:
+                    # print(getattr(ft, "type"))
+                    ftstr = (f'{getattr(ft, "type", ".")} {l.start} {l.stop} {l.strand}'
+                             f' {ft.meta.get("name", ".")} {ft.meta.get("id", ".")} {ft.meta.get("seqid", ".")}')
+                    out.append(ftstr)
+            return '\n'.join(out)
         out = []
         wt, wtmax = 0, wt
         wl, wlmax = 0, wl
@@ -529,6 +541,11 @@ class FeatureList(collections.UserList):
                     ftstr = ftstr[:w-3] + '...'
                 out.append(ftstr)
         return '\n'.join(out)
+
+    def tofmtstr(self, fmt, **kw):
+        out = io.StringIO()
+        self.write(out, fmt=fmt, **kw)
+        return out.getvalue()
 
     def get(self, type):
         type_ = type
@@ -596,6 +613,8 @@ class FeatureList(collections.UserList):
         :param mode: mode for opening the file, change this only if you know what
             you do
         :param encoding: encoding of the file
+        :param archive: Explicitely request writing an archive, type may be specified
+           (default: auto-detected by file extension)
 
         All other kwargs are passed to the underlaying writer routine.
 
