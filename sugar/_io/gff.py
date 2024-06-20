@@ -40,8 +40,7 @@ def read_fts(f, filt=None, default_ftype=None, comments=None):
     """
     Read a GFF file and return `.FeatureList`
 
-    :param filt: Return only Features of type ftype, default: all
-
+    :param list filt: Return only Features of given ftypes, default: all
     :param str default_ftype: default ftype for entries without type
     :param list comments: comment lines inside the file are stored in
         the comments list (optional)
