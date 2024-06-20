@@ -20,7 +20,7 @@ def translate(seq, complete=False, gap='-', gap_after=2,
     :param bool warn: Warn if start codon might not be a start codon and
         warn for amigious stop codons for
         ``complete=False``
-    :param bool check_stop: Chek that last codon is a stop codon for
+    :param bool check_stop: Check that last codon is a stop codon for
         ``complete=False``
     """
     gc = gcode(tt)
