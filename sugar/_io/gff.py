@@ -131,6 +131,8 @@ def read(f):
 def write_fts(fts, f, header=None):
     """
     Write features to GFF file
+
+    :param str header: Optionally write a header at the top of file
     """
     f.write('##gff-version 3\n')
     if header:
