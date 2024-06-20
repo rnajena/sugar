@@ -42,7 +42,7 @@ def _json_hook(d):
     if cls := d.pop('_cls', None):
         d.pop('_fmtcomment', None)
         cls = globals()[cls]
-        if isinstance(cls, (Strand, Feature)):
+        if isinstance(cls, (Strand, Defect)):
             return cls(d['value'])
         else:
             return cls(**d)
