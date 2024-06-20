@@ -843,7 +843,9 @@ class BioBasket(collections.UserList):
         self.write(out, fmt=fmt, **kw)
         return out.getvalue()
 
-    def tostr(self, h=19, w=80, wid=19, wlen=4, showgc=True, add_hint=False):
+    def tostr(self, h=19, w=80, wid=19, wlen=4, showgc=True, add_hint=False, raw=False):
+        if raw:
+            return '\n'.join(str(seq) for seq in self)
         if len(self) == 0:
             return '0 seqs in basket!'
         out = [f'{len(self)} seqs in basket']
@@ -887,6 +889,10 @@ class BioBasket(collections.UserList):
         :param mode: mode for opening the file, change this only if you know what
             you do
         :param encoding: encoding of the file
+        :param tool: use alternative tool for writing the file,
+            supported tools are: ``'biopython'``
+        :param archive: Explicitely request writing an archive, type may be specified
+           (default: auto-detected by file extension)
 
         All other kwargs are passed to the underlaying writer routine.
 
