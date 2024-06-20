@@ -32,7 +32,6 @@ dependencies = [
 
 [project.scripts]
 sugar = "sugar.scripts:cli"
-sugar-runtests = "sugar.tests.runtests:cli"
 
 [project.entry-points."sugar.io"]
 fasta = "sugar._io.fasta"
