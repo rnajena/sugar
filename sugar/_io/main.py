@@ -123,6 +123,25 @@ def detect_ext(fname, what='seqs'):
 
 
 
+def _resolve_archive(writer):
+    @wraps(writer)
+    def new_writer(objs, fname, *args, archive=None, **kw):
+        if isinstance(fname, PurePath):
+            fname = str(fname)
+        if archive is None:
+            return  writer(objs, fname, *args, **kw)
+        elif not isinstance(fname, str):
+            msg = 'archive option is only allowed for file names, not file-like objects'
+            raise ValueError(msg)
+        else:
+            if archive is True:
+                archive = shutil.get_archive_formats()[0][0]
+            with tempfile.TemporaryDirectory() as tmpdir:
+                tmpfname = os.path.join(tmpdir, os.path.basename(fname))
+                writer(objs, tmpfname, *args, **kw)
+                shutil.make_archive(fname, archive, tmpdir)
+    return new_writer
+
 
 def __get_ext(fname):
     return os.path.split(fname)[1].split('.', 1)[-1]
@@ -163,15 +182,16 @@ def _resolve_fname(example_fname='!data/example.gb'):
                     r = requests.get(fname)
                     r.raise_for_status()
                     bname = os.path.basename(urlparse(fname).path)
-                    if __get_ext(bname) == 'gz' or archive == 'gz':  # uncompress download
-                        import gzip
-                        fl = io.BytesIO(gzip.decompress(r.content))
-                    elif (__get_ext(bname) in ARCHIVE_EXTS or  # download archive and run function again
-                            archive is not None):
+                    if (archive is not None and archive != 'gz' or any(
+                            bname.endswith('.' + ext) for ext in ARCHIVE_EXTS)):
+                        # download archive and run function again
                         with tempfile.NamedTemporaryFile(suffix=bname, delete=False) as f:
                             f.write(r.content)
                             f.close()
                             return new_reader(f.name, *args, archive=archive, **kw)
+                    elif archive == 'gz' or bname.endswith('.gz'):  # uncompress download
+                        import gzip
+                        fl = io.BytesIO(gzip.decompress(r.content))
                     else:
                         # fl = io.StringIO(r.text)  # download is just data
                         fl = io.BytesIO(r.content)  # download is just data
@@ -185,11 +205,8 @@ def _resolve_fname(example_fname='!data/example.gb'):
                         return reduce(operator.add, objs)
                     else:  # iter_ was wrapped
                         return reduce(itertools.chain, objs)
-                elif __get_ext(fname) == 'gz' or archive == 'gz':  # uncompress file
-                    import gzip
-                    with gzip.open(fname) as f:
-                        fl = io.BytesIO(f.read())
-                elif (__get_ext(fname) in ARCHIVE_EXTS or archive is not None):
+                elif (archive is not None and archive != 'gz' or any(
+                        fname.endswith('.' + ext) for ext in ARCHIVE_EXTS)):
                     # unpack archive and run again with glob expr
                     if archive is True:
                         archive = None
@@ -197,6 +214,10 @@ def _resolve_fname(example_fname='!data/example.gb'):
                         shutil.unpack_archive(fname, tmpdir, archive)
                         globexpr = os.path.join(tmpdir, '**/*.*')
                         return new_reader(globexpr, *args, **kw)
+                elif archive == 'gz' or fname.endswith('.gz'):  # uncompress file
+                    import gzip
+                    with gzip.open(fname) as f:
+                        fl = io.BytesIO(f.read())
                 else:  # fname is just a simple filename, nothing to see, go further
                     fl = fname
             return reader(fl, *args, **kw)
@@ -224,6 +245,7 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
         fmt = detect(fname, encoding=encoding, **kw)
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
+    fmt = fmt.lower()
     if tool == 'biopython':
         from Bio import SeqIO
         for seq in SeqIO.parse(fname, fmt):
@@ -262,6 +284,8 @@ def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     :param encoding: encoding of the file
     :param tool: use alternative tool for reading the file,
         supported tools are: ``'biopython'``
+    :param archive: Explicitely request reading an archive, type may be specified
+       (default: auto-detected by file extension)
 
     All other kwargs are passed to the underlaying reader routine.
 
@@ -297,6 +321,7 @@ def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
         fmt = detect(fname, **kw)
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
+    fmt = fmt.lower()
     if tool == 'biopython':
         from Bio import SeqIO
         seqs = SeqIO.parse(fname, fmt, **kw)
@@ -330,6 +355,8 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
     :param mode: mode for opening the file, change this only if you know what
         you do
     :param encoding: encoding of the file
+    :param archive: Explicitely request reading an archive, type may be specified
+       (default: auto-detected by file extension)
 
     All other kwargs are passed to the underlaying reader routine.
 
@@ -342,6 +369,7 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
         fmt = detect(fname, what='fts', **kw)
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
+    fmt = fmt.lower()
     module = EPS['fts'][fmt].load()
     with _file_opener(fname, mode=mode, binary=_binary(module, 'fts'), encoding=encoding) as f:
         if hasattr(module, 'read_fts'):
@@ -353,6 +381,7 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
     return FeatureList(fts)
 
 
+@_resolve_archive
 def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
     """
     Write sequences to file, see `.BioBasket.write()`
@@ -361,6 +390,7 @@ def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
         fmt = detect_ext(fname)
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
+    fmt = fmt.lower()
     if tool == 'biopython':
         from Bio import SeqIO
         return SeqIO.write(seqs.toobj('biopython'), fname, fmt)
@@ -380,6 +410,7 @@ def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
             raise RuntimeError(f'No write support for format {fmt}')
 
 
+@_resolve_archive
 def write_fts(fts, fname, fmt=None, *, mode='w', **kw):
     """
     Write features to file, see `.FeatureList.write()`
@@ -388,6 +419,7 @@ def write_fts(fts, fname, fmt=None, *, mode='w', **kw):
         fmt = detect_ext(fname, 'fts')
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
+    fmt = fmt.lower()
     module = EPS['fts'][fmt].load()
     with _file_opener(fname, mode=mode, binary=_binary(module, 'fts')) as f:
         if hasattr(module, 'binary_fmt_fts') and module.binary_fmt_fts and 'b' not in mode:
