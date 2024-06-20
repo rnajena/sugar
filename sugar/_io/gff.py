@@ -40,7 +40,8 @@ def read_fts(f, filt=None, default_ftype=None, comments=None):
     """
     Read a GFF file and return `.FeatureList`
 
-    :param tuple filt: Return only Features of type ftype, default: all
+    :param filt: Return only Features of type ftype, default: all
+
     :param str default_ftype: default ftype for entries without type
     :param list comments: comment lines inside the file are stored in
         the comments list (optional)
@@ -111,11 +112,11 @@ def read_fts(f, filt=None, default_ftype=None, comments=None):
 
 
 @_add_fmt_doc('read')
-def read(f):
+def read(f, **kw):
     """
     Read sequences and their features from GFF file
     """
-    fts = read_fts(f).todict()
+    fts = read_fts(f, **kw).todict()
     seqs = read_seqs(f, fmt='fasta')
     for seq in seqs:
         if seq.id in fts:
@@ -179,7 +180,7 @@ def write_fts(fts, f, header=None):
 
 
 @_add_fmt_doc('write')
-def write(seqs, f):
+def write(seqs, f, **kw):
     """
     Write sequences and their features to GFF file
     """
@@ -189,6 +190,6 @@ def write(seqs, f):
                 ft.meta = ft.meta.copy()
                 ft.meta.seqid = seq.id
     fts = [ft for seq in seqs for ft in seq.fts]
-    write_fts(fts, f)
+    write_fts(fts, f, **kw)
     f.write('##FASTA\n')
     write_seqs(seqs, f, fmt='fasta')
