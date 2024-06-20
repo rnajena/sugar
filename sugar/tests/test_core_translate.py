@@ -9,7 +9,7 @@ def test_translate():
     s = 'CCC-AT-GAT-NCC--CCCCT---ANT-A--GGGN'
     aas = 'P-MX-PP-X-*G'
 
-    assert translate(s, complete=True, warn=True) == aas
+    assert translate(s, complete=True) == aas
     with pytest.warns(UserWarning, match='might be a stop'):
         assert translate(s[3:-3], warn=True) == aas[1:-2]
     assert translate(s[3:-3], warn=False) == aas[1:-2]

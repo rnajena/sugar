@@ -1,3 +1,5 @@
+v0.2.1:
+  * translate: add check_start option
 v0.2.0:
   * io: add option to write files automatically into an archive
   * io.gff: allow to store comment lines while reading
