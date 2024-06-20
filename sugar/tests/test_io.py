@@ -3,6 +3,7 @@
 import glob
 from importlib.resources import files
 from io import StringIO
+import os.path
 import tempfile
 
 import pytest
@@ -22,6 +23,7 @@ TESTIOFMTS = ('fasta', 'sjson', 'stockholm')
 def test_detect():
     for fname in FNAMES:
         assert (detect(fname) == detect_ext(fname) != None) or detect_ext(fname) is None
+
 
 def test_detect_fts():
     for fname in FNAMES_FTS:
@@ -99,6 +101,17 @@ def test_uncompress():
 
 def test_archive():
     assert read()[0] in read('!data/io_test.zip')
+
+
+def test_write_archive():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fname = os.path.join(tmpdir, 'test.fasta')
+        seqs = read()
+        seqs.write(fname, archive='zip')
+        seqs2 = read(fname + '.zip')
+        assert len(seqs) == len(seqs2)
+        assert str(seqs[0]) == str(seqs2[0])
+        seqs.write(fname + '.gff', 'GFF', archive=True)
 
 
 @pytest.mark.webtest
