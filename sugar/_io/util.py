@@ -113,8 +113,8 @@ def _insert_format_plugin_table(what, io, ws=None, fancy=False):
     return deco
 
 _ADD_FMT_DOC = """
-.. warning::
-    This function should NOT be called directly, it registers via {call}, call this instead.
+    .. warning::
+        This function should NOT be called directly, it registers via {call}, call this instead.
 """
 FULLCALL = {
     'read': '`~.main.read()`',
