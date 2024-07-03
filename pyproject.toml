@@ -4,7 +4,7 @@ dynamic = ["readme", "version"]
 authors = [
     {name = "Tom Eulenfeld"},
 ]
-description = "Simple containers for RNA and DNA sequence analysis"
+description = "A Python framework for bioinformatics"
 license = {text = "MIT License"}
 classifiers = [
     "Programming Language :: Python :: 3",
