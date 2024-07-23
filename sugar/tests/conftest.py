@@ -25,11 +25,12 @@ def fix_entrypoints_in_pytest_session():
     from sugar._io import util
     ep = EntryPoint(name='testbin', value='sugar.tests.test_io_binary_plugin', group='sugar.io')
     ep2 = EntryPoint(name='testbin', value='sugar.tests.test_io_binary_plugin', group='sugar.io.fts')
+    ep3 = EntryPoint(name='myfancyseqfmt', value='sugar.tests.test_io_template_plugin', group='sugar.io')
     original_EPS = deepcopy(util.EPS)
-    util.EPS['seqs'] = EntryPoints(util.EPS['seqs'] + (ep,))
+    util.EPS['seqs'] = EntryPoints(util.EPS['seqs'] + (ep, ep3))
     util.EPS['fts'] = EntryPoints(util.EPS['fts'] + (ep2,))
-    util.FMTS['seqs'].append('testbin')
-    util.FMTS_ALL['seqs'].append('testbin')
+    util.FMTS['seqs'].extend(['testbin', 'myfancyseqfmt'])
+    util.FMTS_ALL['seqs'].extend(['testbin', 'myfancyseqfmt'])
     util.FMTS['fts'].append('testbin')
     util.FMTS_ALL['fts'].append('testbin')
     yield
