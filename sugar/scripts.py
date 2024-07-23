@@ -194,8 +194,8 @@ def cli(cmd_args=None):
     p_trans.add_argument('--cds', help='cut out CDS feature before translation', action='store_true')
 
     sub_index = p_index.add_subparsers(title='commands', dest='idxcommand')
-    p_idxinfo = sub_index.add_parser('info')
-    p_idxcreate = sub_index.add_parser('create', help='create stuff')
+    p_idxinfo = sub_index.add_parser('info', help='show info about index file')
+    p_idxcreate = sub_index.add_parser('create', help='create new index file')
     p_idxcreate.add_argument('-m', '--mode', choices=('binary', 'db'), default='binary')
     p_idxcreate.add_argument('-p', '--path', default='{dbpath}')
     p_idxadd = sub_index.add_parser('add', help='add fasta files')
