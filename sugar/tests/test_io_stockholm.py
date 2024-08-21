@@ -1,4 +1,5 @@
 # (C) 2024, Tom Eulenfeld, MIT license
+import pytest
 
 from sugar import read, iter_
 from sugar.tests.util import normalize_content, tempfilename
@@ -18,6 +19,7 @@ def test_stk():
         assert normalize_content(fname) != normalize_content(fn2)
         assert normalize_content(fname, ignore=ignore) == normalize_content(fn2, ignore=ignore)
 
+
 def test_stk2():
     fname = '!data/example2.stk'
     seqs = read(fname)
@@ -30,3 +32,39 @@ def test_stk2():
     fname = '!data/example2b.stk'
     seqs2 = read(fname)
     assert seqs2 == seqs
+
+
+def test_row2fts2row():
+    from sugar._io.stockholm import row2fts, fts2row
+    row1 = '.....1....||....2....|3|...4...|'
+    row2 = '.....1....||....2....|3|...4....'
+    row3 = '|' + '.' * 1000 + '1|'
+    fts1 = row2fts(row1)
+    fts2 = row2fts(row2)
+    fts3 = row2fts(row3)
+    assert len(fts1) == 4
+    assert len(fts2) == 4
+    assert len(fts3) == 1
+    assert fts1[0].name == '1'
+    assert fts2[0].name == '1'
+    Defect = fts1[0].loc.Defect
+    assert fts1[0].loc.defect == Defect.MISS_LEFT
+    assert fts1[1].loc.defect == Defect.NONE
+    assert fts2[-1].loc.defect == Defect.MISS_RIGHT
+    assert len(fts3[0]) == 1003
+    row1b = fts2row(fts1)
+    row2b = fts2row(fts2)
+    row3b = fts2row(fts3)
+    assert row1 == row1b
+    assert row2 == row2b
+    assert len(row3b) == 1003
+    assert row3b.count('1') > 1
+    print(row3b)
+    assert row3b.startswith('|' + 10 * '.')
+    assert row3b.endswith(10 * '.' + '|')
+    fts3[0].loc.stop = 6
+    fts3[0].name = 'long_name'
+    with pytest.warns(match='too long'):
+        row3b = fts2row(fts3)
+    assert len(row3b) == 6
+    assert row3b == '|long|'

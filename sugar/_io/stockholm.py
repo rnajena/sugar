@@ -5,6 +5,8 @@
 Stockholm IO
 """
 
+from warnings import warn
+
 from sugar.core.seq import Attr, BioSeq, BioBasket
 from sugar._io.util import _add_fmt_doc
 
@@ -15,6 +17,77 @@ filename_extensions = ['stk', 'stockholm']
 def is_format(f, **kw):
     content = f.read(11)
     return content == '# STOCKHOLM'
+
+
+def row2fts(row, type_=None, seqid=None):
+    import re
+    from sugar.core.fts import Feature, FeatureList, Location
+    i = 0
+    fts = []
+    while i < len(row):
+        j = row.find('|', i+1)
+        if j == -1:
+            j = len(row)
+        names = set(re.split('[.]+', row[i+1:j])) - {''}
+        if len(names) > 0:
+            stop = min(j+1, len(row))
+            if len(names) > 1:
+                warn('More than one name for feature at location {i}:{stop}, use shortest name')
+                names = sorted(names, key=lambda n: len(n))[:1]
+            name = names.pop()
+            if i == 0 and row[0] != '|' and j == len(row):
+                assert row[-1] != '|'
+                defect = Location.Defect.MISS_LEFT | Location.Defect.MISS_RIGHT
+            if i == 0 and row[0] != '|':
+                defect = Location.Defect.MISS_LEFT
+            elif j == len(row):
+                assert row[-1] != '|'
+                defect = Location.Defect.MISS_RIGHT
+            else:
+                defect = Location.Defect.NONE
+            loc = Location(i, stop, defect=defect)
+            ft = Feature(type_, [loc])
+            ft.meta.name = name
+            if seqid is not None:
+                ft.seqid = seqid
+            fts.append(ft)
+        i = j
+    return FeatureList(fts)
+
+
+def fts2row(fts):
+    row = []
+    last_stop = None
+    for ft in fts.sort():
+        if len(ft.locs) > 1:
+            warn('More than one location in feature, use full loc_range')
+        start, stop = ft.loc_range
+        if last_stop is not None:
+            dif = start - last_stop
+            if dif > 0:
+                row.append('.' * dif)
+            elif dif == -1:  # use the same | for last and this feature
+                assert row[-1][-1] == '|'
+                row[-1] = row[-1][:-1]
+            elif dif < -1:
+                raise ValueError('Features overlap more than one residue')
+        l = stop - start
+        name = '' if ft.name is None else ft.name
+        rowp = name
+        while l > len(name) + len(rowp) + 150:
+            rowp = name + '.' * 100 + rowp
+        rowp = rowp.center(l, '.')
+        if l < len(name)-2:
+            warn('Feature name too long, shorten it')
+            rowp = '.' + name[:l-2] + '.'
+        if ft.loc.Defect.MISS_LEFT not in ft.loc.defect:
+            rowp = '|' + rowp[1:]
+        if ft.loc.Defect.MISS_RIGHT not in ft.locs[-1].defect:
+            rowp = rowp[:-1] + '|'
+        assert len(rowp) == l
+        row.append(rowp)
+        last_stop = stop
+    return ''.join(row)
 
 
 @_add_fmt_doc('read')
