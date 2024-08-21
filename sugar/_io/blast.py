@@ -47,9 +47,10 @@ TYPES = (
     str, str, str, str,
     float, float, float)
 
-copyattrs = [('bitscore', 'bitscore'),
+copyattrs = [('bitscore', 'score'),
              ('evalue', 'evalue'),
-             ('sseqid', 'seqid')]
+             ('sseqid', 'seqid'),
+             ('qseqid', 'name')]
 
 assert len(OUTFMT) == len(HEADERFMT) == len(TYPES)
 
@@ -85,7 +86,10 @@ def get_query_fts(fts):
     fts = fts.copy()
     for ft in fts:
         _b = ft.meta._blast
-        ft.meta.seqid = _b.qseqid
+        if 'qseqid' in _b:
+            ft.meta.seqid = _b.qseqid
+        if 'sseqid' in _b:
+            ft.meta.name = _b.sseqid
         start, stop = _b.qstart, _b.qend
         if start > stop:
             start, stop, strand = stop, start, '-'
