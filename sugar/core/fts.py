@@ -69,7 +69,7 @@ class Defect(Flag):
        - **BETWEEN** - The position is between to consecutive
          bases/residues.
     """
-    NONE         = 0
+    NONE         = auto()
     MISS_LEFT    = auto()
     MISS_RIGHT   = auto()
     BEYOND_LEFT  = auto()
@@ -260,7 +260,7 @@ class Feature():
 
     @property
     def id(self):
-        return self.meta.id
+        return self.meta.get('id')
 
     @id.setter
     def id(self, value):
@@ -268,7 +268,7 @@ class Feature():
 
     @property
     def seqid(self):
-        return self.meta.seqid
+        return self.meta.get('seqid')
 
     @seqid.setter
     def seqid(self, value):
@@ -276,7 +276,7 @@ class Feature():
 
     @property
     def name(self):
-        return self.meta.name
+        return self.meta.get('name')
 
     @name.setter
     def name(self, value):
@@ -680,7 +680,6 @@ class FeatureList(collections.UserList):
             kfunc = key
         self.data = sorted(self, key=kfunc, reverse=reverse)
         return self
-
 
     def copy(self):
         return deepcopy(self)

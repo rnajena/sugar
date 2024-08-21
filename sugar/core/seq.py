@@ -585,7 +585,7 @@ class BioSeq(MutableMetaString):
 
 
     def _match(self, sub, *, orf=None,
-               start=0, gap=None, matchall=False):
+               start=0, gap='-', matchall=False):
         from bisect import bisect
         import re
 
