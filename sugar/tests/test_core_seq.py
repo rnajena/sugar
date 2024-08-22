@@ -163,7 +163,7 @@ def test_match():
     assert matches[0].span() == seq.match('stop').span()
     assert len(matches) == 2
     assert seqs.match('stop')[0].start() == 3
-    matches = seq2.matchall('stop')
+    matches = seq2.matchall('stop', gap=None)
     assert len(matches) == 0
     match = seq2.match('stop', gap='-')
     assert match.group() == 'U-AG'
