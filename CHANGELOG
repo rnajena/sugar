@@ -1,5 +1,6 @@
 v0.3.0:
   * io.fasta: robust parsing of seq ids from header line, ignore comment lines
+  * io.stockholm: add row2fts and fts2row functions to parse, write GC and similar lines
 v0.2.1:
   * translate: add check_start option
 v0.2.0:
