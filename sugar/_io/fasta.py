@@ -2,6 +2,7 @@
 """
 FASTA IO
 """
+import re
 
 from sugar import BioSeq
 from sugar._io.util import _add_fmt_doc
@@ -22,6 +23,27 @@ def _create_bioseq(datalines, id_, header):
     return seq
 
 
+CHS = '[^,|;\s]'
+
+# capture some cases from https://de.wikipedia.org/wiki/FASTA-Format
+IDPATTERN= (
+    f'[^\s]*gb[:|]({CHS}+)'  # gb:id, gb|id
+    f'|[^\s]*(?:emb|dbj|sp|tr|ref|lcl)[|]({CHS}+)' # xxx|id
+    f'|({CHS}+)'  # "id ", "id;", "id|", "id,"
+    )
+
+
+def _id_from_header(header):
+    id_ = None
+    if header != '':
+        match = re.match(IDPATTERN, header)
+        if match is not None:
+            for id_ in match.groups():
+                if id_ is not None:
+                    break
+    return id_
+
+
 @_add_fmt_doc('read')
 def iter_(f):
     """
@@ -36,15 +58,18 @@ def iter_(f):
                 yield _create_bioseq(data, id_, header)
             line = line.lstrip('>').strip()
             header = line
-            if line == '':
-                id_ = None
-            elif ' ' not in line and '|' not in line:
-                id_ = line
-            elif '|' in line:
-                id_ = line.split('|')[-2]
-            else:
-                id_ = line.split(maxsplit=1)[0]
+            id_ = _id_from_header(header)
+            # if line == '':
+            #     id_ = None
+            # elif ' ' not in line and '|' not in line:
+            #     id_ = line
+            # elif '|' in line:
+            #     id_ = line.split('|')[-2]
+            # else:
+            #     id_ = line.split(maxsplit=1)[0]
             data = []
+        elif line.startswith(';'):  # line is a comment
+            pass
         else:
             data.append(line.strip())
     if data is not None:

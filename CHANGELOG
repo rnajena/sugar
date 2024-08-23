@@ -1,3 +1,5 @@
+v0.3.0:
+  * io.fasta: robust parsing of seq ids from header line, ignore comment lines
 v0.2.1:
   * translate: add check_start option
 v0.2.0:
