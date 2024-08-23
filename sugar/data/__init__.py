@@ -50,8 +50,6 @@ from functools import lru_cache
 from importlib.resources import files
 import json
 from os.path import exists
-from pathlib import Path
-
 
 # IUPAC nucleotid code
 CODES = {'A': 'A', 'C': 'C', 'G': 'G', 'T':'T',
@@ -59,6 +57,10 @@ CODES = {'A': 'A', 'C': 'C', 'G': 'G', 'T':'T',
          'B': 'CGT', 'D': 'AGT', 'H': 'ACT', 'V': 'ACG', 'N': 'ACGT',
          '.': '.', '-': '-'}
 
+
+def _submat_files():
+    return sorted(f.name for f in files('sugar.data.data_submat').iterdir()
+                  if not f.name.startswith('README'))
 
 @lru_cache
 def submat(fname):
@@ -68,11 +70,13 @@ def submat(fname):
     >>> bl = submat('blosum62')
     >>> bl['A']['A']
     4
+
+    :param fname: One of the following values: ``{}``. Or use your own file.
     """
     if not exists(fname):
         fname2 = str(files('sugar.data.data_submat').joinpath(fname.upper()))
         if not exists(fname2):
-            fnames = ', '.join(f.name for f in files('sugar.data.data_submat').iterdir())
+            fnames = ', '.join(_submat_files())
             msg = f'No file at {fname} or {fname2}, available matrices: {fnames}'
             raise FileNotFoundError(msg)
         fname = fname2
@@ -136,3 +140,7 @@ def gcode(tt=1):
     gc.stops = set(gc.stops)
     gc.astops = set(gc.astops)
     return gc
+
+
+if hasattr(submat, '__doc__'):
+    submat.__doc__ = submat.__doc__.format(', '.join(_submat_files()))
