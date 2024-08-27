@@ -414,6 +414,10 @@ class BioSeq(MutableMetaString):
             if ft.seqid != self.id:
                 warn('Feature seqid and sequence id mismatch')
 
+    def add_fts(self, fts):
+        self.fts = self.fts + fts
+        self.meta.fts.sort()
+
     @property
     def gc(self):
         GC = self.count('G') + self.count('C')
@@ -659,6 +663,17 @@ class BioBasket(collections.UserList):
         for seq in self:
             if seq.id in fts:
                 seq.fts = fts.pop(seq.id)
+        if len(fts) > 0:
+            missing_ids = ', '.join(fts.keys())
+            warn(f'Features for seqids {missing_ids} could not be '
+                 'attached to any sequence')
+
+    def add_fts(self, fts):
+        fts = fts.todict()
+        for seq in self:
+            if seq.id in fts:
+                seq.fts = seq.fts + fts.pop(seq.id)
+                seq.meta.fts.sort()
         if len(fts) > 0:
             missing_ids = ', '.join(fts.keys())
             warn(f'Features for seqids {missing_ids} could not be '
