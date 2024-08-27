@@ -566,9 +566,9 @@ class BioSeq(MutableMetaString):
 
         Args:
             sub (str): regex or ``'start'`` or ``'stop'`` to find start/stop codon
-            orf (int): May be set to an integer between 0 and 2
+            rf (int): May be set to an integer between 0 and 2
                 inclusive to respect the corresponding open reading frame.
-                Defaults to None to use all 3 ORFs.
+                Defaults to None to use all 3 RFs.
             start (int): Index of nucleobase to start matching. Defaults to 0.
             gap (str): Consider gaps of given character, Defaults to None.
             findall (bool): False will return first match, True will
@@ -584,7 +584,7 @@ class BioSeq(MutableMetaString):
         return self._match(*args, **kwargs)
 
 
-    def _match(self, sub, *, orf=None,
+    def _match(self, sub, *, rf=None,
                start=0, gap='-', matchall=False):
         from bisect import bisect
         import re
@@ -607,9 +607,9 @@ class BioSeq(MutableMetaString):
             gaps = [i for i, nt in enumerate(str(self)) if nt == gap if i >= start]
         matches = []
         for m in re.finditer(sub, str(self)):
-            if (start is None or (i := m.start()) >= start and (orf is None or (
-                    (i - start - bisect(gaps, i)) % 3 == orf
-                    if gaps else (i - start) % 3 == orf))):
+            if (start is None or (i := m.start()) >= start and (rf is None or (
+                    (i - start - bisect(gaps, i)) % 3 == rf
+                    if gaps else (i - start) % 3 == rf))):
                      # bisect(gaps, i) gives number of gaps before index i
                 if matchall:
                     matches.append(m)
