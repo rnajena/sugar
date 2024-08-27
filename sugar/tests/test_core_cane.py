@@ -2,7 +2,7 @@
 import pytest
 
 from sugar import read
-from  sugar.core.translate import translate
+from  sugar.core.cane import translate
 
 
 def test_translate():

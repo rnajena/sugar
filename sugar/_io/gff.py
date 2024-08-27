@@ -115,15 +115,9 @@ def read(f, **kw):
     """
     Read sequences and their features from GFF file
     """
-    fts = read_fts(f, **kw).todict()
+    fts = read_fts(f, **kw)
     seqs = read_seqs(f, fmt='fasta')
-    for seq in seqs:
-        if seq.id in fts:
-            seq.fts = fts.pop(seq.id, None)
-    if len(fts) > 0:
-        missing_ids = ', '.join(fts.keys())
-        warn(f'Features for seqids {missing_ids} could not be '
-             'attached to any sequence')
+    seqs.fts = fts
     return seqs
 
 
@@ -183,12 +177,6 @@ def write(seqs, f, **kw):
     """
     Write sequences and their features to GFF file
     """
-    for seq in seqs:
-        if seq.id is not None and 'features' in seq.meta:
-            for ft in seq.fts:
-                ft.meta = ft.meta.copy()
-                ft.meta.seqid = seq.id
-    fts = [ft for seq in seqs for ft in seq.fts]
-    write_fts(fts, f, **kw)
+    write_fts(seqs.fts, f, **kw)
     f.write('##FASTA\n')
     write_seqs(seqs, f, fmt='fasta')

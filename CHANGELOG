@@ -1,5 +1,7 @@
 dev:
   * BioSeq.match: rename orf option to rf, allow tuple-like arguments
+  * add BioBasket.fts attribute
+  * refactoring, add sugar.core.cane module with seq and ft tools
 v0.3.0:
   * io.fasta: robust parsing of seq ids from header line, ignore comment lines
   * io.stockholm: add row2fts and fts2row functions to parse, write GC and similar lines

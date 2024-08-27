@@ -405,11 +405,14 @@ class BioSeq(MutableMetaString):
 
     @property
     def fts(self):
-        return self.meta.features
+        return self.meta.get('features', FeatureList())
 
     @fts.setter
     def fts(self, value):
         self.meta.features = FeatureList(value)
+        for ft in self.meta.features:
+            if ft.seqid != self.id:
+                warn('Featue seqid and sequence id mismatch')
 
     @property
     def gc(self):
@@ -562,66 +565,19 @@ class BioSeq(MutableMetaString):
 
     def match(self, *args, **kwargs):
         """
-        Return match object for first found occurence of regex sub, None if not found
-
-        Args:
-            sub (str): regex or ``'start'`` or ``'stop'`` to find start/stop codon
-            rf (int): May be set to an integer between 0 and 2
-                inclusive to respect the corresponding reading frame.
-                Defaults to None to use all 3 RFs.
-                You may also specify a set or tuple of two reading frames.
-            start (int): Index of nucleobase to start matching. Defaults to 0.
-            gap (str): Consider gaps of given character, Defaults to None.
-            findall (bool): False will return first match, True will
-                return all matches. Defaults to False.
-
-        Returns:
-            match (match or None)
+        Searhc regex and return first match, see `~match()`
         """
-        return self._match(*args, **kwargs)
+        from sugar.core.cane import match
+        return match(self, *args, **kwargs)
 
     def matchall(self, *args, **kwargs):
+        """
+        Search regex and return all matches, see `~match()`
+        """
+        from sugar.core.cane import match
         kwargs['matchall'] = True
-        return self._match(*args, **kwargs)
+        return match(self, *args, **kwargs)
 
-
-    def _match(self, sub, *, rf=None,
-               start=0, gap='-', matchall=False):
-        from bisect import bisect
-        import re
-
-        if isinstance(sub, MutableMetaString):
-            sub = sub.data
-        if sub == 'start':
-            sub = '(AUG|ATG)'
-            if gap is not None:
-                sub = f'(A[{gap}]*U[{gap}]*G|A[{gap}]*T[{gap}]*G)'
-        elif sub == 'stop':
-            sub = '(UAG|UAA|UGA|TAG|TAA|TGA)'
-            if gap is not None:
-                gapstr = f'[{gap}]*'
-                sub = ''.join(ch + (gapstr if ch in 'UTAG' and sub[i+1] in 'UATG' else '')
-                              for i, ch in enumerate(sub))
-        if isinstance(rf, int):
-            rf = {rf}
-        elif rf is not None and set(rf) == {0, 1, 2}:
-            rf = None
-        if gap is None:
-            gaps = None
-        else:
-            gaps = [i for i, nt in enumerate(str(self)) if nt == gap if i >= start]
-        matches = []
-        for m in re.finditer(sub, str(self)):
-            if (start is None or (i := m.start()) >= start and (rf is None or (
-                    (i - start - bisect(gaps, i)) % 3 in rf
-                    if gaps else (i - start) % 3 in rf))):
-                     # bisect(gaps, i) gives number of gaps before index i
-                if matchall:
-                    matches.append(m)
-                else:
-                    return m
-        if matchall:
-            return matches
 
     def tofmtstr(self, *args, **kw):
         return BioBasket([self]).tofmtstr(*args, **kw)
@@ -639,7 +595,10 @@ class BioSeq(MutableMetaString):
         return self
 
     def translate(self, *args, **kw):
-        from sugar.core.translate import translate
+        """
+        Translate nucleotide sequence to amino acid sequence, see `~translate()`
+        """
+        from sugar.core.cane import translate
         self.data = translate(self.data, *args, **kw)
         self.type = 'aa'
         return self
@@ -688,6 +647,22 @@ class BioBasket(collections.UserList):
     @property
     def ids(self):
         return [seq.meta.id for seq in self]
+
+    @property
+    def fts(self):
+        fts = [ft for seq in self for ft in seq.fts]
+        return FeatureList(fts)
+
+    @fts.setter
+    def fts(self, value):
+        fts = value.todict()
+        for seq in self:
+            if seq.id in fts:
+                seq.fts = fts.pop(seq.id)
+        if len(fts) > 0:
+            missing_ids = ', '.join(fts.keys())
+            warn(f'Features for seqids {missing_ids} could not be '
+                 'attached to any sequence')
 
     @property
     def rc(self):
@@ -760,6 +735,9 @@ class BioBasket(collections.UserList):
         return self
 
     def translate(self, *args, **kw):
+        """
+        Translate nucleotide sequences to amino acid sequences, see `~translate()`
+        """
         for seq in self:
             seq.translate(*args, **kw)
         return self
@@ -910,6 +888,9 @@ class BioBasket(collections.UserList):
         write(self, fname, fmt=fmt, **kw)
 
     def match(self, *args, **kw):
+        """
+        Search regex and return list of matches, see `~match()`
+        """
         return [seq.match(*args, **kw) for seq in self]
 
     # def consensus(self, gap='-'):

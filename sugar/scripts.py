@@ -64,7 +64,7 @@ def translate(fname, fmt, out=None, fmtout=None, cds=False, **kw):
         seqs = read(fname, fmt)
     except Exception as ex1:
         try:
-            from sugar.core.translate import translate as trans
+            from sugar.core.cane import translate as trans
             for line in fname.splitlines():
                 print(trans(line, **kw))
             return
