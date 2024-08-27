@@ -171,3 +171,19 @@ def test_match():
     assert seq2.match('stop', gap='-', rf=2).group() == 'U-AG'
     assert seq2.match('stop', gap='-', rf=(1, 2)).group() == 'U-AG'
     assert seq2.match('stop', gap='-', rf=(0, 1)) == None
+
+
+def test_add_fts():
+    seqs = read()
+    nfts = len(seqs.fts)
+    seqs.add_fts([seqs.fts[0]])
+    assert len(seqs.fts) == nfts + 1
+    seqs = read()
+    seq = seqs[0]
+    nfts = len(seq.fts)
+    ft = seq.fts[0]
+    seq.add_fts([ft])
+    assert len(seq.fts) == nfts + 1
+    assert seq.fts[0] == ft
+    assert seq.fts[1] == ft
+    assert seq.fts[-1] != ft

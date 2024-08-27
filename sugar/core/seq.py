@@ -4,9 +4,10 @@ import collections
 import collections.abc
 import copy
 from functools import reduce
+import io
 import operator
 import sys
-import io
+from warnings import warn
 
 from sugar.data import CODES
 from sugar.core.fts import Feature, FeatureList
@@ -416,7 +417,7 @@ class BioSeq(MutableMetaString):
 
     def add_fts(self, fts):
         self.fts = self.fts + fts
-        self.meta.fts.sort()
+        self.fts.sort()
 
     @property
     def gc(self):
@@ -659,7 +660,7 @@ class BioBasket(collections.UserList):
 
     @fts.setter
     def fts(self, value):
-        fts = value.todict()
+        fts = FeatureList(value).todict()
         for seq in self:
             if seq.id in fts:
                 seq.fts = fts.pop(seq.id)
@@ -669,7 +670,7 @@ class BioBasket(collections.UserList):
                  'attached to any sequence')
 
     def add_fts(self, fts):
-        fts = fts.todict()
+        fts = FeatureList(fts).todict()
         for seq in self:
             if seq.id in fts:
                 seq.fts = seq.fts + fts.pop(seq.id)
