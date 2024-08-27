@@ -405,14 +405,14 @@ class BioSeq(MutableMetaString):
 
     @property
     def fts(self):
-        return self.meta.get('features', FeatureList())
+        return self.meta.get('fts', FeatureList())
 
     @fts.setter
     def fts(self, value):
-        self.meta.features = FeatureList(value)
-        for ft in self.meta.features:
+        self.meta.fts = FeatureList(value)
+        for ft in self.meta.fts:
             if ft.seqid != self.id:
-                warn('Featue seqid and sequence id mismatch')
+                warn('Feature seqid and sequence id mismatch')
 
     @property
     def gc(self):
@@ -436,7 +436,7 @@ class BioSeq(MutableMetaString):
             subseq = super().__getitem__(index)
         except:
             if isinstance(index, str):
-                index = self.meta.features.get(index)
+                index = self.fts.get(index)
                 if index is None:
                     raise TypeError('Feature not found')
             if isinstance(index, Location):

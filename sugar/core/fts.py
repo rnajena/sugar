@@ -425,7 +425,7 @@ class FeatureList(collections.UserList):
 
     Parameters
     ----------
-    features : list
+    data : list
         The features to create the :class:`FeatureList` from. if not
         provided, an empty :class:`FeatureList` is created.
 
@@ -485,7 +485,7 @@ class FeatureList(collections.UserList):
         else:
             p.text(str(self))
 
-    def tostr(self, raw=False, w=80, wt=12, wl=20, h=80, exclude_features=()):
+    def tostr(self, raw=False, w=80, wt=12, wl=20, h=80, exclude_fts=()):
         def _sort_meta_key(m):
             order = ['name', 'gene']
             try:
@@ -495,7 +495,7 @@ class FeatureList(collections.UserList):
         if raw:
             out = []
             for ft in self:
-                if str(getattr(ft, 'type', None)) in exclude_features:
+                if str(getattr(ft, 'type', None)) in exclude_fts:
                     continue
                 for l in ft.locs:
                     # print(getattr(ft, "type"))
@@ -520,7 +520,7 @@ class FeatureList(collections.UserList):
                 out.append(f'... and {len(self)-h+1:_} more')
                 break
             t = str(getattr(ft, 'type', None))
-            if t in exclude_features:
+            if t in exclude_fts:
                 continue
             exclude_types = ('translation', )
             metastr = ';'.join(f'{k}={v}' for k, v in
@@ -560,12 +560,12 @@ class FeatureList(collections.UserList):
         type_ = type
         if isinstance(type_, tuple):
             type_ = tuple(t.lower() for t in type_)
-        features = []
+        fts = []
         for ft in self.data:
             if (isinstance(type_, str) and ft.type.lower() == type_.lower() or
                     isinstance(type_, tuple) and ft.type.lower() in type_):
-                features.append(ft)
-        return FeatureList(features)
+                fts.append(ft)
+        return FeatureList(fts)
 
     def todict(self):
         d = {}

@@ -24,7 +24,7 @@ def read_fts(f, exclude=()):
     Read Genbank feature records from file into `.FeatureList`
 
     :param tuple exclude: Tuple of feature names to exclude,
-        possible options are ``'translation', 'features'``,
+        possible options are ``'translation', 'fts'``,
         sequences are excluded anyway.
     """
     fts = FeatureList()
@@ -39,13 +39,13 @@ def iter_(f, exclude=()):
     Read Genbank records and sequences from file into `.BioBasket`
 
     :param tuple exclude: Tuple of feature names to exclude,
-        possible options are ``'seq', 'translation', 'features'``.
+        possible options are ``'seq', 'translation', 'fts'``.
 
     """
     # allowed entries in exclude: features, translation, seq
     meta = Meta()
     attrs = Attr()
-    features = []
+    fts = []
     misc = []
     fttype = None
     ftmeta = None
@@ -65,14 +65,14 @@ def iter_(f, exclude=()):
             meta._genbank = attrs
             if 'accession' in meta._genbank:
                 meta.id = meta._genbank.accession.split()[0]
-                for ft in meta.features:
+                for ft in meta.fts:
                     ft.meta.seqid = meta.id
             try:
                 del meta._genbank.reference  # TODO: references should be parsed in a list, not yet done
             except Exception:
                 pass
-            if 'translation' in exclude and 'features' in meta:
-                for feature in meta.features:
+            if 'translation' in exclude and 'fts' in meta:
+                for feature in meta.fts:
                     try:
                         del feature.meta._genbank.translation
                     except Exception:
@@ -80,7 +80,7 @@ def iter_(f, exclude=()):
             yield BioSeq(seq.upper(), meta=meta)
             meta = Meta()
             attrs = Attr()
-            features = []
+            fts = []
             misc = []
             fttype = None
             ftmeta = None
@@ -96,7 +96,7 @@ def iter_(f, exclude=()):
                 key = line[:12].lower().strip()
                 subkey = None
                 if key == 'features':
-                    parse = 'features'
+                    parse = 'fts'
                     key = None
                     continue
                 try:
@@ -119,22 +119,22 @@ def iter_(f, exclude=()):
                     val = ''
                 attrs[key] = Attr(id=attrs[key])
                 attrs[key][subkey] = val
-        elif parse == 'features':
-            # if 'features' in exclude and 'seq' in exclude:
+        elif parse == 'fts':
+            # if 'fts' in exclude and 'seq' in exclude:
             #     continue
-            if 'features' in exclude:
+            if 'fts' in exclude:
                 continue
             if len(line[:20].strip()) > 0:
                 if fttype is not None:
                     ft = Feature(type=fttype, locs=_parse_locs(locs),
                                  meta=Meta(_genbank=ftmeta))
-                    features.append(ft)
+                    fts.append(ft)
                     fttype = None
                 key = line[:20].strip().split()[0]
                 # subkey = None
                 if key.lower() == 'origin':
                     parse = 'origin'
-                    meta.features = FeatureList(features)
+                    meta.fts = FeatureList(fts)
                     continue
                 fttype = key
                 locs = ''

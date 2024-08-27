@@ -104,15 +104,15 @@ class Meta(Attr):
             if k in self:
                 _key2str()
                 keys.discard(k)
-        for k in sorted(keys - {'features'}):
+        for k in sorted(keys - {'fts'}):
             if not k.startswith('_'):
                 _key2str()
-        for k in sorted(keys - {'features'}):
+        for k in sorted(keys - {'fts'}):
             if k.startswith('_'):
                 _key2str()
-        if 'features' in self:
+        if 'fts' in self:
             out.append(f'{"features":>{lenkey}}:\n')
-            out.append(str(self.features))
+            out.append(str(self.fts))
             # for ft in self.features:
             #     ftstr = str(ft)
             #     if len(ftstr) > w - 25:

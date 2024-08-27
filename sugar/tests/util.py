@@ -34,6 +34,6 @@ def _clean_seqs(seqs):
         for key in list(seq.meta):
             if key.startswith('_'):
                 delattr(seq.meta, key)
-        if fts := seq.meta.get('features'):
+        if fts := seq.meta.get('fts'):
            _clean_fts(fts)
     return seqs

@@ -106,7 +106,7 @@ def test_meta_str():
 def test_shortcuts():
     seq = read()[0]
     assert seq.id == seq.meta.id
-    assert seq.fts == seq.meta.features
+    assert seq.fts == seq.meta.fts
 
 
 def test_getitem():
@@ -124,7 +124,7 @@ def test_getitem():
 
     assert len(seqs[0]) == olen
     for seq in seqs:
-        seq.meta.features = FeatureList(
+        seq.meta.fts = FeatureList(
             [Feature(type='cds', start=1, stop=5)])
     seq2 = seqs[0]['cds']
     seqs2 = seqs[:, 'cds']
@@ -133,8 +133,8 @@ def test_getitem():
     assert seqs2 == seqs3
     assert len(seqs2[0]) == 4
     # features do not change
-    assert seqs2[0].meta.features[0].loc.start == 1
-    assert seqs[0][1:10].meta.features[0].loc.start == 1
+    assert seqs2[0].meta.fts[0].loc.start == 1
+    assert seqs[0][1:10].meta.fts[0].loc.start == 1
     assert seqs[:, ::-1][:, 'cds'] != seqs[:, 'cds']
     # assert 'orig_len' not in seqs[0][1:10].meta.features[0]
     # assert seqs[0][3:6].meta.features[0].stop == 3

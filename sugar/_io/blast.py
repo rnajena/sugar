@@ -68,7 +68,7 @@ def extract_seqs(fts, x='source', change_id=False):
     for ft in fts:
         seq = BioSeq(ft.meta._blast[f'{x}seq'],
                      id=ft.meta._blast[f'{x}seqid'],
-                     meta={'features': FeatureList([ft])})
+                     meta={'fts': FeatureList([ft])})
         if change_id:
             evalue = ft.meta.evalue
             from math import log10
