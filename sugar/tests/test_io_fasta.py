@@ -18,3 +18,5 @@ def test_fasta_id_from_header():
     assert _id_from_header('id42X| dd   ') == 'id42X'
     assert _id_from_header('|||gb|id42X|') == 'id42X'
     assert _id_from_header('|||gb:id42X|') == 'id42X'
+    assert _id_from_header('id42X gb:id5') == 'id42X'
+    assert _id_from_header('  gb:5') is None
