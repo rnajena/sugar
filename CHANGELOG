@@ -1,4 +1,5 @@
 dev:
+  * add ORF finding functions and methods
   * BioSeq.match: rename orf option to rf, allow tuple-like arguments
   * consequently rename BioSeq.meta.features to BioSeq.meta.fts
   * add BioBasket.fts attribute, add add_fts method for BioSeq and BioBasket

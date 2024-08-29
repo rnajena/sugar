@@ -432,7 +432,6 @@ class BioSeq(MutableMetaString):
     def i(self):
         return _Slicable(self)
 
-    @property
     def rc(self):
         return self.reverse().complement()
 
@@ -568,21 +567,26 @@ class BioSeq(MutableMetaString):
         else:
             raise ValueError(f'Unsupported tool: {tool}')
 
-    def match(self, *args, **kwargs):
+    def match(self, *args, **kw):
         """
-        Searhc regex and return first match, see `~match()`
+        Search regex and return match, see `~match()`
         """
-        from sugar.core.cane import match
-        return match(self, *args, **kwargs)
+        from sugar.core.cane import match as _match
+        return _match(self, *args, **kw)
 
-    def matchall(self, *args, **kwargs):
+    def matchall(self, *args, **kw):
         """
-        Search regex and return all matches, see `~match()`
+        Search regex and return `~BioMatchList` with all matches, see `~match()`
         """
-        from sugar.core.cane import match
-        kwargs['matchall'] = True
-        return match(self, *args, **kwargs)
+        kw['matchall'] = True
+        return self.match(*args, **kw)
 
+    def orfs(self, *args, **kw):
+        """
+        Find ORFS in the sequence, see `~find_orfs`
+        """
+        from sugar.core.cane import find_orfs
+        return find_orfs(self, *args, **kw)
 
     def tofmtstr(self, *args, **kw):
         return BioBasket([self]).tofmtstr(*args, **kw)
@@ -680,7 +684,6 @@ class BioBasket(collections.UserList):
             warn(f'Features for seqids {missing_ids} could not be '
                  'attached to any sequence')
 
-    @property
     def rc(self):
         return self.reverse().complement()
 
@@ -837,6 +840,34 @@ class BioBasket(collections.UserList):
     def d(self):
         return self.todict()
 
+    def match(self, *args, **kw):
+        """
+        Search regex and return `~BioMatchList` of matches, see `~match()`
+        """
+        from sugar.core.cane import BioMatchList
+        matches = BioMatchList()
+        for seq in self:
+            m = seq.match(*args, **kw)
+            if kw.get('matchall'):
+                matches.extend(m)
+            else:
+                matches.append(m)
+        return matches
+
+    def matchall(self, *args, **kw):
+        """
+        Search regex and return `~BioMatchList` of all matches, see `~match()`
+        """
+        kw['matchall'] = True
+        return self.match(*args, **kw)
+
+    def orfs(self, *args, **kw):
+        """
+        Find ORFS in sequences, see `~find_orfs`
+        """
+        return reduce(lambda orfs1, orfs2: orfs1 + orfs2,
+                      [seq.orfs(*args, **kw) for seq in self])
+
     def tofmtstr(self, fmt, **kw):
         out = io.StringIO()
         self.write(out, fmt=fmt, **kw)
@@ -903,11 +934,7 @@ class BioBasket(collections.UserList):
         from sugar._io import write
         write(self, fname, fmt=fmt, **kw)
 
-    def match(self, *args, **kw):
-        """
-        Search regex and return list of matches, see `~match()`
-        """
-        return [seq.match(*args, **kw) for seq in self]
+
 
     # def consensus(self, gap='-'):
     #     n = len(self)

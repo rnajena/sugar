@@ -59,7 +59,6 @@ def test_row2fts2row():
     assert row2 == row2b
     assert len(row3b) == 1003
     assert row3b.count('1') > 1
-    print(row3b)
     assert row3b.startswith('|' + 10 * '.')
     assert row3b.endswith(10 * '.' + '|')
     fts3[0].loc.stop = 6

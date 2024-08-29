@@ -153,6 +153,22 @@ def test_setitem():
     assert seqs[0] == 'ABC'
 
 
+def test_add_fts():
+    seqs = read()
+    nfts = len(seqs.fts)
+    seqs.add_fts([seqs.fts[0]])
+    assert len(seqs.fts) == nfts + 1
+    seqs = read()
+    seq = seqs[0]
+    nfts = len(seq.fts)
+    ft = seq.fts[0]
+    seq.add_fts([ft])
+    assert len(seq.fts) == nfts + 1
+    assert seq.fts[0] == ft
+    assert seq.fts[1] == ft
+    assert seq.fts[-1] != ft
+
+
 def test_match():
     seq = BioSeq('NNNUAGDDDUAGAUG')
     seqs = BioBasket([seq])
@@ -171,19 +187,22 @@ def test_match():
     assert seq2.match('stop', gap='-', rf=2).group() == 'U-AG'
     assert seq2.match('stop', gap='-', rf=(1, 2)).group() == 'U-AG'
     assert seq2.match('stop', gap='-', rf=(0, 1)) == None
+    seq3 = seq2.copy().rc()
+    match3 = seq3.match('stop', gap='-', rf='bwd')
+    assert match.span() == match3._match.span()
+    assert match.span() != match3.span()
 
 
-def test_add_fts():
-    seqs = read()
-    nfts = len(seqs.fts)
-    seqs.add_fts([seqs.fts[0]])
-    assert len(seqs.fts) == nfts + 1
-    seqs = read()
-    seq = seqs[0]
-    nfts = len(seq.fts)
-    ft = seq.fts[0]
-    seq.add_fts([ft])
-    assert len(seq.fts) == nfts + 1
-    assert seq.fts[0] == ft
-    assert seq.fts[1] == ft
-    assert seq.fts[-1] != ft
+def test_orf():
+    seqs=read()
+    orfs = seqs[0].orfs()
+    assert len(orfs) > 0
+    longest_orf = orfs.sort()[-1]
+    assert seqs[0][longest_orf] == seqs[0]['cds']
+
+    orfs2 = seqs[0].orfs(rf='both')
+    assert len(orfs2) > len(orfs)
+
+    orfs = seqs.orfs()
+    for id_ in seqs.ids:
+        assert seqs.d[id_][orfs.d[id_].sort()[-1]] == seqs.d[id_]['cds']
