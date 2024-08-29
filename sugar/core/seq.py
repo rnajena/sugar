@@ -406,7 +406,7 @@ class BioSeq(MutableMetaString):
 
     @property
     def fts(self):
-        return self.meta.get('fts', FeatureList())
+        return self.meta.setdefault('fts', FeatureList())
 
     @fts.setter
     def fts(self, value):
