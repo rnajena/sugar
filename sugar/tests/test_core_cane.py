@@ -35,3 +35,5 @@ def test_translate_final_stop():
     assert str(seq.copy().translate(final_stop=False))[-1] != '*'
     assert str(seq.copy().translate(final_stop=True))[-1] == '*'
     assert len(seq.copy().translate(final_stop=True)) == 2
+
+# TODO more tranlsation tests

@@ -245,15 +245,16 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
     Translate a string or `.BioSeq` object into an amino acid string
 
     :param bool complete: If set to ``True`` ignores stop codons,
-        otherwise the translation is stopped before the first stop codon
+        otherwise the translation is stopped at the first stop codon
     :param bool check_start: Check that the first codon is a start codon,
-        default is False for ``complete=False`` otherwise True
+        default is True for ``complete=False`` otherwise False
     :param bool check_stop: Check that the sequence ends with the first stop
         codon, default is False
     :param bool final_stop: Append * for the final stop character,
-        defaults to False for complete=False and True for complete=True
-    :param bool warn: Warn if the first codon might not be a start codon
-        (if ``check_start=True``) and warn for ambiguous stop codons,
+        defaults to False for ``complete=False`` and True for ``complete=True``
+    :param bool warn: Warn if the first codon might not be a start codon,
+        warn for ambiguous stop codons,
+        warn if the sequence does not end with a stop codon,
         default is False
     :param str astop: Symbol for ambiguous stop codons
     :param str gap: gap character, default ``'-'``, set to ``None``
@@ -268,6 +269,7 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
     aas = []
     ngap = 0
     check_start = check_start if check_start is not None else not complete
+    check_start_warn = warn
     final_stop = final_stop if final_stop is not None else complete
     codon = ''
     for i, nt in enumerate(str(seq).replace('U', 'T')):
@@ -279,12 +281,17 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
             aas.append(gap)
             ngap -= 3
         if len(codon) == 3:
-            if check_start:
-                check_start = False
+            if check_start_warn or check_start:
                 if codon not in gc.starts and codon not in gc.astarts:
-                    msg = (f'Codon {codon} is not a start codon {gc.starts} '
-                           f'in genetic code #{gc.id}')
-                    raise ValueError(msg)
+                    msg = f'Codon {codon} is not a start codon {gc.starts}'
+                    if check_start:
+                        raise ValueError(msg)
+                    else:
+                        warnings.warn(msg)
+                        check_start_warn = False
+                check_start = False
+            if check_start_warn:
+                check_start_warn = False
                 if codon not in gc.starts:
                     msg = f'Codon {codon} possibly is not a start codon.'
                     warnings.warn(msg)
@@ -297,9 +304,12 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
                 if warn:
                     warnings.warn(f'Codon {codon} might be a stop codon.')
             if codon in gc.stops:
-                if check_stop and i < len(seq) - 3:
+                if (check_stop or warn) and i < len(seq) - 3:
                     msg = 'First stop codon is not at the end of the sequence.'
-                    raise ValueError(msg)
+                    if check_stop:
+                        raise ValueError(msg)
+                    else:
+                        warnings.warn(msg)
                 if i >= len(seq) - 3 or not complete:
                     if final_stop:
                         aas.append(aa)
@@ -307,7 +317,13 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
             aas.append(aa)
             codon = ''
     else:
-        if check_stop and aa != 'X':
-            msg = f'Last codon is not a stop codon {gc.stops} in genetic code #{gc.id}'
-            raise ValueError(msg)
+        if (check_stop or warn) and codon not in gc.astops:
+            msg = f'Last codon {codon} is not a stop codon {gc.stops}'
+            if check_stop:
+                raise ValueError(msg)
+            else:
+                warnings.warn(msg)
+        elif warn and codon in gc.astops:
+            msg = f'Last codon {codon} possibly is not a stop codon'
+            warnings.warn(msg)
     return ''.join(aas)
