@@ -19,6 +19,19 @@ def test_translate():
         translate(s)
 
 
-def test_translate_method():
+def test_seq_translate():
     seqs = read()['cds'].translate()
     assert str(seqs[0]) == seqs[0].fts.get('cds').meta._genbank.translation
+
+
+def test_translate_final_stop():
+    seq = read()['cds'][0]
+    assert str(seq.copy().translate(complete=True))[-1] == '*'
+    assert str(seq.copy().translate(complete=True, final_stop=True))[-1] == '*'
+    assert str(seq.copy().translate(complete=True, final_stop=False))[-1] != '*'
+    seq[3:6] = 'TAG'
+    assert str(seq.copy().translate())[-1] != '*'
+    assert len(seq.copy().translate()) == 1
+    assert str(seq.copy().translate(final_stop=False))[-1] != '*'
+    assert str(seq.copy().translate(final_stop=True))[-1] == '*'
+    assert len(seq.copy().translate(final_stop=True)) == 2

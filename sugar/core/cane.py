@@ -239,6 +239,7 @@ def match(seq, sub, *, rf='fwd',
 
 
 def translate(seq, *, complete=False, check_start=None, check_stop=False,
+              final_stop=None,
               warn=False, astop='X', gap='-', gap_after=2, tt=1):
     """
     Translate a string or `.BioSeq` object into an amino acid string
@@ -249,13 +250,15 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
         default is False for ``complete=False`` otherwise True
     :param bool check_stop: Check that the sequence ends with the first stop
         codon, default is False
+    :param bool final_stop: Append * for the final stop character,
+        defaults to False for complete=False and True for complete=True
     :param bool warn: Warn if the first codon might not be a start codon
-        (if ``check_start=True``) and warn for amigious stop codons,
+        (if ``check_start=True``) and warn for ambiguous stop codons,
         default is False
-    :param str astop: Symbol for ambigious stop codons
+    :param str astop: Symbol for ambiguous stop codons
     :param str gap: gap character, default ``'-'``, set to ``None``
        to raise an error for non nucleotide characters
-    :param int gap_after: A single gap in the amino acis string is
+    :param int gap_after: A single gap in the amino acids string is
         written after the first ``gap_after`` gaps in the
         nucleotide sequence and afterwards after each third gap,
         default is 2
@@ -265,6 +268,7 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
     aas = []
     ngap = 0
     check_start = check_start if check_start is not None else not complete
+    final_stop = final_stop if final_stop is not None else complete
     codon = ''
     for i, nt in enumerate(str(seq).replace('U', 'T')):
         if nt == gap:
@@ -293,14 +297,17 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
                 if warn:
                     warnings.warn(f'Codon {codon} might be a stop codon.')
             if codon in gc.stops:
-                if check_stop and i < len(nt) - 1:
+                if check_stop and i < len(seq) - 3:
                     msg = 'First stop codon is not at the end of the sequence.'
                     raise ValueError(msg)
-                if not complete:
+                if i >= len(seq) - 3 or not complete:
+                    if final_stop:
+                        aas.append(aa)
                     break
             aas.append(aa)
             codon = ''
-    if check_stop and aa != 'X':
-        msg = f'Last codon is not a stop codon {gc.stops} in genetic code #{gc.id}'
-        raise ValueError(msg)
+    else:
+        if check_stop and aa != 'X':
+            msg = f'Last codon is not a stop codon {gc.stops} in genetic code #{gc.id}'
+            raise ValueError(msg)
     return ''.join(aas)
