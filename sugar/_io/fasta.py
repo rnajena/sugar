@@ -83,11 +83,7 @@ def append(seq, f):
     """
     id_ = seq.id or ''
     if '_fasta' in seq.meta and 'header' in seq.meta._fasta:
-        header = seq.meta._fasta.header.removeprefix(id_)
-        if header.strip() == '':
-            header = ''
-        else:
-            header = ' ' + header
+        header = (' ' + seq.meta._fasta.header.removeprefix(id_).lstrip()).rstrip()
     else:
         header = ''
     content = f'>{id_}{header}\n{seq.data}\n'
