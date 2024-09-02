@@ -2,7 +2,9 @@
 
 from contextlib import contextmanager
 from importlib.resources import files
+from pathlib import Path
 import tempfile
+import os
 
 
 @contextmanager
@@ -29,6 +31,7 @@ def _clean_fts(fts):
                 delattr(ft.meta, key)
     return fts
 
+
 def _clean_seqs(seqs):
     for seq in seqs:
         for key in list(seq.meta):
@@ -37,3 +40,14 @@ def _clean_seqs(seqs):
         if fts := seq.meta.get('fts'):
            _clean_fts(fts)
     return seqs
+
+
+@contextmanager
+def _changetmpdir():
+    origin = Path().resolve()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        try:
+            os.chdir(tmpdir)
+            yield Path(tmpdir)
+        finally:
+            os.chdir(origin)
