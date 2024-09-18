@@ -72,7 +72,7 @@ COMPLEMENT_TRANS = str.maketrans(COMPLEMENT_ALL)
 
 
 
-class _Slicable():
+class _Slicable_GetItemInplace():
     def __init__(self, seq):
         self.seq = seq
 
@@ -430,7 +430,7 @@ class BioSeq(MutableMetaString):
 
     @property
     def i(self):
-        return _Slicable(self)
+        return _Slicable_GetItemInplace(self)
 
     def rc(self):
         return self.reverse().complement()
