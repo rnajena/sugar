@@ -6,7 +6,10 @@ build:
     python: "3.12"
   jobs:
     pre_build:
-      - cp docs/conf.py docs/src_build/
+      - mv docs/src/*.rst docs/
       - python -m pip install . --no-deps
 sphinx:
-  configuration: docs/src_build/conf.py
+  configuration: docs/conf.py
+python:
+  install:
+    - requirements: docs/requirements.txt

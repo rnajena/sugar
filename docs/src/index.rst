@@ -2,6 +2,7 @@
 
 Sugar's functionality is provided through the following packages:
 
+
 .. autosummary::
 
     core
@@ -9,6 +10,7 @@ Sugar's functionality is provided through the following packages:
     index
     data
     web
+
 
 .. toctree::
     :hidden:

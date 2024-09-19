@@ -92,7 +92,7 @@ def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', ne
     """
     Find open reading frames (ORFS)
 
-    :param seq: `~BioSeq` sequence
+    :param seq: `.BioSeq` sequence
     :param rf: reading frame, possible values: int, string or tuple. See also
         `~match`. Default is ``'fwd'``.
     :param start: regular expression defining the start codons, defaults to ATG/AUG
@@ -104,13 +104,13 @@ def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', ne
         Never: ORFs can start at each codon.
     :param need_stop: Weather the last ORF in each RF needs to end with a stop codon.
     :param gap: gap character inserted into the start and top codon regexes,
-        default is `'-'`.
+        default is ``'-'``.
     :param minlin: Minimum length of ORFs
     :param ftype: Feature type for found ORFS, default is ``'ORF'``
 
     :returns: Returns a `~ORFList` of all found orfs.
-        You can attach these features to sequences using `~BioSeq.add_fts()` or `~BioBasket.add_fts()`.
-        Use the `~BioSeq.fts` and `~BioBasket.fts` properties to overwrite all features with the found ORFs.
+        You can attach these features to sequences using `.BioSeq.add_fts()` or `.BioBasket.add_fts()`.
+        Use the `.BioSeq.fts` and `.BioBasket.fts` properties to overwrite all features with the found ORFs.
     """
     # rf  0, 1, 2, -1, -2, -3, 'fwd', 'bwd', 'both'
     assert need_start in ('never', 'always', 'once')

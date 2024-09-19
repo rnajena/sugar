@@ -569,21 +569,21 @@ class BioSeq(MutableMetaString):
 
     def match(self, *args, **kw):
         """
-        Search regex and return match, see `~match()`
+        Search regex and return match, see ``~.cane.match()``
         """
         from sugar.core.cane import match as _match
         return _match(self, *args, **kw)
 
     def matchall(self, *args, **kw):
         """
-        Search regex and return `~BioMatchList` with all matches, see `~match()`
+        Search regex and return `.BioMatchList` with all matches, see `~.cane.match()`
         """
         kw['matchall'] = True
         return self.match(*args, **kw)
 
     def orfs(self, *args, **kw):
         """
-        Find ORFS in the sequence, see `~find_orfs`
+        Find ORFS in the sequence, see `.find_orfs()`
         """
         from sugar.core.cane import find_orfs
         return find_orfs(self, *args, **kw)
@@ -842,7 +842,7 @@ class BioBasket(collections.UserList):
 
     def match(self, *args, **kw):
         """
-        Search regex and return `~BioMatchList` of matches, see `~match()`
+        Search regex and return `.BioMatchList` of matches, see `~.cane.match()`
         """
         from sugar.core.cane import BioMatchList
         matches = BioMatchList()
@@ -856,14 +856,14 @@ class BioBasket(collections.UserList):
 
     def matchall(self, *args, **kw):
         """
-        Search regex and return `~BioMatchList` of all matches, see `~match()`
+        Search regex and return `.BioMatchList` of all matches, see `~.cane.match()`
         """
         kw['matchall'] = True
         return self.match(*args, **kw)
 
     def orfs(self, *args, **kw):
         """
-        Find ORFS in sequences, see `~find_orfs`
+        Find ORFS in sequences, see `.find_orfs()`
         """
         return reduce(lambda orfs1, orfs2: orfs1 + orfs2,
                       [seq.orfs(*args, **kw) for seq in self])

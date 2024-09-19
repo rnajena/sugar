@@ -90,33 +90,32 @@ class Strand(StrEnum):
 
 
 class Location():
-    """
-    A :class:`Location` defines at which base(s)/residue(s) a feature is
-    located.
-
-    A feature can have multiple :class:`Location` instances if multiple
-    locations are joined.
-
-    Objects of this class are immutable.
-
-    Attributes
-    ----------
-    start : int
-        Starting base or residue position of the feature.
-    stop : int
-        Inclusive ending base or residue position of the feature.
-    strand : Strand
-        The strand direction.
-        Always :attr:`Strand.FORWARD` for peptide features.
-    defect : Defect
-        A possible defect of the location.
-    """
-
     Strand = Strand
     Defect = Defect
 
     def __init__(self, start, stop, strand=Strand.FORWARD,
                  defect=Defect.NONE):
+        """
+        A :class:`Location` defines at which base(s)/residue(s) a feature is
+        located.
+
+        A feature can have multiple :class:`Location` instances if multiple
+        locations are joined.
+
+        Objects of this class are immutable.
+
+        Attributes
+        ----------
+        start : int
+            Starting base or residue position of the feature.
+        stop : int
+            Inclusive ending base or residue position of the feature.
+        strand : Strand
+            The strand direction.
+            Always :attr:`Strand.FORWARD` for peptide features.
+        defect : Defect
+            A possible defect of the location.
+        """
         if start >= stop:
             raise ValueError(
                 "The start position must be lower than the stop position"
@@ -392,86 +391,85 @@ class Feature():
 
 
 class FeatureList(collections.UserList):
-    """
-    A `FeatureList` is a set of features belonging to one sequence.
-
-    Its advantage over a simple list is the base/residue position based
-    indexing:
-    When using the `slice()` method call, a subannotation is
-    created, containing copies of all :class:`Feature` objects whose
-    start and stop base/residue are in range of the slice.
-    If the slice starts after the start base/residue or/and the slice
-    ends before the stop residue, the position out of range is set to
-    the boundaries of the slice (the `Feature` is truncated).
-    In this case the :class:`Feature` obtains the
-    `Location.Defect.MISS_LEFT` and/or
-    `Location.Defect.MISS_RIGHT` defect.
-    The third case occurs when a `Feature` starts after the slice
-    ends or a `Feature` ends before the slice starts.
-    In this case the`Feature` will not appear in the
-    subannotation.
-
-    The start or stop position in the slice indices can be omitted, then
-    the subannotation will include all features from the start or up to
-    the stop, respectively. Step values are ignored.
-    The stop values are still exclusive, i.e. the subannotation will
-    contain a not truncated :class:`Feature` only if its stop
-    base/residue is smaller than the stop value of the slice.
-
-    Multiple :class:`FeatureList` objects can be concatenated to one
-    :class:`FeatureList` object using the '+' operator.
-    If a feature is present in both :class:`FeatureList` objects, the
-    resulting :class:`FeatureList` will contain this feature twice.
-
-    Parameters
-    ----------
-    data : list
-        The features to create the :class:`FeatureList` from. if not
-        provided, an empty :class:`FeatureList` is created.
-
-    """
-    # TODO
-    """
-    Examples
-    --------
-    Creating an annotation from a feature list:
-
-    >>> feature1 = Feature("CDS", [Location(-10, 30 )], meta={"gene" : "test1"})
-    >>> feature2 = Feature("CDS", [Location(20,  50 )], meta={"gene" : "test2"})
-    >>> annotation = FeatureList([feature1, feature2])
-    >>> for f in sorted(list(annotation)):
-    ...     print(f.meta["gene"], "".join([str(loc) for loc in f.locs]))
-    test1 -10-30 >
-    test2 20-50 >
-
-    Merging two annotations and a feature:
-
-    >>> feature3 = Feature("CDS", [Location(100, 130 )], meta={"gene" : "test3"})
-    >>> feature4 = Feature("CDS", [Location(150, 250 )], meta={"gene" : "test4"})
-    >>> annotation2 = FeatureList([feature3, feature4])
-    >>> feature5 = Feature("CDS", [Location(-50, 200 )], meta={"gene" : "test5"})
-    >>> annotation = annotation + annotation2 + feature5
-    >>> for f in sorted(list(annotation)):
-    ...     print(f.meta["gene"], "".join([str(loc) for loc in f.locs]))
-    test5 -50-200 >
-    test1 -10-30 >
-    test2 20-50 >
-    test3 100-130 >
-    test4 150-250 >
-
-    Location based indexing, note the defects:
-
-    >>> annotation = annotation[40:150]
-    >>> for f in sorted(list(annotation)):
-    ...     gene = f.meta["gene"]
-    ...     loc_str = "".join([f"{loc}    {loc.defect}" for loc in f.locs])
-    ...     print(gene, loc_str)
-    test5 40-149 >    Defect.MISS_RIGHT|MISS_LEFT
-    test2 40-50 >    Defect.MISS_LEFT
-    test3 100-130 >    Defect.NONE
-    """
-
     def __init__(self, data=None):
+        """
+        A `FeatureList` is a set of features belonging to one sequence.
+
+        Its advantage over a simple list is the base/residue position based
+        indexing:
+        When using the `slice()` method call, a subannotation is
+        created, containing copies of all :class:`Feature` objects whose
+        start and stop base/residue are in range of the slice.
+        If the slice starts after the start base/residue or/and the slice
+        ends before the stop residue, the position out of range is set to
+        the boundaries of the slice (the `Feature` is truncated).
+        In this case the :class:`Feature` obtains the
+        `Location.Defect.MISS_LEFT` and/or
+        `Location.Defect.MISS_RIGHT` defect.
+        The third case occurs when a `Feature` starts after the slice
+        ends or a `Feature` ends before the slice starts.
+        In this case the`Feature` will not appear in the
+        subannotation.
+
+        The start or stop position in the slice indices can be omitted, then
+        the subannotation will include all features from the start or up to
+        the stop, respectively. Step values are ignored.
+        The stop values are still exclusive, i.e. the subannotation will
+        contain a not truncated :class:`Feature` only if its stop
+        base/residue is smaller than the stop value of the slice.
+
+        Multiple :class:`FeatureList` objects can be concatenated to one
+        :class:`FeatureList` object using the '+' operator.
+        If a feature is present in both :class:`FeatureList` objects, the
+        resulting :class:`FeatureList` will contain this feature twice.
+
+        Parameters
+        ----------
+        data : list
+            The features to create the :class:`FeatureList` from. if not
+            provided, an empty :class:`FeatureList` is created.
+
+        """
+        # TODO
+        """
+        Examples
+        --------
+        Creating an annotation from a feature list:
+
+        >>> feature1 = Feature("CDS", [Location(-10, 30 )], meta={"gene" : "test1"})
+        >>> feature2 = Feature("CDS", [Location(20,  50 )], meta={"gene" : "test2"})
+        >>> annotation = FeatureList([feature1, feature2])
+        >>> for f in sorted(list(annotation)):
+        ...     print(f.meta["gene"], "".join([str(loc) for loc in f.locs]))
+        test1 -10-30 >
+        test2 20-50 >
+
+        Merging two annotations and a feature:
+
+        >>> feature3 = Feature("CDS", [Location(100, 130 )], meta={"gene" : "test3"})
+        >>> feature4 = Feature("CDS", [Location(150, 250 )], meta={"gene" : "test4"})
+        >>> annotation2 = FeatureList([feature3, feature4])
+        >>> feature5 = Feature("CDS", [Location(-50, 200 )], meta={"gene" : "test5"})
+        >>> annotation = annotation + annotation2 + feature5
+        >>> for f in sorted(list(annotation)):
+        ...     print(f.meta["gene"], "".join([str(loc) for loc in f.locs]))
+        test5 -50-200 >
+        test1 -10-30 >
+        test2 20-50 >
+        test3 100-130 >
+        test4 150-250 >
+
+        Location based indexing, note the defects:
+
+        >>> annotation = annotation[40:150]
+        >>> for f in sorted(list(annotation)):
+        ...     gene = f.meta["gene"]
+        ...     loc_str = "".join([f"{loc}    {loc.defect}" for loc in f.locs])
+        ...     print(gene, loc_str)
+        test5 40-149 >    Defect.MISS_RIGHT|MISS_LEFT
+        test2 40-50 >    Defect.MISS_LEFT
+        test3 100-130 >    Defect.NONE
+        """
         if hasattr(data, 'data'):
             data = data.data
         super().__init__(data)
