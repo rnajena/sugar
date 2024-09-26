@@ -8,10 +8,10 @@ Submodules
 
 .. autosummary::
 
-   fts
-   meta
    seq
+   fts
    cane
+   meta
 
 .. toctree::
    :maxdepth: 3

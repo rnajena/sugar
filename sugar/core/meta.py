@@ -1,4 +1,7 @@
 # (C) 2024, Tom Eulenfeld, MIT license
+"""
+Metadata related classes, `.Attr` and `.Meta`
+"""
 
 import collections.abc
 import copy
@@ -14,25 +17,25 @@ class Attr(collections.abc.MutableMapping):
 
     You may use the following syntax to change or access data in this class.
 
-    >>> meta = Meta()
-    >>> meta.comment = 'bla'
-    >>> meta['another_comment'] = 'yeah'
-    >>> print(stats.get('comment'))
+    >>> attr = Attr()
+    >>> attr.comment = 'bla'
+    >>> attr['another_comment'] = 'yeah'
+    >>> print(attr.get('comment'))
     bla
-    >>> print(stats['comment'])
+    >>> print(attr['comment'])
     bla
-    >>> print(stats.comment)
+    >>> print(attr.comment)
     bla
     """
 
     def __init__(self, *args, **kwargs):
         """
-        A Meta object can be initialized in two ways. It can be given an
+        An Attr object can be initialized in two ways. It can be given an
         existing dictionary as a simple argument or alternatively all keyword
         arguments will become (key, value) pairs.
 
-        >>> meta1 = Meta({'a':1, 'b':2})
-        >>> meta2 = Meta(a=1, b=2)
+        >>> attr1 = Attr({'a':1, 'b':2})
+        >>> attr2 = Attr(a=1, b=2)
         """
         self.update(dict(*args, **kwargs))
 
@@ -78,7 +81,7 @@ class Attr(collections.abc.MutableMapping):
 
 class Meta(Attr):
     """
-    A class representing sequence metadata
+    A class representing sequence or feature metadata
     """
     def __str__(self):
         return self.tostr()

@@ -65,6 +65,12 @@ extensions = ['sphinx.ext.autodoc',
 
 # autodoc_mock_imports = parse_imports()
 # print(f'set {autodoc_mock_imports=}')
+autodoc_default_options = {
+    'members': True,
+    'undoc-members': True,
+    'private-members': True,
+    'show-inheritance': True,
+}
 
 html_theme = 'furo'
 html_static_path = ['_static']

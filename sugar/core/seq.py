@@ -1,4 +1,7 @@
 # (C) 2024, Tom Eulenfeld, MIT license
+"""
+Sequence related classes, `.MutableMetaString`, `.BioSeq`, `.BioBasket`
+"""
 
 import collections
 import collections.abc

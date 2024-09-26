@@ -1,4 +1,7 @@
 # (C) 2023, Tom Eulenfeld, MIT license
+"""
+Entrez client
+"""
 import io
 import os
 from collections import deque

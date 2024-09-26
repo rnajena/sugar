@@ -31,6 +31,11 @@
 
 
 # This code is adapted from the biotite package, 2024 Tom Eulenfeld
+"""
+Feature related classes `.Feature`, `.FeatureList`, `.Location`, `.Location.Strand`, `.Location.Defect`
+
+Some code is modified from bitotite package.
+"""
 
 __all__ = ["Location", "Feature", "FeatureList"]
 
