@@ -23,7 +23,7 @@ def _create_bioseq(datalines, id_, header):
     return seq
 
 
-CHS = '[^,|;\s]'
+CHS = '[^,|;\s]'  # allowed characters in the seq ID
 
 # capture some cases from https://de.wikipedia.org/wiki/FASTA-Format
 IDPATTERN= (

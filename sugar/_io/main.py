@@ -170,7 +170,7 @@ def _resolve_fname(example_fname='!data/example.gb'):
                 raise ValueError(msg)
             if fname is None:  # load example file
                 fname = example_fname
-            elif isinstance(fname, PurePath):  # comnvert Path object to string
+            elif isinstance(fname, PurePath):  # convert Path object to string
                 fname = str(fname)
             if not isinstance(fname, str):  # it is a file-like object, pass through
                 fl = fname
@@ -192,7 +192,7 @@ def _resolve_fname(example_fname='!data/example.gb'):
                             f.write(r.content)
                             f.close()
                             return new_reader(f.name, *args, archive=archive, **kw)
-                    elif archive == 'gz' or bname.endswith('.gz'):  # uncompress download
+                    elif archive == 'gz' or bname.endswith('.gz'):  # decompress download
                         import gzip
                         fl = io.BytesIO(gzip.decompress(r.content))
                     else:
@@ -217,7 +217,7 @@ def _resolve_fname(example_fname='!data/example.gb'):
                         shutil.unpack_archive(fname, tmpdir, archive)
                         globexpr = os.path.join(tmpdir, '**/*.*')
                         return new_reader(globexpr, *args, **kw)
-                elif archive == 'gz' or fname.endswith('.gz'):  # uncompress file
+                elif archive == 'gz' or fname.endswith('.gz'):  # decompress file
                     import gzip
                     with gzip.open(fname) as f:
                         fl = io.BytesIO(f.read())
@@ -281,16 +281,16 @@ def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
         a web resource,
         an archive, gzipped file,
         or a file-like object (e.g. `~io.BytesIO`, `~io.StringIO`)
-    :param fmt: format of the file (defaul: auto-detect)
+    :param fmt: format of the file (default: auto-detect)
     :param mode: mode for opening the file, change this only if you know what
         you do
     :param encoding: encoding of the file
     :param tool: use alternative tool for reading the file,
         supported tools are: ``'biopython'``
-    :param archive: Explicitely request reading an archive, type may be specified
+    :param archive: Explicitly request reading an archive, type may be specified
        (default: auto-detected by file extension)
 
-    All other kwargs are passed to the underlaying reader routine.
+    All other kwargs are passed to the underlying reader routine.
 
     The following formats are supported, for documentation of supported kwargs
     follow the provided links.
@@ -354,14 +354,14 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
         a web resource,
         an archive, gzipped file,
         or a file-like object (e.g. `~io.BytesIO`, `~io.StringIO`)
-    :param fmt: format of the file (defaul: auto-detect)
+    :param fmt: format of the file (default: auto-detect)
     :param mode: mode for opening the file, change this only if you know what
         you do
     :param encoding: encoding of the file
-    :param archive: Explicitely request reading an archive, type may be specified
+    :param archive: Explicitly request reading an archive, type may be specified
        (default: auto-detected by file extension)
 
-    All other kwargs are passed to the underlaying reader routine.
+    All other kwargs are passed to the underlying reader routine.
 
     The following formats are supported, for documentation of supported kwargs
     follow the provided links.

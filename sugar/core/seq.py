@@ -915,19 +915,20 @@ class BioBasket(collections.UserList):
         """
         Write sequences to file
 
-        This method calls the underlaying writer routines via `~.main.write()`
+        This method calls the underlying writer routines via `~.main.write()`
 
         :param fname: filename or file-like object
-        :param fmt: format of the file (defaul: auto-detect with file extension)
+        :param fmt: format of the file (default: auto-detect with file extension)
         :param mode: mode for opening the file, change this only if you know what
-            you do
+            you do, you may use ``mode='a'`` for appending to an existing file, but
+            this will only work with FASTA files
         :param encoding: encoding of the file
         :param tool: use alternative tool for writing the file,
             supported tools are: ``'biopython'``
-        :param archive: Explicitely request writing an archive, type may be specified
+        :param archive: Explicitly request writing an archive, type may be specified
            (default: auto-detected by file extension)
 
-        All other kwargs are passed to the underlaying writer routine.
+        All other kwargs are passed to the underlying writer routine.
 
         The following formats are supported, for documentation of supported kwargs
         follow the provided links.
