@@ -1,7 +1,6 @@
 __pycache__
-_build
+docs/_build
 .ipynb_checkpoints
-src_build
 *.egg-info
 .coverage
-docs/_static/sugar_logo.png  # copied anew on the fly
+docs/_static/sugar_logo.png
