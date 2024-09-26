@@ -1,4 +1,7 @@
 # (C) 2024, Tom Eulenfeld, MIT license
+"""
+Main IO functions, `read()`, `.iter_()`, `.write()`, `.read_fts()`, `.write_fts()`
+"""
 
 from contextlib import contextmanager
 from functools import reduce, wraps

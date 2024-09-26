@@ -1,4 +1,7 @@
 # (C) 2024, Tom Eulenfeld, MIT license
+"""
+Helper functions for _io module
+"""
 from importlib.metadata import entry_points
 import shutil
 

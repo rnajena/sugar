@@ -30,6 +30,11 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # This code is adapted from the biotite package
+"""
+Helper module for parsing locations in GenBank files
+
+Adapted from biotite package.
+"""
 
 from sugar.core.fts import Location
 import warnings
