@@ -12,7 +12,7 @@ The sugar project aims to provide a lightweight framework to facilitate rapid ap
 
 ### Documentation
 
-* [API documentation](https://rnajena-sugar.readthedocs.io)
+* [API documentation](https://rnajena-sugar.readthedocs.io) including a short introduction
 * Short tutorial: [notebook](https://nbviewer.jupyter.org/github/rnajena/sugar/blob/master/docs/notebooks/sugar_tutorial.ipynb)
 * Consult and contribute to [wiki](https://github.com/rnajena/sugar/wiki)
 

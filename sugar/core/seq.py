@@ -921,7 +921,7 @@ class BioBasket(collections.UserList):
         :param fmt: format of the file (default: auto-detect with file extension)
         :param mode: mode for opening the file, change this only if you know what
             you do, you may use ``mode='a'`` for appending to an existing file, but
-            this will only work with FASTA files
+            this will only work with compatible formats (i.e. FASTA)
         :param encoding: encoding of the file
         :param tool: use alternative tool for writing the file,
             supported tools are: ``'biopython'``
