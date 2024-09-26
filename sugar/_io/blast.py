@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
-BLAST reader for output generated with option outfmt 7 (preferred), 6, or 11
+BLAST reader for output generated with option outfmt 7 (preferred), 6, or 10
 """
 
 from sugar.core.fts import Feature, FeatureList, Location
@@ -55,6 +55,12 @@ copyattrs = [('bitscore', 'score'),
 assert len(OUTFMT) == len(HEADERFMT) == len(TYPES)
 
 
+OUTFMT6_DEFAULT =  """
+qseqid sseqid pident length mismatch gapopen
+qstart qend sstart send evalue bitscore
+""".split()
+
+
 def extract_seqs(fts, x='source', change_id=False):
     """
     Extract sequences from BLAST features and return `.BioBasket`
@@ -79,6 +85,7 @@ def extract_seqs(fts, x='source', change_id=False):
         seqs.append(seq)
     return BioBasket(seqs)
 
+
 def get_query_fts(fts):
     """
     Convert BLAST source features to query features
@@ -102,13 +109,13 @@ def get_query_fts(fts):
     return fts
 
 
-def is_format_fts(f, *, sep='\t', outfmt=None, **kw):
+def is_format_fts(f, **kw):
     content = f.read(1000)
     if content.startswith('#') and 'BLAST' in content:
         return True
-    if outfmt is not None:
-        line = content.splitlines()[0]
-        return len(line.split(sep)) == len(outfmt.split())
+    # just try to read first line
+    line = content.splitlines()[0]
+    return len(read_fts([line], **kw)) == 1
 
 
 def _convert2ind(headers, l=OUTFMT):
@@ -121,10 +128,12 @@ def _convert2ind(headers, l=OUTFMT):
 @_add_fmt_doc('read_fts')
 def read_fts(f, *, sep='\t', outfmt=None, ftype=None):
     """
-    BLAST reader for output generated with option outfmt 7 (preferred), 6, or 11
+    BLAST reader for output generated with option outfmt 7 (preferred), 6, or 10
 
-    :param str sep: Separator of fields, use ``','`` for outfmt 11, default ``'\\t'``
-    :param str outfmt: The outfmt string passed to BLAST, can be ommited for outfmt 7
+    :param str sep: Separator of fields, use ``','`` for outfmt 10, default ``'\\t'``,
+        can be set to ``None`` for any whitespace.
+    :param str outfmt: The outfmt string passed to BLAST, can be omitted for outfmt 7
+        or default outfmt 6 or 10 output.
     :param str ftype: Parameter used as ftype
     """
     fts = []
@@ -138,6 +147,11 @@ def read_fts(f, *, sep='\t', outfmt=None, ftype=None):
         elif line.startswith('#') or line.strip() == '':
             pass
         else:
+            if inds is None:
+                # outfmt not defined in header (as with outfmt 7)
+                # and not supplied by user
+                # assume default
+                inds = _convert2ind(OUTFMT6_DEFAULT)
             attrs = {}
             for i, v in enumerate(line.strip().split(sep)):
                 attrs[OUTFMT[inds[i]]] = TYPES[inds[i]](v)

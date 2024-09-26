@@ -21,3 +21,8 @@ def test_blast_outfmt():
                   'gapopen qstart qend qlen sstart send sstrand slen')
         fts = read_fts(f, outfmt=outfmt)
     assert len(fts) == 1
+
+
+def test_blast_outfmt10():
+    fts = read_fts('!data/io_blast_outfmt10.blastn', 'BLAST', sep=',')
+    assert len(fts) == 2
