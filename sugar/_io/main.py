@@ -41,12 +41,14 @@ def _file_opener(f, mode='r', binary=False, encoding=None):
             f = _NonClosingTextIOWrapper(f, encoding=encoding)
         yield f
 
+
 class _NonClosingTextIOWrapper(io.TextIOWrapper):
     def __del__(self):
         try:
             self.detach()
         except Exception:
             pass
+
 
 def detect(fname, what='seqs', *, encoding=None, **kw):
     """
@@ -76,22 +78,6 @@ def detect(fname, what='seqs', *, encoding=None, **kw):
                     f.seek(fpos)
 
 
-# def detect_fts(fname, **kw):
-#     with file_opener(fname) as f:
-#         fpos = f.tell()
-#         for fmt in FMTS_FTS_ALL:
-#             module = EPS_FTS[fmt].load()
-#             if hasattr(module, 'is_format_fts'):
-#                 f.seek(fpos)
-#                 try:
-#                     if module.is_format_fts(f, **kw):
-#                         return fmt
-#                 except Exception:
-#                     pass
-#                 finally:
-#                     f.seek(fpos)
-
-
 def detect_ext(fname, what='seqs'):
     """
     Try to detect file format for writing from extension
@@ -110,20 +96,6 @@ def detect_ext(fname, what='seqs'):
         if hasattr(module, 'filename_extensions' + suf):
             if ext in getattr(module, 'filename_extensions' + suf):
                 return fmt
-
-
-# def detect_ext_fts(fname):
-#     try:
-#         _, ext = os.path.splitext(fname)
-#         ext = ext.removeprefix('.')
-#     except Exception:
-#         return
-#     for fmt in FMTS_FTS_ALL:
-#         module = EPS_FTS[fmt].load()
-#         if hasattr(module, 'filename_extensions_fts'):
-#             if ext in module.filename_extensions_fts:
-#                 return fmt
-
 
 
 def _resolve_archive(writer):
@@ -150,10 +122,9 @@ def __get_ext(fname):
     return os.path.split(fname)[1].split('.', 1)[-1]
 
 
-
 def _resolve_fname(example_fname='!data/example.gb'):
     """
-    Decorator, takes filename as string and resolved the filename
+    Decorator, takes filename as string and resolves the filename
 
     Can also deal with online resources, glob expressions,
     BytesIO and TextIO objects are just passed through.
@@ -387,7 +358,26 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
 @_resolve_archive
 def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
     """
-    Write sequences to file, see `.BioBasket.write()`
+    Write sequences to file, use it via `.BioBasket.write()` or `.BioSeq.write()`
+
+    :param seqs: BioBasket object
+    :param fname: filename or file-like object
+    :param fmt: format of the file (default: auto-detect with file extension)
+    :param mode: mode for opening the file, change this only if you know what
+        you do, you may use ``mode='a'`` for appending to an existing file, but
+        this will only work with compatible formats (i.e. FASTA)
+    :param encoding: encoding of the file
+    :param tool: use alternative tool for writing the file,
+        supported tools are: ``'biopython'``
+    :param archive: Explicitly request writing an archive, type may be specified
+        (default: auto-detected by file extension)
+
+    All other kwargs are passed to the underlying writer routine.
+
+    The following formats are supported, for documentation of supported kwargs
+    follow the provided links.
+
+    {format_table}
     """
     if fmt is None:
         fmt = detect_ext(fname)
@@ -416,7 +406,23 @@ def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
 @_resolve_archive
 def write_fts(fts, fname, fmt=None, *, mode='w', **kw):
     """
-    Write features to file, see `.FeatureList.write()`
+    Write features to file, use it via `.FeatureList.write()` or `.Feature.write()`
+
+    :param fts: FeatureList object
+    :param fname: filename or file-like object
+    :param fmt: format of the file (default: auto-detect with file extension)
+    :param mode: mode for opening the file, change this only if you know what
+        you do
+    :param encoding: encoding of the file
+    :param archive: Explicitly request writing an archive, type may be specified
+        (default: auto-detected by file extension)
+
+    All other kwargs are passed to the underlying writer routine.
+
+    The following formats are supported, for documentation of supported kwargs
+    follow the provided links.
+
+    {format_table}
     """
     if fmt is None:
         fmt = detect_ext(fname, 'fts')

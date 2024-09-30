@@ -388,8 +388,11 @@ class Feature():
         ft.locs = sorted(ft.locs, key=lambda l: l.start)
         return ft
 
-
-
+    def write(self, *args, **kw):
+        """
+        Write feature to file, see `~.main.write_fts()`
+        """
+        FeatureList([self]).write(self, *args, **kw)
 
     # def __hash__(self):
     #     return hash((self.type, self.locs, frozenset(self.meta.items())))
@@ -607,24 +610,7 @@ class FeatureList(collections.UserList):
 
     def write(self, fname, fmt=None, **kw):
         """
-        Write features to file
-
-        This method calls the underlaying writer routines via `~.main.write_fts()`
-
-        :param fname: filename or file-like object
-        :param fmt: format of the file (defaul: auto-detect with file extension)
-        :param mode: mode for opening the file, change this only if you know what
-            you do
-        :param encoding: encoding of the file
-        :param archive: Explicitely request writing an archive, type may be specified
-           (default: auto-detected by file extension)
-
-        All other kwargs are passed to the underlaying writer routine.
-
-        The following formats are supported, for documentation of supported kwargs
-        follow the provided links.
-
-        {format_table}
+        Write features to file, see `~.main.write_fts()`
         """
         from sugar._io import write_fts
         write_fts(self, fname, fmt=fmt, **kw)

@@ -608,7 +608,7 @@ class BioSeq(MutableMetaString):
 
     def translate(self, *args, **kw):
         """
-        Translate nucleotide sequence to amino acid sequence, see `~translate()`
+        Translate nucleotide sequence to amino acid sequence, see `~.cane.translate()`
         """
         from sugar.core.cane import translate
         self.data = translate(self.data, *args, **kw)
@@ -616,6 +616,9 @@ class BioSeq(MutableMetaString):
         return self
 
     def write(self, *args, **kw):
+        """
+        Write sequence to file, see `~.main.write()`
+        """
         BioBasket([self]).write(*args, **kw)
 
 
@@ -758,7 +761,7 @@ class BioBasket(collections.UserList):
 
     def translate(self, *args, **kw):
         """
-        Translate nucleotide sequences to amino acid sequences, see `~translate()`
+        Translate nucleotide sequences to amino acid sequences, see `~.cane.translate()`
         """
         for seq in self:
             seq.translate(*args, **kw)
@@ -913,27 +916,7 @@ class BioBasket(collections.UserList):
 
     def write(self, fname, fmt=None, **kw):
         """
-        Write sequences to file
-
-        This method calls the underlying writer routines via `~.main.write()`
-
-        :param fname: filename or file-like object
-        :param fmt: format of the file (default: auto-detect with file extension)
-        :param mode: mode for opening the file, change this only if you know what
-            you do, you may use ``mode='a'`` for appending to an existing file, but
-            this will only work with compatible formats (i.e. FASTA)
-        :param encoding: encoding of the file
-        :param tool: use alternative tool for writing the file,
-            supported tools are: ``'biopython'``
-        :param archive: Explicitly request writing an archive, type may be specified
-           (default: auto-detected by file extension)
-
-        All other kwargs are passed to the underlying writer routine.
-
-        The following formats are supported, for documentation of supported kwargs
-        follow the provided links.
-
-        {format_table}
+        Write sequences to file, see `~.main.write()`
         """
         from sugar._io import write
         write(self, fname, fmt=fmt, **kw)

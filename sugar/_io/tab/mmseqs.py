@@ -13,7 +13,7 @@ def is_format_fts(f, *, sep='\t', outfmt=None, **kw):
     line = content.splitlines()[0]
     fields = line.strip().split(sep)
     if len(fields) > 0 and set(fields) <= set(_MMSEQS_HEADER_NAMES):
-        # MMseqs header present, fmtmode 4 used
+        # MMseqs header present, fmtmode 4 was used
         return True
     # try to read it
     fts = read_fts([line], sep=sep, outfmt=outfmt, **kw)
@@ -40,7 +40,8 @@ def read_fts(f, *, sep='\t', outfmt=None, ftype=None):
     :param str sep: Separator of fields, default ``'\\t'``,
         can be set to ``None`` for any whitespace.
     :param str outfmt: The string passed to MMseqs2 option ``--format-output``,
-        can be omitted if MMseqs2 was called with ``--fmtmode 4``
+        can be omitted if MMseqs2 was called with ``--fmtmode 4`` or
+        ``--fmtmode 0`` with default format-output
     :param str ftype: Parameter used as ftype
     """
     return _read_tabular(f, sep=sep, outfmt=outfmt, ftype=ftype, fmt='mmseqs')
