@@ -43,7 +43,8 @@ gff = "sugar._io.gff"
 [project.entry-points."sugar.io.fts"]
 gff = "sugar._io.gff"
 genbank = "sugar._io.genbank"
-blast = "sugar._io.blast"
+blast = "sugar._io.tab.blast"
+mmseqs = "sugar._io.tab.mmseqs"
 
 [build-system]
 requires = ["setuptools>=61.0"]
