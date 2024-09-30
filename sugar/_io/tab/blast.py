@@ -1,8 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
 `BLAST`_ reader for output generated with outfmt 7 (preferred), 6 or 10
-
-.. _BLAST: https://blast.ncbi.nlm.nih.gov
 """
 
 from collections import namedtuple

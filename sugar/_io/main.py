@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
-Main IO functions, `read()`, `.iter_()`, `.write()`, `.read_fts()`, `.write_fts()`
+Main IO functions, `~.main.read()`, `~.main.iter_()`, `~.main.write()`, `~.main.read_fts()`, `~.main.write_fts()`
 """
 
 from contextlib import contextmanager

@@ -8,13 +8,14 @@ Submodules
 
 .. autosummary::
 
-   blast
    fasta
    genbank
    gff
    main
    sjson
    stockholm
+   tab.blast
+   tab.mmseqs
    util
 
 .. toctree::

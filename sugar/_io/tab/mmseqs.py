@@ -1,8 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
 `MMseqs2`_ reader for output generated with option fmtmode 4 (preferred) or 0
-
-.. _MMseqs2: https://github.com/soedinglab/MMseqs2
 """
 
 from sugar._io.tab.blast import _read_tabular, _MMSEQS_HEADER_NAMES

@@ -53,6 +53,8 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 rst_epilog = """
 .. _BinarySeachFile: https://github.com/trichter/binarysearchfile
+.. _BLAST: https://blast.ncbi.nlm.nih.gov
+.. _MMseqs2: https://github.com/soedinglab/MMseqs2
 """
 
 extensions = ['sphinx.ext.autodoc',
