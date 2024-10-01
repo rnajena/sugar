@@ -11,7 +11,7 @@ from sugar.core.seq import Attr, BioSeq, BioBasket
 from sugar._io.util import _add_fmt_doc
 
 
-filename_extensions = ['stk', 'stockholm']
+filename_extensions = ['stk', 'sto', 'stockholm']
 
 
 def is_format(f, **kw):
