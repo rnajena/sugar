@@ -251,7 +251,7 @@ def is_format_fts(f, outfmt=None, **kw):
 
 
 @_add_fmt_doc('read_fts')
-def read_fts(f, *, sep='\t', outfmt=None, ftype=None):
+def read_fts(f, *, sep='\t', outfmt=None, ftype=None, comments=None):
     """
     BLAST reader for output generated with option outfmt 7 (preferred), 6, or 10
 
@@ -260,8 +260,10 @@ def read_fts(f, *, sep='\t', outfmt=None, ftype=None):
     :param str outfmt: The outfmt string passed to BLAST, can be omitted for outfmt 7
         or default outfmt 6 or 10 output.
     :param str ftype: Parameter used as ftype
+    :param list comments: comment lines inside the file are stored in
+        the comments list (optional)
     """
-    return _read_tabular(f, sep=sep, outfmt=outfmt, ftype=ftype, fmt='blast')
+    return _read_tabular(f, sep=sep, outfmt=outfmt, ftype=ftype, comments=comments, fmt='blast')
 
 
 def _headers_from_fmtstrings(fmtstrs, fmt='blast', attr='name'):
@@ -276,7 +278,8 @@ def _headers_from_fmtstrings(fmtstrs, fmt='blast', attr='name'):
     return headers
 
 
-def _read_tabular(f, *, sep='\t', outfmt=None, ftype=None, fmt='blast'):
+def _read_tabular(f, *, sep='\t', outfmt=None, ftype=None, fmt='blast',
+                  comments=None):
     assert fmt in ('blast', 'infernal', 'mmseqs')
     fts = []
     headers = None
@@ -284,6 +287,8 @@ def _read_tabular(f, *, sep='\t', outfmt=None, ftype=None, fmt='blast'):
     if outfmt is not None:
         headers = _headers_from_fmtstrings(outfmt.split(), fmt=fmt)
     for line in f:
+        if comments is not None and line.startswith('#'):
+            comments.append(line)
         if fmt == 'blast' and outfmt is None and line.startswith('# Fields:'):
             headerline = line.removeprefix('# Fields:')
             headers = _headers_from_fmtstrings(map(str.strip, headerline.split(',')),

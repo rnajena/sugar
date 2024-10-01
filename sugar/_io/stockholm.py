@@ -91,16 +91,29 @@ def fts2row(fts):
 
 
 @_add_fmt_doc('read')
-def read(f):
+def read(f, comments=None):
     """
     Read Stockholm file
+
+    :param list comments: comment lines inside the file are stored in
+        the comments list (optional)
+
+    ..note::
+        By default only the first alignment is read and returned.
+        If your file contains more than one alignment, you can read
+        some or all of them::
+
+        from sugar import read
+        with open('example_stockholm_multi.stk') as f:
+            seqs1 = read(f, 'stockholm')  # read 1st alignment
+            seqs2 = read(f, 'stockholm')  # read 2nd alignment
     """
     seqs = []
     gf = Attr()
     gc = Attr()
     gs = {}
     gr = {}
-    seq = None
+    seqs = {}
     for line in f:
         line = line.strip()
         if line == '' or line.startswith('# STOCKHOLM'):
@@ -119,21 +132,22 @@ def read(f):
             _, seqid, key, val = line.split(maxsplit=3)
             gr[seqid][key] = gr.setdefault(seqid, {}).get(key, '') + val
         elif line.startswith('#'):  # ignore other comments
-            continue
+            if comments is not None:
+                comments.append(line)
         elif line.startswith('//'):  # end of alignment, stop reading
             break
         elif ' ' in line:  # sequence
             key, val = line.split(maxsplit=1)
-            if seq is not None and seq.id == key:
-                seq += val
-            else:
-                if seq is not None:
-                    seqs.append(seq)
-                seq = BioSeq(val, id=key)
+            seqs[key] = seqs.get(key, '') + val
+            # if seq is not None and seq.id == key:
+            #     seq += val
+            # else:
+            #     if seq is not None:
+            #         seqs.append(seq)
+            #     seq = BioSeq(val, id=key)
         else:  # should not happen
             raise ValueError('Invalid stockholm format, please contact devs')
-    if seq is not None:
-        seqs.append(seq)
+    seqs = [BioSeq(val, id=key) for key, val in seqs.items()]
     for seq in seqs:
         if seq.id in gs:
             seq.meta.setdefault('_stockholm', Attr()).GS = gs[seq.id]

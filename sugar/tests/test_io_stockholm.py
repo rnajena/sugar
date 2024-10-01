@@ -1,11 +1,12 @@
 # (C) 2024, Tom Eulenfeld, MIT license
+from importlib.resources import files
 import pytest
 
 from sugar import read, iter_
 from sugar.tests.util import normalize_content, tempfilename
 
 
-def test_stk():
+def test_stockholm():
     fname = '!data/example.stk'
     seqs = read(fname)
     assert seqs.meta._stockholm.GF.ID == 'UPSK'
@@ -20,7 +21,7 @@ def test_stk():
         assert normalize_content(fname, ignore=ignore) == normalize_content(fn2, ignore=ignore)
 
 
-def test_stk_more_metadata():
+def test_stockholm_more_metadata():
     fname = '!data/example_stockholm_more_metadata.stk'
     seqs = read(fname)
     assert seqs.todict()['O83071/192-246'].meta._stockholm.GR.SA.startswith('999')
@@ -34,7 +35,7 @@ def test_stk_more_metadata():
     assert seqs2 == seqs
 
 
-def test_row2fts2row():
+def test_stockholm_row2fts2row():
     from sugar._io.stockholm import row2fts, fts2row
     row1 = '.....1....||....2....|3|...4...|'
     row2 = '.....1....||....2....|3|...4....'
@@ -67,3 +68,23 @@ def test_row2fts2row():
         row3b = fts2row(fts3)
     assert len(row3b) == 6
     assert row3b == '|long|'
+
+
+def test_stockholm_multiline():
+    fname = '!data/example_stockholm_multi.stk'
+    seqs = read(fname)
+    assert len(seqs) == 3
+    N = len(seqs[0])
+    assert len(seqs[1]) == N
+    assert len(seqs[2]) == N
+    assert len(seqs.meta._stockholm.GC.SS_cons) == N
+    assert len(seqs[2].meta._stockholm.GR.AS) == N
+
+
+def test_stockholm_multialignment():
+    fname = str(files('sugar.tests.data').joinpath('example_stockholm_multi.stk'))
+    with open(fname) as f:
+        seqs1 = read(f, 'stockholm')  # read 1st alignment
+        seqs2 = read(f, 'stockholm')  # read 2nd alignment
+    assert len(seqs1) == 3
+    assert len(seqs2) == 5

@@ -21,8 +21,12 @@ def is_format_fts(f, **kw):
 
 
 @_add_fmt_doc('read_fts')
-def read_fts(f, ftype=None):
+def read_fts(f, ftype=None, comments=None):
     """
     Infernal reader for output generated with tblout fmt 1, 2, 3
+
+    :param str ftype: Parameter used as ftype
+    :param list comments: comment lines inside the file are stored in
+        the comments list (optional)
     """
-    return _read_tabular(f, sep=None, ftype=ftype, fmt='infernal')
+    return _read_tabular(f, sep=None, ftype=ftype, comments=comments, fmt='infernal')

@@ -45,9 +45,12 @@ def _id_from_header(header):
 
 
 @_add_fmt_doc('read')
-def iter_(f):
+def iter_(f, comments=None):
     """
     Iterate through a FASTA file and yield `.BioSeq` sequences
+
+    :param list comments: comment lines inside the file are stored in
+        the comments list (optional)
     """
     id_ = None
     header = None
@@ -69,7 +72,8 @@ def iter_(f):
             #     id_ = line.split(maxsplit=1)[0]
             data = []
         elif line.startswith(';'):  # line is a comment
-            pass
+            if comments is not None:
+                comments.append(line)
         else:
             data.append(line.strip())
     if data is not None:
