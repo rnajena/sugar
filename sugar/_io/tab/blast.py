@@ -154,13 +154,13 @@ _DEFAULT_OUTFMT = {
         'query target fident alnlen mismatch gapopen '
         'qstart qend tstart tend evalue bits'
     ).split(),
-    ('infernal', '1'): (  # fmt 1
+    'infernal_1': (  # fmt 1
         'target target_acc query query_acc '
         'model mstart mend sstart send sstrand '
         'trunc pass gc bias bitscore evalue inc '
         'description'
     ).split(),
-    ('infernal', '2'): (  # fmt 2
+    'infernal_2': (  # fmt 2
         'idx target target_acc query query_acc clan '
         'model mstart mend sstart send sstrand '
         'trunc pass gc bias bitscore evalue inc '
@@ -169,14 +169,14 @@ _DEFAULT_OUTFMT = {
     ).split(),
     # fmt 2, old? version found in the Infernal guide
     # and here https://docs.rfam.org/en/latest/genome-annotation.html
-    ('infernal', '2old'): (
+    'infernal_2old': (
         'idx target target_acc query query_acc clan '
         'model mstart mend sstart send sstrand '
         'trunc pass gc bias bitscore evalue inc '
         'overlap anyidx anyfrct1 anyfrct2 winidx winfrct1 winfrct2 '
         'description'
     ).split(),
-    ('infernal', '3'): (  # fmt 3
+    'infernal_3': (  # fmt 3
         'target target_acc query query_acc '
         'model mstart mend sstart send sstrand '
         'trunc pass gc bias bitscore evalue inc '
@@ -290,8 +290,8 @@ def _read_tabular(f, *, sep='\t', outfmt=None, ftype=None, fmt='blast'):
                                                fmt=fmt, attr='long_name')
         elif fmt == 'infernal' and headers is None and '--' in line:
             nheaders = len(line.lstrip('#').split())
-            infernalfmt = {18: '1', 29: '2', 20: '3', 27: '2old'}[nheaders]
-            headers = _headers_from_fmtstrings(_DEFAULT_OUTFMT[(fmt, infernalfmt)], fmt=fmt)
+            fmtv = {18: '1', 29: '2', 20: '3', 27: '2old'}[nheaders]
+            headers = _headers_from_fmtstrings(_DEFAULT_OUTFMT[f'{fmt}_{fmtv}'], fmt=fmt)
             maxsplit = nheaders - 1
         elif line.startswith('#') or line.strip() == '':
             pass
