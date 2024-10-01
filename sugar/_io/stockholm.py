@@ -2,7 +2,7 @@
 # https://en.wikipedia.org/wiki/Stockholm_format
 # TODO: convert feature GC line to FeatureList and vice versa
 """
-Stockholm IO
+`Stockholm`_ IO
 """
 
 from warnings import warn

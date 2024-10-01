@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
-Generic feature format IO
+Generic feature format (`GFF`_) IO
 """
 
 

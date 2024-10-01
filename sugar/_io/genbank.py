@@ -1,8 +1,6 @@
 # (C) 2023, Tom Eulenfeld, MIT license
 """
-Genbank reader
-
-The format is defined `here <https://www.insdc.org/submitting-standards/feature-table/>`_.
+`Genbank`_ reader
 """
 
 from sugar.core.seq import Attr, BioSeq, Meta, Feature, FeatureList

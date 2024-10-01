@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
-FASTA IO
+`FASTA`_ IO
 """
 import re
 
