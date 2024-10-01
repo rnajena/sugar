@@ -98,15 +98,15 @@ def read(f, comments=None):
     :param list comments: comment lines inside the file are stored in
         the comments list (optional)
 
-    ..note::
+    .. note::
         By default only the first alignment is read and returned.
         If your file contains more than one alignment, you can read
-        some or all of them::
+        some or all of them with::
 
-        from sugar import read
-        with open('example_stockholm_multi.stk') as f:
-            seqs1 = read(f, 'stockholm')  # read 1st alignment
-            seqs2 = read(f, 'stockholm')  # read 2nd alignment
+            from sugar import read
+            with open('example_stockholm_multi.stk') as f:
+                seqs1 = read(f, 'stockholm')  # read 1st alignment
+                seqs2 = read(f, 'stockholm')  # read 2nd alignment
     """
     seqs = []
     gf = Attr()

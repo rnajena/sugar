@@ -22,7 +22,6 @@ def test_docs_data():
     from sugar import data
     doctest_module(data)
 
-
 def test_docs_core():
     from sugar import core
     doctest_module(core)
