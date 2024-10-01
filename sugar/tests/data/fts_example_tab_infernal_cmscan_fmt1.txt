@@ -1,0 +1,15 @@
+#target name         accession query name           accession mdl mdl from   mdl to seq from   seq to strand trunc pass   gc  bias  score   E-value inc description of target
+#------------------- --------- -------------------- --------- --- -------- -------- -------- -------- ------ ----- ---- ---- ----- ------ --------- --- ---------------------
+5S_rRNA              RF00001   AAGA01015927.1       -          cm        1      120       59      174      +    no    1 0.66   0.0   92.7   1.5e-23 !   5S ribosomal RNA
+tRNA5                -         AAGA01015927.1       -          cm        1       72      229      302      +    no    1 0.62   0.0   62.4   9.6e-19 !   -
+tRNA5                -         AAGA01015927.1       -          cm        1       72      314      386      +    no    1 0.59   0.0   53.5   6.1e-16 !   -
+Cobalamin            RF00174   AAFY01022046.1       -          cm       31      190      934      832      -    5'    2 0.48   0.0   29.9   6.6e-09 !   Cobalamin riboswitch
+#
+# Program:         cmscan
+# Version:         1.1.5 (Sep 2023)
+# Pipeline mode:   SCAN
+# Query file:      metag-example.fa
+# Target file:     minifam.cm
+# Option settings: cmscan --tblout fts_example_tab_infernal_cmscan_fmt1.txt --fmt 1 minifam.cm metag-example.fa 
+# Date:            Tue Oct  1 01:17:02 2024
+# [ok]
