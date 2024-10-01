@@ -178,7 +178,7 @@ class Location():
 #     return nseq
 
 
-def _slice_locs(seq, locs, splitter=None, filler=None):
+def _slice_locs(seq, locs, splitter=None, filler=None, gap=None):
     # Concatenate subsequences for each location of the feature
     strand = None
     for loc in locs:
@@ -202,7 +202,7 @@ def _slice_locs(seq, locs, splitter=None, filler=None):
         # slice_start = loc.start - seq._seqstart
         # slice_stop = loc.stop - seq._seqstart
         # add_seq = seq[slice_start:slice_stop]
-        add_seq = seq[loc.start:loc.stop]
+        add_seq = seq.get(slice(loc.start, loc.stop), gap=gap)
         if loc.strand == '-':
             add_seq = add_seq.reverse().complement()
         if filler is not None and prev_loc is not None:

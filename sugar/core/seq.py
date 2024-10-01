@@ -80,8 +80,9 @@ class _Slicable_GetItemInplace():
         self.seq = seq
 
     def __getitem__(self, i):
-        self.seq.data = self.seq[i].data
-        return self.seq
+        return self.seq.get(i, inplace=True)
+        # self.seq.data = self.seq[i].data
+        # return self.seq
 
 
 class MutableMetaString(collections.abc.Sequence):
@@ -177,8 +178,21 @@ class MutableMetaString(collections.abc.Sequence):
     def __len__(self):
         return len(self.data)
 
-    def __getitem__(self, index):
+    def get(self, index, gap=None):
+        if gap is not None:
+            # from bisect import bisect
+            nogaps = [i for i, nt in enumerate(self.data) if nt not in gap]
+            adj = lambda i: nogaps[i] if i is not None else None
+            if isinstance(index, int):
+                index = adj(index)
+            elif isinstance(index, slice):
+                index = slice(adj(index.start), adj(index.stop), index.step)
+            print(index)
         return self.__class__(self.data[index], meta=self.meta)
+
+
+    def __getitem__(self, index):
+        return self.get(index)
 
     def __setitem__(self, index, value):
         l = list(self.data)
@@ -438,9 +452,13 @@ class BioSeq(MutableMetaString):
     def rc(self):
         return self.reverse().complement()
 
+
     def __getitem__(self, index):
+        return self.get(index)
+
+    def get(self, index, inplace=False, gap=None):
         try:
-            subseq = super().__getitem__(index)
+            subseq = super().get(index, gap=gap)
         except:
             if isinstance(index, str):
                 index = self.fts.get(index)
@@ -448,10 +466,10 @@ class BioSeq(MutableMetaString):
                     raise TypeError('Feature not found')
             if isinstance(index, Location):
                 from sugar.core.fts import _slice_locs
-                subseq = _slice_locs(self, [index])
+                subseq = _slice_locs(self, [index], gap=gap)
             elif isinstance(index, Feature):
                 from sugar.core.fts import _slice_locs
-                subseq = _slice_locs(self, index.locs)
+                subseq = _slice_locs(self, index.locs, gap=gap)
                 # index = index._slice()
                 # if index is None:
                 #     msg = f'Feature {index.type} of seq {self.id} has no location'
@@ -459,6 +477,8 @@ class BioSeq(MutableMetaString):
                 # subseq = super().__getitem__(index)
             else:
                 raise TypeError('Index not supported')
+        if inplace:
+            self.data = subseq.data
         return subseq
         # it follows a lot of code to keep the feature indices intact
         # this is not really necessary I guess, but I try anyway
@@ -707,20 +727,23 @@ class BioBasket(collections.UserList):
         return f'{type(self).__name__}({super().__repr__()}, meta=dict({metastr}))'
 
     def __getitem__(self, i):
+        return self.get(i)
+
+    def get(self, i, gap=None):
         if isinstance(i, int):
-            seqs = self.data[i]
+            return self.data[i]
         elif isinstance(i, slice):
             seqs = self.__class__(self.data[i], meta=self.meta)
         elif isinstance(i, (str, Feature, Location)):
             seqs = self.__class__(self.data, meta=self.meta)
-            seqs.data = [seq[i] for seq in seqs.data]
+            seqs.data = [seq.get(i, gap=gap) for seq in seqs.data]
         elif len(i) == 2:
             i, j = i
             if isinstance(i, int):
-                seqs = self.data[i][j]
+                return self.data[i].get(j, gap=gap)
             elif isinstance(i, slice):
                 seqs = self.__class__(self.data[i], meta=self.meta)
-                seqs.data = [seq[j] for seq in seqs.data]
+                seqs.data = [seq.get(j, gap=gap) for seq in seqs.data]
             else:
                 raise TypeError('Index not supported')
         else:
