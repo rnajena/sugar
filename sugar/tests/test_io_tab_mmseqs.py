@@ -23,7 +23,7 @@ def test_mmseqs_outfmt():
     assert len(fts) == 4
 
 
-def test_mmseqs_different_outmft():
+def test_mmseqs_different_outfmt():
     fts1 = read_fts('!data/fts_example.mmseqs2')  # fmtmode 4
     fts2 = read_fts('!data/fts_example_blast_mmseqs2_fmtmode0.txt')
     assert len(fts1) == 4
@@ -31,7 +31,7 @@ def test_mmseqs_different_outmft():
     assert fts2 == fts1
 
 
-def test_mmseqs_different_outmft_all_headers():
+def test_mmseqs_different_outfmt_all_headers():
     outfmt = ('query,target,evalue,gapopen,pident,fident,nident,qstart,qend,qlen,tstart,tend,tlen,alnlen,raw,'
               'bits,cigar,qseq,qheader,theader,qaln,taln,qframe,tframe,mismatch,qcov,tcov,qset,qsetid,tset,'
               'tsetid,qorfstart,qorfend,torfstart,torfend,ppos').replace(',', ' ')

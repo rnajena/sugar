@@ -15,6 +15,7 @@ Submodules
    sjson
    stockholm
    tab.blast
+   tab.infernal
    tab.mmseqs
    util
 

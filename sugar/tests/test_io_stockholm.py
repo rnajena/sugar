@@ -20,8 +20,8 @@ def test_stk():
         assert normalize_content(fname, ignore=ignore) == normalize_content(fn2, ignore=ignore)
 
 
-def test_stk2():
-    fname = '!data/example2.stk'
+def test_stk_more_metadata():
+    fname = '!data/example_stockholm_more_metadata.stk'
     seqs = read(fname)
     assert seqs.todict()['O83071/192-246'].meta._stockholm.GR.SA.startswith('999')
     with tempfilename() as fn2:
@@ -29,7 +29,7 @@ def test_stk2():
         ignore=['#=GF CC']
         assert normalize_content(fname) != normalize_content(fn2)
         assert normalize_content(fname, ignore=ignore) == normalize_content(fn2, ignore=ignore)
-    fname = '!data/example2b.stk'
+    fname = '!data/example_stockholm_more_metadata_linebreak.stk'
     seqs2 = read(fname)
     assert seqs2 == seqs
 

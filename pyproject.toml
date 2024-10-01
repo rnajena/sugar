@@ -45,6 +45,7 @@ gff = "sugar._io.gff"
 genbank = "sugar._io.genbank"
 blast = "sugar._io.tab.blast"
 mmseqs = "sugar._io.tab.mmseqs"
+infernal = "sugar._io.tab.infernal"
 
 [build-system]
 requires = ["setuptools>=61.0"]

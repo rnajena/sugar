@@ -6,7 +6,7 @@ dev:
   * add final_stop parameter in translate
   * refactoring, add sugar.core.cane module with seq and ft tools
   * io.blast: allow parsing and detection of BLAST files with default outfmt 6, 7 or 10
-  * io: add support for MMseqs2 files (fmtmode 0 and 4)
+  * io: add support for MMseqs2 files (fmtmode 0 and 4) and Infernal tblout files
 v0.3.0:
   * io.fasta: robust parsing of seq ids from header line, ignore comment lines
   * io.stockholm: add row2fts and fts2row functions to parse, write GC and similar lines

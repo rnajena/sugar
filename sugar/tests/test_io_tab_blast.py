@@ -24,7 +24,7 @@ def test_blast_outfmt():
     assert len(fts) == 3
 
 
-def test_blast_different_outmft():
+def test_blast_different_outfmt():
     fts1 = read_fts('!data/fts_example.blastn')  # outfmt 7
     fts2 = read_fts('!data/fts_example_blast_outfmt6.blastn')
     fts3 = read_fts('!data/io_blast_outfmt10.blastn', sep=',')
@@ -35,7 +35,7 @@ def test_blast_different_outmft():
     assert fts3 == fts1
 
 
-def test_blast_different_outmft_all_headers():
+def test_blast_different_outfmt_all_headers():
     outfmt = ('qseqid qgi qacc qaccver qlen sseqid sallseqid sgi sallgi sacc saccver '
               'sallacc slen qstart qend sstart send qseq evalue bitscore score length '
               'pident nident mismatch positive gapopen gaps ppos frames qframe sframe '

@@ -54,6 +54,7 @@ exclude_patterns = ['_build']
 rst_epilog = """
 .. _BinarySeachFile: https://github.com/trichter/binarysearchfile
 .. _BLAST: https://blast.ncbi.nlm.nih.gov
+.. _Infernal: http://eddylab.org/infernal/
 .. _MMseqs2: https://github.com/soedinglab/MMseqs2
 """
 

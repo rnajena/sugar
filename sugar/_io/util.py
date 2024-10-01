@@ -7,7 +7,7 @@ import shutil
 
 
 FMTS = {'seqs': ['fasta', 'genbank', 'stockholm', 'gff', 'sjson'],
-        'fts': ['gff', 'genbank', 'mmseqs', 'blast']}
+        'fts': ['gff', 'genbank', 'infernal', 'mmseqs', 'blast']}
 
 
 def _epsname_key(epsname, what='seqs'):
