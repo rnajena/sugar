@@ -5,10 +5,12 @@ dev:
   * add BioBasket.fts attribute, add add_fts method for BioSeq and BioBasket
   * add final_stop parameter in translate
   * refactoring, add sugar.core.cane module with seq and ft tools
-  * io.tab:
+  * io:
+    - add option to store comments in most readers
     - refactor and update read support for BLAST files (outfmt 6, 7 and 10)
     - add read support for MMseqs2 files (fmtmode 0 and 4)
     - add read support for Infernal tblout files
+    - stockholm: add support for multiline files
 v0.3.0:
   * io.fasta: robust parsing of seq ids from header line, ignore comment lines
   * io.stockholm: add row2fts and fts2row functions to parse, write GC and similar lines
