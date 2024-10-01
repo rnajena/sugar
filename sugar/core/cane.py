@@ -208,7 +208,7 @@ def match(seq, sub, *, rf='fwd',
     if gap is None or rf is None:
         gaps = None
     else:
-        gaps = [i for i, nt in enumerate(str(seq)) if nt == gap if i >= start]
+        gaps = [i for i, nt in enumerate(str(seq)) if nt in gap if i >= start]
     matches = []
     if rf is not None:
         fwd_rfs = set(rf) & {0, 1, 2}
