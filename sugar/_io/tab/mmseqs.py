@@ -3,7 +3,7 @@
 `MMseqs2`_ reader for output generated with option fmtmode 4 (preferred) or 0
 """
 
-from sugar._io.tab.blast import _read_tabular, _MMSEQS_HEADER_NAMES
+from sugar._io.tab.core import read_tabular, _MMSEQS_HEADER_NAMES
 from sugar._io.util import _add_fmt_doc
 
 
@@ -46,4 +46,4 @@ def read_fts(f, *, sep='\t', outfmt=None, ftype=None, comments=None):
     :param list comments: comment lines inside the file are stored in
         the comments list (optional)
     """
-    return _read_tabular(f, sep=sep, outfmt=outfmt, ftype=ftype, comments=comments, fmt='mmseqs')
+    return read_tabular(f, sep=sep, outfmt=outfmt, ftype=ftype, comments=comments, fmt='mmseqs')

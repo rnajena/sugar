@@ -1,7 +1,7 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 from importlib.resources import files
 from sugar import read_fts
-from sugar._io.tab.blast import _CONVERTH, _DEFAULT_OUTFMT
+from sugar._io.tab.core import _CONVERTH, _DEFAULT_OUTFMT
 
 
 def test_mmseqs():

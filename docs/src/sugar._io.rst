@@ -16,6 +16,7 @@ Submodules
    stockholm
    tab.blast
    tab.infernal
+   tab.core
    tab.mmseqs
    util
 

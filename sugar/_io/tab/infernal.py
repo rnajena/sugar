@@ -3,7 +3,7 @@
 `Infernal`_ reader for output generated with tblout fmt 1, 2, 3
 """
 
-from sugar._io.tab.blast import _read_tabular
+from sugar._io.tab.core import read_tabular
 from sugar._io.util import _add_fmt_doc
 
 
@@ -29,4 +29,4 @@ def read_fts(f, ftype=None, comments=None):
     :param list comments: comment lines inside the file are stored in
         the comments list (optional)
     """
-    return _read_tabular(f, sep=None, ftype=ftype, comments=comments, fmt='infernal')
+    return read_tabular(f, sep=None, ftype=ftype, comments=comments, fmt='infernal')
