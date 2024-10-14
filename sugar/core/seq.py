@@ -604,9 +604,9 @@ class BioSeq(MutableMetaString):
         kw['matchall'] = True
         return self.match(*args, **kw)
 
-    def orfs(self, *args, **kw):
+    def find_orfs(self, *args, **kw):
         """
-        Find ORFS in the sequence, see `.find_orfs()`
+        Find ORFS in the sequence, see `~.cane.find_orfs()`
         """
         from sugar.core.cane import find_orfs
         return find_orfs(self, *args, **kw)
@@ -890,12 +890,12 @@ class BioBasket(collections.UserList):
         kw['matchall'] = True
         return self.match(*args, **kw)
 
-    def orfs(self, *args, **kw):
+    def find_orfs(self, *args, **kw):
         """
-        Find ORFS in sequences, see `.find_orfs()`
+        Find ORFS in sequences, see `~.cane.find_orfs()`
         """
         return reduce(lambda orfs1, orfs2: orfs1 + orfs2,
-                      [seq.orfs(*args, **kw) for seq in self])
+                      [seq.find_orfs(*args, **kw) for seq in self])
 
     def tofmtstr(self, fmt, **kw):
         out = io.StringIO()
