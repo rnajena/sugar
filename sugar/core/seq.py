@@ -85,8 +85,202 @@ class _Slicable_GetItemInplace():
         # return self.seq
 
 
+
+class _StrMethods():
+    """
+    Helper class to move all string methods into the BioSeq.str namespace
+    """
+    def __init__(self, parent):
+        self.__parent = parent
+
+    def center(self, width, *args):
+        self.__parent.data = self.__parent.data.center(width, *args)
+        return self.__parent
+
+    def count(self, sub, start=0, end=sys.maxsize):
+        return self.__parent.data.count(str(sub), start, end)
+
+    def removeprefix(self, prefix, /):
+        self.__parent.data = self.__parent.data.removeprefix(str(prefix))
+        return self.__parent
+
+    def removesuffix(self, suffix, /):
+        self.__parent.data = self.__parent.data.removesuffix(str(suffix))
+        return self.__parent
+
+    def encode(self, encoding='utf-8', errors='strict'):
+        encoding = 'utf-8' if encoding is None else encoding
+        errors = 'strict' if errors is None else errors
+        return self.__parent.data.encode(encoding, errors)
+
+    def endswith(self, suffix, start=0, end=sys.maxsize):
+        return self.__parent.data.endswith(str(suffix), start, end)
+
+    # def expandtabs(self, tabsize=8):
+    #     return self.__class__(self.data.expandtabs(tabsize))
+
+    def find(self, sub, start=0, end=sys.maxsize):
+        return self.__parent.data.find(str(sub), start, end)
+
+    def format(self, /, *args, **kwds):
+        return self.__parent.data.format(*args, **kwds)
+
+    def format_map(self, mapping):
+        return self.__parent.data.format_map(mapping)
+
+    def index(self, isub, start=0, end=sys.maxsize):
+        return self.__parent.data.index(str(sub), start, end)
+
+    def isalpha(self):
+        return self.__parent.data.isalpha()
+
+    # def isalnum(self):
+    #     return self.__parent.data.isalnum()
+
+    def isascii(self):
+        return self.__parent.data.isascii()
+
+    # def isdecimal(self):
+    #     return self.data.isdecimal()
+
+    # def isdigit(self):
+    #     return self.data.isdigit()
+
+    # def isidentifier(self):
+    #     return self.data.isidentifier()
+
+    def islower(self):
+        return self.__parent.data.islower()
+
+    # def isnumeric(self):
+    #     return self.data.isnumeric()
+
+    # def isprintable(self):
+    #     return self.data.isprintable()
+
+    # def isspace(self):
+    #     return self.data.isspace()
+
+    # def istitle(self):
+    #     return self.data.istitle()
+
+    def isupper(self):
+        return self.__parent.data.isupper()
+
+    # def join(self, seq):
+    #     return self.data.join(seq)
+
+    def ljust(self, width, *args):
+        self.__parent.data = self.__parent.data.ljust(width, *args)
+        return self.__parent
+
+    def lower(self):
+        self.__parent.data = self.__parent.data.lower()
+        return self.__parent
+
+    def lstrip(self, chars=None):
+        self.__parentdata = self.__parent.data.lstrip(chars)
+        return self.__parent
+
+    maketrans = str.maketrans
+
+    # def partition(self, sep):
+    #     return self.data.partition(sep)
+
+    def replace(self, old, new, maxsplit=-1):
+        self.__parent.data = self.__parent.data.replace(
+            str(old), str(new), maxsplit)
+        return self.__parent
+
+    def rfind(self, sub, start=0, end=sys.maxsize):
+        return self.__parent.data.rfind(str(sub), start, end)
+
+    def rindex(self, sub, start=0, end=sys.maxsize):
+        return self.__parent.data.rindex(str(sub), start, end)
+
+    def rjust(self, width, *args):
+        self.__parent.data = self.__parent.data.rjust(width, *args)
+        return self.__parent
+
+    # def rpartition(self, sep):
+    #     return self.data.rpartition(sep)
+
+    def rstrip(self, chars=None):
+        if chars is not None:
+            chars = str(chars)
+        self.__parent.data = self.__parent.data.rstrip(chars)
+        return self.__parent
+
+    def split(self, sep=None, maxsplit=-1):
+        if sep is not None:
+            sep = str(sep)
+        return self.__parent.data.split(sep, maxsplit)
+
+    def rsplit(self, sep=None, maxsplit=-1):
+        if sep is not None:
+            sep = str(sep)
+        return self.__parent.data.rsplit(sep, maxsplit)
+
+    def splitlines(self, keepends=False):
+        return self.__parent.data.splitlines(keepends)
+
+    def startswith(self, prefix, start=0, end=sys.maxsize):
+        return self.__parent.data.startswith(str(prefix), start, end)
+
+    def strip(self, chars=None):
+        if chars is not None:
+            chars = str(chars)
+        self.__parent.data = self.__parent.data.strip(chars)
+        return self.__parent
+
+    def swapcase(self):
+        self.__parent.data = self.__parent.data.swapcase()
+        return self.__parent
+
+    # def title(self):
+    #     return self.__class__(self.data.title())
+
+    def translate(self, *args):
+        self.__parent.data = self.__parent.data.translate(*args)
+        return self.__parent
+
+    def upper(self):
+        self.__parent.data = self.__parent.data.upper()
+        return self.__parent
+
+    # def zfill(self, width):
+    #     return self.__class__(self.data.zfill(width))
+
+class _BioBasketStrMethods():
+    """
+    Helper class to move all string methods into the BioBasket.str namespace
+
+    It calls the corresponding BioSeq.str method under the hood and returns
+    either the altered BioBasket object or a list of results.
+    """
+    def __init__(self, parent):
+        self.__parent = parent
+
+    def __getattr__(self, name):
+        def method(*args, **kw):
+            results = [
+                getattr(seq, name)(*args, **kw)
+                for seq in self.__parent
+            ]
+            if name in (
+                'center', 'remove_prefix', 'ljust', 'lower',
+                'lstrip', 'replace', 'rjust', 'rstrip',
+                'strip', 'swapcase', 'translate', 'upper'
+                ):
+                return self.__parent
+            else:
+                return results
+        return method
+
+
 class MutableMetaString(collections.abc.Sequence):
     def __init__(self, data, id='', meta=None, type=None):
+        self.str = _StrMethods(self)
         self.data = str(data).upper()
         if hasattr(data, 'meta'):
             meta = data.meta
@@ -245,169 +439,6 @@ class MutableMetaString(collections.abc.Sequence):
     #     self.data = self.data.casefold()
     #     return self
 
-    def center(self, width, *args):
-        self.data = self.data.center(width, *args)
-        return self
-
-    def count(self, sub, start=0, end=sys.maxsize):
-        if isinstance(sub, MutableMetaString):
-            sub = sub.data
-        return self.data.count(sub, start, end)
-
-    def removeprefix(self, prefix, /):
-        if isinstance(prefix, MutableMetaString):
-            prefix = prefix.data
-        self.data = self.data.removeprefix(prefix)
-        return self
-
-    def removesuffix(self, suffix, /):
-        if isinstance(suffix, MutableMetaString):
-            suffix = suffix.data
-        self.data = self.data.removesuffix(suffix)
-        return self
-
-    def encode(self, encoding='utf-8', errors='strict'):
-        encoding = 'utf-8' if encoding is None else encoding
-        errors = 'strict' if errors is None else errors
-        return self.data.encode(encoding, errors)
-
-    def endswith(self, suffix, start=0, end=sys.maxsize):
-        return self.data.endswith(suffix, start, end)
-
-    # def expandtabs(self, tabsize=8):
-    #     return self.__class__(self.data.expandtabs(tabsize))
-
-    def find(self, sub, start=0, end=sys.maxsize):
-        if isinstance(sub, MutableMetaString):
-            sub = sub.data
-        return self.data.find(sub, start, end)
-
-    def format(self, /, *args, **kwds):
-        return self.data.format(*args, **kwds)
-
-    def format_map(self, mapping):
-        return self.data.format_map(mapping)
-
-    def index(self, sub, start=0, end=sys.maxsize):
-        return self.data.index(sub, start, end)
-
-    def isalpha(self):
-        return self.data.isalpha()
-
-    # def isalnum(self):
-    #     return self.data.isalnum()
-
-    def isascii(self):
-        return self.data.isascii()
-
-    # def isdecimal(self):
-    #     return self.data.isdecimal()
-
-    # def isdigit(self):
-    #     return self.data.isdigit()
-
-    # def isidentifier(self):
-    #     return self.data.isidentifier()
-
-    def islower(self):
-        return self.data.islower()
-
-    # def isnumeric(self):
-    #     return self.data.isnumeric()
-
-    # def isprintable(self):
-    #     return self.data.isprintable()
-
-    # def isspace(self):
-    #     return self.data.isspace()
-
-    # def istitle(self):
-    #     return self.data.istitle()
-
-    def isupper(self):
-        return self.data.isupper()
-
-    # def join(self, seq):
-    #     return self.data.join(seq)
-
-    def ljust(self, width, *args):
-        self.data = self.data.ljust(width, *args)
-        return self
-
-    def lower(self):
-        self.data = self.data.lower()
-        return self
-
-    def lstrip(self, chars=None):
-        self.data = self.data.lstrip(chars)
-        return self
-
-    maketrans = str.maketrans
-
-    # def partition(self, sep):
-    #     return self.data.partition(sep)
-
-    def replace(self, old, new, maxsplit=-1):
-        if isinstance(old, MutableMetaString):
-            old = old.data
-        if isinstance(new, MutableMetaString):
-            new = new.data
-        self.data = self.data.replace(old, new, maxsplit)
-        return self
-
-    def rfind(self, sub, start=0, end=sys.maxsize):
-        if isinstance(sub, MutableMetaString):
-            sub = sub.data
-        return self.data.rfind(sub, start, end)
-
-    def rindex(self, sub, start=0, end=sys.maxsize):
-        return self.data.rindex(sub, start, end)
-
-    def rjust(self, width, *args):
-        self.data = self.data.rjust(width, *args)
-        return self
-
-    # def rpartition(self, sep):
-    #     return self.data.rpartition(sep)
-
-    def rstrip(self, chars=None):
-        self.data = self.data.rstrip(chars)
-        return self
-
-    def split(self, sep=None, maxsplit=-1):
-        return self.data.split(sep, maxsplit)
-
-    def rsplit(self, sep=None, maxsplit=-1):
-        return self.data.rsplit(sep, maxsplit)
-
-    def splitlines(self, keepends=False):
-        return self.data.splitlines(keepends)
-
-    def startswith(self, prefix, start=0, end=sys.maxsize):
-        return self.data.startswith(prefix, start, end)
-
-    def strip(self, chars=None):
-        self.data = self.data.strip(chars)
-        return self
-
-    def swapcase(self):
-        self.data = self.data.swapcase()
-        return self
-
-    # def title(self):
-    #     return self.__class__(self.data.title())
-
-    def strtranslate(self, *args):
-        self.data = self.data.translate(*args)
-        return self
-
-    def upper(self):
-        self.data = self.data.upper()
-        return self
-
-    # def zfill(self, width):
-    #     return self.__class__(self.data.zfill(width))
-
 def _detect_tool(obj):
     try:
         from Bio.Seq import Seq
@@ -438,8 +469,8 @@ class BioSeq(MutableMetaString):
 
     @property
     def gc(self):
-        GC = self.count('G') + self.count('C')
-        AT = self.count('A') + self.count('T') + self.count('U')
+        GC = self.str.count('G') + self.str.count('C')
+        AT = self.str.count('A') + self.str.count('T') + self.str.count('U')
         if GC + AT > 0:
             return GC / (GC + AT)
         else:
@@ -559,9 +590,9 @@ class BioSeq(MutableMetaString):
 
     def complement(self):
         if 'U' in self.data:
-            self.replace('U', 'T').strtranslate(COMPLEMENT_TRANS).replace('T', 'U')
+            self.str.replace('U', 'T').str.translate(COMPLEMENT_TRANS).str.replace('T', 'U')
         else:
-            self.strtranslate(COMPLEMENT_TRANS)
+            self.str.translate(COMPLEMENT_TRANS)
         return self
 
     def countall(self, **kw):
@@ -663,6 +694,7 @@ def _si_format(v, l=4):
 
 class BioBasket(collections.UserList):
     def __init__(self, data=None, meta=None):
+        self.str = _BioBasketStrMethods(self)
         if data is None:
             data = []
         if hasattr(data, 'meta'):
@@ -777,22 +809,12 @@ class BioBasket(collections.UserList):
             seq.complement()
         return self
 
-    def strtranslate(self, *args, **kw):
-        for seq in self:
-            seq.strtranslate(*args, **kw)
-        return self
-
     def translate(self, *args, **kw):
         """
         Translate nucleotide sequences to amino acid sequences, see `~.cane.translate()`
         """
         for seq in self:
             seq.translate(*args, **kw)
-        return self
-
-    def replace(self, *args, **kw):
-        for seq in self:
-            seq.replace(*args, **kw)
         return self
 
     def reverse(self, *args, **kw):

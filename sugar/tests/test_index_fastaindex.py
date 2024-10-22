@@ -35,7 +35,7 @@ def test_fastaindex():
             f2.add(fastafiles)
             assert f1.totalsize < f2.totalsize
             id_ = 'BTBSCRYR'
-            assert f1.get(id_)[0].startswith('tgcaccaaacatgtcta'.upper())
+            assert f1.get(id_)[0].str.startswith('tgcaccaaacatgtcta'.upper())
             assert id_ in f1.get_fasta(id_)
             assert id_ in f1.get_fastaheader(id_)
             assert f1.get(id_) == f2.get(id_)
