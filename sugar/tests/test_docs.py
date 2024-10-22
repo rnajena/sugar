@@ -5,10 +5,10 @@ import io
 
 
 def doctest_module(m):
-    from doctest import testmod
+    from doctest import testmod, ELLIPSIS
     raised = False
     try:
-        testmod(m, raise_on_error=True)
+        testmod(m, raise_on_error=True, optionflags=ELLIPSIS)
     except Exception:
         raised = True
     if raised:
@@ -25,6 +25,14 @@ def test_docs_data():
 def test_docs_core():
     from sugar import core
     doctest_module(core)
+
+def test_docs_core_seq():
+    from sugar.core import seq
+    doctest_module(seq)
+
+def test_docs_core_meta():
+    from sugar.core import meta
+    doctest_module(meta)
 
 def test_docs_io():
     from sugar import _io

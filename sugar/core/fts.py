@@ -45,9 +45,6 @@ import io
 import sys
 from enum import Flag, StrEnum, auto
 from sugar.core.meta import Meta
-# from .sequence import Sequence
-# from ..copyable import Copyable
-# from .seqtypes import NucleotideSequence
 
 
 class Defect(Flag):
@@ -117,7 +114,7 @@ class Location():
             Inclusive ending base or residue position of the feature.
         strand : Strand
             The strand direction.
-            Always :attr:`Strand.FORWARD` for peptide features.
+            Always `Strand.FORWARD` for peptide features.
         defect : Defect
             A possible defect of the location.
         """
@@ -149,7 +146,10 @@ class Location():
 
     @property
     def stride(self):
-        return 1 if self.strand == Strand.FORWARD else -1
+        """
+        Stride is -1 for the negative strand, else +1
+        """
+        return -1 if self.strand == '-' else 1
 
     def __len__(self):
         return self.stop - self.start
@@ -179,6 +179,7 @@ class Location():
 
 
 def _slice_locs(seq, locs, splitter=None, filler=None, gap=None):
+    # TODO document
     # Concatenate subsequences for each location of the feature
     strand = None
     for loc in locs:
@@ -202,7 +203,7 @@ def _slice_locs(seq, locs, splitter=None, filler=None, gap=None):
         # slice_start = loc.start - seq._seqstart
         # slice_stop = loc.stop - seq._seqstart
         # add_seq = seq[slice_start:slice_stop]
-        add_seq = seq.get(slice(loc.start, loc.stop), gap=gap)
+        add_seq = seq.getitem(slice(loc.start, loc.stop), gap=gap)
         if loc.strand == '-':
             add_seq = add_seq.reverse().complement()
         if filler is not None and prev_loc is not None:
@@ -245,7 +246,7 @@ class Feature():
     :param dict meta:
         The metadata describing the feature.
 
-    ..note::
+    .. note::
         The following metadata attributes can be accessed directly as an
         attribute of Feature: *type*, *name*, *id* and *seqid*.
         For example the feature id can be obtained by both `Feature.id`
@@ -268,6 +269,9 @@ class Feature():
 
     @property
     def type(self):
+        """
+        Alias for ``Feature.meta.type``
+        """
         return self.meta.get('type')
 
     @type.setter
@@ -276,6 +280,9 @@ class Feature():
 
     @property
     def id(self):
+        """
+        Alias for ``Feature.meta.id``
+        """
         return self.meta.get('id')
 
     @id.setter
@@ -284,6 +291,9 @@ class Feature():
 
     @property
     def seqid(self):
+        """
+        Alias for ``Feature.meta.seqid``
+        """
         return self.meta.get('seqid')
 
     @seqid.setter
@@ -292,6 +302,9 @@ class Feature():
 
     @property
     def name(self):
+        """
+        Alias for ``Feature.meta.name``
+        """
         return self.meta.get('name')
 
     @name.setter
@@ -328,6 +341,9 @@ class Feature():
 
     @property
     def loc(self):
+        """
+        Access first location
+        """
         l, *_ = self.locs
         return l
 
@@ -375,7 +391,10 @@ class Feature():
         lr = self.loc_range
         return lr[1] - lr[0]
 
-    def overlap(self, other):
+    def overlaps(self, other):
+        """
+        Weather the location ranges overlaps with other feature
+        """
         if not isinstance(other, Feature):
             raise NotImplementedError()
         lr1 = self.loc_range
@@ -390,6 +409,11 @@ class Feature():
         return (sum(lr1) - sum(lr2)) // 2
 
     def reverse(self):
+        """
+        Reverse the feature.
+
+        After the operation the feature will be located on the reverse complement strand.
+        """
         ft = self
         for loc in ft.locs:
             loc.start, loc.stop = -loc.stop, -loc.start
@@ -413,7 +437,7 @@ class Feature():
 class FeatureList(collections.UserList):
     def __init__(self, data=None):
         """
-        A `FeatureList` is a set of features belonging to one sequence.
+        A `FeatureList` is a set of features belonging to one or several sequences.
 
         Its advantage over a simple list is the base/residue position based
         indexing:
@@ -504,6 +528,9 @@ class FeatureList(collections.UserList):
             p.text(str(self))
 
     def tostr(self, raw=False, w=80, wt=12, wl=20, h=80, exclude_fts=()):
+        """
+        Return string with information about features, used by ``__str__()`` method
+        """
         def _sort_meta_key(m):
             order = ['name', 'gene']
             try:
@@ -561,11 +588,19 @@ class FeatureList(collections.UserList):
         return '\n'.join(out)
 
     def tofmtstr(self, fmt, **kw):
+        """
+        Write features to a string of specified format, see `~.main.write_fts()`
+        """
         out = io.StringIO()
         self.write(out, fmt=fmt, **kw)
         return out.getvalue()
 
     def get(self, type):
+        """
+        Return the first feature of specified feature type, e.g. ``'cds'``
+
+        :param type: String or list of multiple strings
+        """
         type_ = type
         if isinstance(type_, tuple):
             type_ = tuple(t.lower() for t in type_)
@@ -575,6 +610,11 @@ class FeatureList(collections.UserList):
                 return ft
 
     def select(self, type):
+        """
+        Return new `featureList` with all features of specified feature type, e.g. ``'cds'``
+
+        :param type: String or list of multiple strings
+        """
         type_ = type
         if isinstance(type_, tuple):
             type_ = tuple(t.lower() for t in type_)
@@ -586,6 +626,9 @@ class FeatureList(collections.UserList):
         return FeatureList(fts)
 
     def todict(self):
+        """
+        Return a dictionary with sequence ids as keys and FeatureLists as values
+        """
         d = {}
         for ft in self:
             seqid = ft.meta.get('seqid', '')
@@ -594,6 +637,9 @@ class FeatureList(collections.UserList):
 
     @property
     def d(self):
+        """
+        Alias for `FeatureList.todict()`
+        """
         return self.todict()
 
     @property
@@ -629,6 +675,9 @@ class FeatureList(collections.UserList):
 
 
     def slice(self, start, stop):
+        """
+        Return a sub-annotation between start and stop
+        """
         if start is None:
             i_start = -sys.maxsize
         else:
@@ -670,11 +719,26 @@ class FeatureList(collections.UserList):
         return sub_annot
 
     def reverse(self):
+        """
+        Reverse all features, see `Feature.reverse()`
+
+        :return: Reversed features
+        """
         for ft in self:
             ft.reverse()
         return self
 
     def sort(self, key=None, reverse=False):
+        """
+        Sort features in-place
+
+        :param key: Key to use for sorting.
+            Should be a string, which is expected to be a valid attribute in the metadata of each feature.
+            Alternatively, the key sort function can be specified directly.
+        :param reverse: Use reversed order (default: False)
+
+        :return: Sorted features
+        """
         if key is not None and isinstance(key, str):
             kfunc = lambda ft: ft.meta[key]
         else:
@@ -683,6 +747,9 @@ class FeatureList(collections.UserList):
         return self
 
     def copy(self):
+        """
+        Return a deep copy of the object
+        """
         return deepcopy(self)
 
 

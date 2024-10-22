@@ -23,15 +23,13 @@ COMPLEMENT_ALL = {c: CODES_INV[frozenset(COMPLEMENT[nt] for nt in nts)] for c, n
 COMPLEMENT_TRANS = str.maketrans(COMPLEMENT_ALL)
 
 
-class _Slicable_GetItemInplace():
-    def __init__(self, seq):
-        self.seq = seq
+class _Slicable_GetItem():
+    def __init__(self, obj, **kw):
+        self.obj = obj
+        self.kw = kw
 
     def __getitem__(self, i):
-        return self.seq.get(i, inplace=True)
-        # self.seq.data = self.seq[i].data
-        # return self.seq
-
+        return self.obj.getitem(i, **self.kw)
 
 
 class _BioSeqStrMethods():
@@ -242,7 +240,7 @@ class MutableMetaString():
     def __init__(self, data, id='', meta=None, type=None):
         #: Namespace holding all available string methods,
         #: see `_BioSeqStrMethods` for available methods
-        #: and `str` for documentation of the methods
+        #: and str_ for documentation of the methods
         self.str = _BioSeqStrMethods(self)
         #: Property holding the data string
         self.data = str(data).upper()
@@ -337,7 +335,7 @@ class MutableMetaString():
     def __len__(self):
         return len(self.data)
 
-    def get(self, index, gap=None):
+    def getitem(self, index, gap=None):
         """
         TODO
         """
@@ -349,12 +347,11 @@ class MutableMetaString():
                 index = adj(index)
             elif isinstance(index, slice):
                 index = slice(adj(index.start), adj(index.stop), index.step)
-            print(index)
         return self.__class__(self.data[index], meta=self.meta)
 
 
     def __getitem__(self, index):
-        return self.get(index)
+        return self.getitem(index)
 
     def __setitem__(self, index, value):
         l = list(self.data)
@@ -446,8 +443,13 @@ class BioSeq(MutableMetaString):
 
     @property
     def i(self):
-        """TODO"""
-        return _Slicable_GetItemInplace(self)
+        """Return slicable object to support in-place slicing
+
+        Deprecated: Use getitem() or sl attribute.
+        """
+        msg = 'BioSeq.i is deprecated, use geitem() method or sl attribute'
+        warnings.warn(msg, DeprecationWarning, stacklevel=2)
+        return _Slicable_GetItem(self, inplace=True)
 
     def rc(self):
         """
@@ -457,14 +459,49 @@ class BioSeq(MutableMetaString):
 
 
     def __getitem__(self, index):
-        return self.get(index)
+        return self.getitem(index)
 
-    def get(self, index, inplace=False, gap=None):
+    def getitem(self, index, inplace=False, gap=None):
         """
-        TODO
+        Slice the sequence and return a subsequence
+
+        This is the method which is called if you slice with ``BioSeq[]`` syntax.
+        If you want to use non-default options call this method directly,
+        or by the `BioSeq.sl` attribute.
+
+        .. rubric:: Example:
+
+        >>> from sugar import read
+        >>> seq = read()[0]
+        >>> print(seq[5:10])
+        CCCCT
+        >>> print(seq[5])
+        C
+        >>> print(seq['cds'][:3])
+        ATG
+
+        :param index: Specifies which part of the sequence is returned.
+           The following types are supported.
+
+           int,slice
+             location is specified by int or slice
+           `.Location`
+             specified by location
+           `.Feature`
+             specified by feature
+           str
+             position of first feature of given type, e.g. ``'cds'``
+             will return sequence with first coding sequence
+        :param bool inplace:
+            The subsequence is not only returned, but the original
+            sequence is modified in-place (default: False)
+        :param str gap:
+            gaps of the given characters will be accounted for when
+            slicing the sequence (default: gaps will not be accounted for)
         """
+        # TODO: add correct_fts kwargs
         try:
-            subseq = super().get(index, gap=gap)
+            subseq = super().getitem(index, gap=gap)
         except:
             if isinstance(index, str):
                 index = self.fts.get(index)
@@ -552,6 +589,26 @@ class BioSeq(MutableMetaString):
         #                     ft2.orig_len = getattr(ft, 'orig_len', abs(ft.start - ft.stop))
         #                 subseq.meta.features.append(ft2)
         # return subseq
+
+
+    def sl(self, **kw):
+        """
+        Method allowing to call `BioSeq.getitem()` with non-default options and extended indexing syntax
+
+        Returns a slicable object. Use the ``BioSeq[]`` notation directly if you use default arguments.
+
+        .. rubric:: Example:
+
+        >>> from sugar import read
+        >>> seq = read()[0]
+        >>> print(seq[:5])
+        ACCTG
+        >>> print(seq.sl(inplace=True, gap='-')[:5:2])
+        ACG
+        >>> print(seq)  # was modified in-place
+        ACG
+        """
+        return _Slicable_GetItem(self, **kw)
 
 
     def biotranslate(self, *args, **kw):
@@ -710,10 +767,9 @@ class BioBasket(collections.UserList):
         #: Namespace holding all available string methods,
         #:
         #: The `BioBasket.str` methods call the corresponding `BioSeq.str` methods under the hood
-        #: and return either the altered `BioBasket` object or a list of results.
-        #: see `_BioSeqStrMethods` for available methods
-        #: and `str` for documentation of the methods
-
+        #: and return either the altered `BioBasket` object or a list with results.
+        #: See `_BioSeqStrMethods` for available methods
+        #: and str_ for documentation of the methods
         self.str = _BioBasketStrMethods(self)
         if data is None:
             data = []
@@ -800,29 +856,73 @@ class BioBasket(collections.UserList):
         return f'{type(self).__name__}({super().__repr__()}, meta=dict({metastr}))'
 
     def __getitem__(self, i):
-        return self.get(i)
+        return self.getitem(i)
 
-    def get(self, i, gap=None):
-        """TODO"""
+    def getitem(self, i, **kw):
+        """
+        Slice sequences
+
+        This is the method which is called if you slice with ``BioBasket[]`` syntax.
+        If you want to use non-default options call this method directly,
+        or by the `BioBasket.sl` attribute.
+
+        .. rubric:: Example:
+
+        >>> from sugar import read
+        >>> seqs = read()
+        >>> print(seqs[:2, 5:10])
+        2 seqs in basket
+        AB047639  5  CCCCT  ...
+        AB677533  5  CCCCC  ...
+        >>> print(seqs[:2, 'cds'][:, 0:3])
+        2 seqs in basket
+        AB047639  3  ATG  ...
+        AB677533  3  ATG  ...
+
+        :param index:
+            Specifies which part of the sequences or which sequences are returned.
+
+            int
+                Returns a `BioSeq` from the basket
+            slice
+                Returns a new `BioBasket` object with a subset of the sequences
+            str,feature,location
+                Updates all sequences inisde the basket, see `BioSeq.getitem()`
+            (int, object)
+                Returns a `BioSeq` from the basket and slices it with the object, see `BioSeq.getitem()`
+            (slice, object)
+                Returns a new `BioBasket` object with a subset of the sequences which are replaced
+                by subsequences according to `BioSeq.getitem()`
+        :param \*\*kw:
+            Aditional kwargs are passed to `BioSeq.getitem()`.
+        """
         if isinstance(i, int):
             return self.data[i]
         elif isinstance(i, slice):
             seqs = self.__class__(self.data[i], meta=self.meta)
         elif isinstance(i, (str, Feature, Location)):
             seqs = self.__class__(self.data, meta=self.meta)
-            seqs.data = [seq.get(i, gap=gap) for seq in seqs.data]
+            seqs.data = [seq.getitem(i, **kw) for seq in seqs.data]
         elif len(i) == 2:
             i, j = i
             if isinstance(i, int):
-                return self.data[i].get(j, gap=gap)
+                return self.data[i].getitem(j, **kw)
             elif isinstance(i, slice):
                 seqs = self.__class__(self.data[i], meta=self.meta)
-                seqs.data = [seq.get(j, gap=gap) for seq in seqs.data]
+                seqs.data = [seq.getitem(j, **kw) for seq in seqs.data]
             else:
                 raise TypeError('Index not supported')
         else:
             raise TypeError('Index not supported')
         return seqs
+
+    def sl(self, **kw):
+        """
+        Method allowing to call `BioBasket.getitem()` with non-default options and extended indexing syntax
+
+        Returns a slicable object. Use the ``BioBasket[]`` notation directly if you use default arguments.
+        """
+        return _Slicable_GetItem(self, **kw)
 
     def __setitem__(self, i, value):
         if isinstance(i, (int, slice)):
@@ -912,7 +1012,8 @@ class BioBasket(collections.UserList):
         This method might undergo disrupting changes or it might be removed in a later version.
 
         Under the hood this method uses pandas and seaborn libraries.
-        For a help on most arguments, see ``seaborn.barplot()``.
+        For a help on most arguments, see
+        `seaborn.barplot() <https://seaborn.pydata.org/generated/seaborn.barplot.html#seaborn.barplot>`_.
         """
         import matplotlib.pyplot as plt
         import seaborn as sns
@@ -1008,7 +1109,7 @@ class BioBasket(collections.UserList):
 
     def tofmtstr(self, fmt, **kw):
         """
-        Write object to a string of specified format, see `~.main.write()`
+        Write sequences to a string of specified format, see `~.main.write()`
         """
         out = io.StringIO()
         self.write(out, fmt=fmt, **kw)
@@ -1016,7 +1117,7 @@ class BioBasket(collections.UserList):
 
     def tostr(self, h=19, w=80, wid=19, wlen=4, showgc=True, add_hint=False, raw=False):
         """
-        Return string with information about sequences, used by ``__str__`` magic
+        Return string with information about sequences, used by ``__str__()`` method
         """
         if raw:
             return '\n'.join(str(seq) for seq in self)

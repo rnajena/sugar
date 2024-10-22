@@ -66,9 +66,11 @@ class Attr(collections.abc.MutableMapping):
     __delattr__ = __delitem__
 
     def copy(self):
+        """Return a deep copy of the object"""
         return copy.deepcopy(self)
 
     def update(self, adict={}):
+        """Update from other mapping or iterable"""
         for (key, value) in adict.items():
             self.__setitem__(key, value)
 
@@ -93,6 +95,9 @@ class Meta(Attr):
             p.text(str(self))
 
     def tostr(self, w=80):
+        """
+        Return string describing the metadata, is used by ``__str__()`` method.
+        """
         def _key2str():
             line = f'{k:>{lenkey}}: {self[k]}'
             if len(line) > w:
