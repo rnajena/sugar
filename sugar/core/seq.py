@@ -13,7 +13,7 @@ import sys
 from warnings import warn
 
 from sugar.data import CODES
-from sugar.core.fts import Feature, FeatureList
+from sugar.core.fts import Feature, FeatureList, Location
 from sugar.core.meta import Attr, Meta
 
 
@@ -1066,8 +1066,6 @@ class BioBasket(collections.UserList):
         from sugar._io import write
         write(self, fname, fmt=fmt, **kw)
 
-
-
     # def consensus(self, gap='-'):
     #     n = len(self)
     #     data = [seq.data for seq in self]
@@ -1080,9 +1078,3 @@ class BioBasket(collections.UserList):
     #         num_gaps = nt.count(gap)
     #         for letter in list(set(nt) - {gap}):
     #             count = nt.count(letter)
-
-
-
-
-from sugar.core.fts import Location, Defect, Strand
-SUGAR = (Attr, BioBasket, BioSeq, Feature, FeatureList, Meta, Location, Defect, Strand)
