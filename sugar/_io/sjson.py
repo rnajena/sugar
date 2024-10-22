@@ -9,7 +9,7 @@ import json
 
 from sugar.core.fts import Location, Defect, Strand, Feature, FeatureList
 from sugar.core.meta import Attr, Meta
-from sugar.core.seq import BioBasket, BioSeq, _BioBasketStrMethods, _StrMethods
+from sugar.core.seq import BioBasket, BioSeq, _BioBasketStrMethods, _BioSeqStrMethods
 from sugar._io.util import _add_fmt_doc
 
 
@@ -33,7 +33,7 @@ class _SJSONEncoder(json.JSONEncoder):
                    if not k.startswith("_") or k == '_fmtcomment'}
             obj['_cls'] = type(o).__name__
             return obj
-        elif isinstance(o, (_BioBasketStrMethods, _StrMethods)):
+        elif isinstance(o, (_BioBasketStrMethods, _BioSeqStrMethods)):
             return '<<ignored>>'
         else:
             # Let the base class default method raise the TypeError

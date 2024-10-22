@@ -77,6 +77,7 @@ autodoc_default_options = {
     'undoc-members': True,
     'private-members': False,
     'show-inheritance': True,
+    'member-order': 'groupwise',
 }
 
 html_theme = 'furo'

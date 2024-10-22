@@ -19,3 +19,4 @@ Submodules
    :hidden:
 
    sugar.core.*
+

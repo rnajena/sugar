@@ -23,58 +23,6 @@ COMPLEMENT_ALL = {c: CODES_INV[frozenset(COMPLEMENT[nt] for nt in nts)] for c, n
 COMPLEMENT_TRANS = str.maketrans(COMPLEMENT_ALL)
 
 
-# class Feature(Attr):
-#     def _slice(self):
-#         stride = getattr(self, 'stride', 1)
-#         return slice(self.start, self.stop, stride)
-
-
-# class FeatureList(collections.UserList):
-#     def __init__(self, data=None):
-#         super().__init__(data)
-
-#     def __str__(self):
-#         return self.tostr()
-
-#     def _repr_pretty_(self, p, cycle):
-#         if cycle:
-#             p.text('...')
-#         else:
-#             p.text(str(self))
-
-#     def tostr(self, w=80, wt=12, wl=12, wle=6, exclude_features=()):
-#         out = []
-#         for ft in self:
-#             t = getattr(ft, 'type', '')
-#             if t in exclude_features:
-#                 continue
-#             exclude_keys = ('start', 'stop', 'stride', 'type', 'loc', 'translation')
-#             ftstr = ';'.join(f'{k}={v}' for k, v in vars(ft).items()
-#                              if k not in exclude_keys)
-#             l = getattr(ft, 'loc', '')
-#             le = ft.stop - ft.start if getattr(ft, 'start', None) is not None else '?'
-#             le = f'({le})'
-#             ftstr = f'{t:>{wt}} {l:<{wl}} {le:<{wle}}  {ftstr}'
-#             if w and len(ftstr) > w:
-#                 ftstr = ftstr[:w-3] + '...'
-#             out.append(ftstr)
-#         return '\n'.join(out)
-
-#     def get(self, type_):
-#         for ft in self.data:
-#             if ft.type == type_:
-#                 return ft
-
-#     def geta(self, type_):
-#         features = []
-#         for ft in self.data:
-#             if ft.type == type_:
-#                 features.append(ft)
-#         return FeatureList(features)
-
-
-
-
 class _Slicable_GetItemInplace():
     def __init__(self, seq):
         self.seq = seq
@@ -86,9 +34,11 @@ class _Slicable_GetItemInplace():
 
 
 
-class _StrMethods():
+class _BioSeqStrMethods():
     """
-    Helper class to move all string methods into the BioSeq.str namespace
+    Helper class to hold all string methods in the `BioSeq.str` namespace
+
+    :meta public:
     """
     def __init__(self, parent):
         self.__parent = parent
@@ -182,7 +132,9 @@ class _StrMethods():
         self.__parentdata = self.__parent.data.lstrip(chars)
         return self.__parent
 
-    maketrans = str.maketrans
+    @staticmethod
+    def maketrans(*args):
+        return str.maketrans(*args)
 
     # def partition(self, sep):
     #     return self.data.partition(sep)
@@ -253,10 +205,12 @@ class _StrMethods():
 
 class _BioBasketStrMethods():
     """
-    Helper class to move all string methods into the BioBasket.str namespace
+    Helper class to move all string methods into the `BioBasket.str` namespace
 
-    It calls the corresponding BioSeq.str method under the hood and returns
-    either the altered BioBasket object or a list of results.
+    It calls the corresponding `BioSeq.str` method under the hood and returns
+    either the altered `BioBasket` object or a list of results.
+
+    :meta public:
     """
     def __init__(self, parent):
         self.__parent = parent
@@ -278,9 +232,19 @@ class _BioBasketStrMethods():
         return method
 
 
-class MutableMetaString(collections.abc.Sequence):
+class MutableMetaString():
+    """
+    A Class behaving like a string with metadata, base for `BioSeq`.
+
+    TODO Integrate this directly into the BioSeq class.
+    """
+
     def __init__(self, data, id='', meta=None, type=None):
-        self.str = _StrMethods(self)
+        #: Namespace holding all available string methods,
+        #: see `_BioSeqStrMethods` for available methods
+        #: and `str` for documentation of the methods
+        self.str = _BioSeqStrMethods(self)
+        #: Property holding the data string
         self.data = str(data).upper()
         if hasattr(data, 'meta'):
             meta = data.meta
@@ -288,6 +252,7 @@ class MutableMetaString(collections.abc.Sequence):
             meta = data['meta']
         elif meta is None:
             meta = {}
+        #: Property holding metadata
         self.meta = Meta(meta)
         if id or 'id' not in self.meta:
             self.meta.id = id
@@ -299,10 +264,12 @@ class MutableMetaString(collections.abc.Sequence):
             from warnings import warn
             warn('Found U in nucleotide sequence, '
                  'some methods will not work as expected')
+        #: type of the sequence, either ``'nt'`` or ``'aa'``
         self.type = type
 
     @property
     def id(self):
+        """Alias for ``BioSeq.meta.id``"""
         return self.meta.id
 
     @id.setter
@@ -365,14 +332,15 @@ class MutableMetaString(collections.abc.Sequence):
         self.id >= ''
 
     def __contains__(self, char):
-        if isinstance(char, MutableMetaString):
-            char = char.data
-        return char in self.data
+        return str(char) in self.data
 
     def __len__(self):
         return len(self.data)
 
     def get(self, index, gap=None):
+        """
+        TODO
+        """
         if gap is not None:
             # from bisect import bisect
             nogaps = [i for i, nt in enumerate(self.data) if nt not in gap]
@@ -416,28 +384,6 @@ class MutableMetaString(collections.abc.Sequence):
             return self.__class__(other + self.data, meta=self.meta)
         return self.__class__(str(other) + self.data, meta=self.meta)
 
-    # def __mul__(self, n):
-    #     return self.__class__(self.data * n, meta=self.meta)
-
-    # def __imul__(self, n):
-    #     self.data = self.data * n
-
-    # __rmul__ = __mul__
-
-    # def __mod__(self, args):
-    #     return self.__class__(self.data % args, meta=self.meta)
-
-    # def __rmod__(self, template):
-    #     return self.__class__(str(template) % self, meta=self.meta)
-
-    # the following methods are defined in alphabetical order:
-    # def capitalize(self):
-    #     self.data.capitalize()
-    #     return self
-
-    # def casefold(self):
-    #     self.data = self.data.casefold()
-    #     return self
 
 def _detect_tool(obj):
     try:
@@ -451,9 +397,21 @@ def _detect_tool(obj):
 
 
 class BioSeq(MutableMetaString):
+    """
+    Class holding sequence data and metadata, exposing bioinformatics methods.
+
+    Most methods operate by default in-place, but return the BioSeq object again.
+    Therefore, method chaining can be used.
+    """
 
     @property
     def fts(self):
+        """
+        Alias for ``BioSeq.meta.fts``
+
+        The fts object holds all feature metadata.
+        It is an instance of `.FeatureList`.
+        """
         return self.meta.setdefault('fts', FeatureList())
 
     @fts.setter
@@ -464,11 +422,21 @@ class BioSeq(MutableMetaString):
                 warn('Feature seqid and sequence id mismatch')
 
     def add_fts(self, fts):
+        """
+        Add some features to the feature list.
+
+        If you want set all features use the `BioSeq.fts` attribute.
+
+        :param fts: features to add
+        """
         self.fts = self.fts + fts
         self.fts.sort()
 
     @property
     def gc(self):
+        """
+        GC content of the sequence
+        """
         GC = self.str.count('G') + self.str.count('C')
         AT = self.str.count('A') + self.str.count('T') + self.str.count('U')
         if GC + AT > 0:
@@ -478,9 +446,13 @@ class BioSeq(MutableMetaString):
 
     @property
     def i(self):
+        """TODO"""
         return _Slicable_GetItemInplace(self)
 
     def rc(self):
+        """
+        Reverse complement, alias for ``BioSeq.reverse().complement()``
+        """
         return self.reverse().complement()
 
 
@@ -488,6 +460,9 @@ class BioSeq(MutableMetaString):
         return self.get(index)
 
     def get(self, index, inplace=False, gap=None):
+        """
+        TODO
+        """
         try:
             subseq = super().get(index, gap=gap)
         except:
@@ -589,6 +564,9 @@ class BioSeq(MutableMetaString):
         return self
 
     def complement(self):
+        """
+        Complementary sequence, i.e. transcription
+        """
         if 'U' in self.data:
             self.str.replace('U', 'T').str.translate(COMPLEMENT_TRANS).str.replace('T', 'U')
         else:
@@ -602,10 +580,22 @@ class BioSeq(MutableMetaString):
         return BioBasket([self]).countplot(hue=hue, **kw)
 
     def copy(self):
+        """
+        Return a deep copy of the object
+        """
         return copy.deepcopy(self)
 
     @classmethod
     def fromobj(cls, obj, tool=None):
+        """
+        Create a `BioSeq` object from a Python object created by another tool.
+
+        This method is *WIP* - work in progress.
+
+        :param obj: The object to convert.
+        :param tool: the used tool (default: autodetect,
+            allowed: ``'biopython'``)
+        """
         if tool is None:
             tool = _detect_tool(obj)
         if tool is None:
@@ -642,10 +632,20 @@ class BioSeq(MutableMetaString):
         from sugar.core.cane import find_orfs
         return find_orfs(self, *args, **kw)
 
-    def tofmtstr(self, *args, **kw):
-        return BioBasket([self]).tofmtstr(*args, **kw)
+    def tofmtstr(self, fmt, **kw):
+        """
+        Write object to a string of specified format, see `~.main.write()`
+        """
+        return BioBasket([self]).tofmtstr(fmt, **kw)
 
     def toobj(self, tool=None):
+        """
+        Convert the object to an object of another bioinformatics Python tool.
+
+        *WIP* - work in progress.
+
+        :param tool: Only ``'biopython'`` is supported.
+        """
         if tool == 'biopython':
             from Bio.Seq import Seq
             from Bio.SeqRecord import SeqRecord
@@ -654,6 +654,9 @@ class BioSeq(MutableMetaString):
             raise ValueError(f'Unsupported tool: {tool}')
 
     def reverse(self):
+        """
+        Reverse the sequence
+        """
         self.data = self.data[::-1]
         return self
 
@@ -666,11 +669,11 @@ class BioSeq(MutableMetaString):
         self.type = 'aa'
         return self
 
-    def write(self, *args, **kw):
+    def write(self, fname, fmt=None, **kw):
         """
         Write sequence to file, see `~.main.write()`
         """
-        BioBasket([self]).write(*args, **kw)
+        BioBasket([self]).write(fname, fmt, **kw)
 
 
 import math
@@ -693,7 +696,24 @@ def _si_format(v, l=4):
 
 
 class BioBasket(collections.UserList):
+    """
+    Class holding a list of `BioSeq` objects
+
+    The BioBasket object can be used like a list.
+    It has useful bioinformatics methods attached.
+
+    The list itself is stored in the ``data`` property.
+    The BioBasket object may also have an metadata
+    attribute.
+    """
     def __init__(self, data=None, meta=None):
+        #: Namespace holding all available string methods,
+        #:
+        #: The `BioBasket.str` methods call the corresponding `BioSeq.str` methods under the hood
+        #: and return either the altered `BioBasket` object or a list of results.
+        #: see `_BioSeqStrMethods` for available methods
+        #: and `str` for documentation of the methods
+
         self.str = _BioBasketStrMethods(self)
         if data is None:
             data = []
@@ -704,6 +724,10 @@ class BioBasket(collections.UserList):
         elif meta is None:
             meta = {}
         super().__init__(data)
+        # FAKE, just for documenting tha data property
+        #: Property holding the list of sequences
+        self.data = self.data
+        #: Property holding metadata
         self.meta = Meta(meta)
 
     def __eq__(self, other):
@@ -713,10 +737,17 @@ class BioBasket(collections.UserList):
 
     @property
     def ids(self):
+        """List of sequence ids"""
         return [seq.meta.id for seq in self]
 
     @property
     def fts(self):
+        """
+        `.FeatureList` of containing features of all sequences
+
+        Can also be used as setter.
+        Code example: ``seqs.fts = new_fts``.
+        """
         fts = [ft for seq in self for ft in seq.fts]
         return FeatureList(fts)
 
@@ -732,6 +763,13 @@ class BioBasket(collections.UserList):
                  'attached to any sequence')
 
     def add_fts(self, fts):
+        """
+        Add some features to the feature list of corresponding sequences.
+
+        If you want set all features use the `BioBasket.fts` attribute.
+
+        :param fts: features to add
+        """
         fts = FeatureList(fts).todict()
         for seq in self:
             if seq.id in fts:
@@ -743,6 +781,9 @@ class BioBasket(collections.UserList):
                  'attached to any sequence')
 
     def rc(self):
+        """
+        Reverse complement, alias for ``BioSeq.reverse().complement()``
+        """
         return self.reverse().complement()
 
     def __str__(self):
@@ -762,6 +803,7 @@ class BioBasket(collections.UserList):
         return self.get(i)
 
     def get(self, i, gap=None):
+        """TODO"""
         if isinstance(i, int):
             return self.data[i]
         elif isinstance(i, slice):
@@ -805,6 +847,9 @@ class BioBasket(collections.UserList):
         return self
 
     def complement(self):
+        """
+        Complementary sequences, i.e. transcription
+        """
         for seq in self:
             seq.complement()
         return self
@@ -818,14 +863,30 @@ class BioBasket(collections.UserList):
         return self
 
     def reverse(self, *args, **kw):
+        """
+        Reverse sequences
+        """
         for seq in self:
             seq.reverse(*args, **kw)
         return self
 
     def copy(self):
+        """
+        Return a deep copy of the BioBasket object.
+        """
         return copy.deepcopy(self)
 
     def countall(self, rtype='counter'):
+        """
+        Count letters in sequences
+
+        This method might undergo disrupting changes or it might be removed in a later version.
+
+        :param rtype:
+          * ``'counter'`` Return `~collections.Counter` object
+          * ``'prob'`` Return dictionary with normalized counts
+          * ``'df'`` Return pandas DataFrame object with count, prob and tprob (total prob) fields
+        """
         if rtype == 'df':
             import pandas as pd
             records = [{'id': seq.id, 'letter': letter, 'count': count}
@@ -845,6 +906,14 @@ class BioBasket(collections.UserList):
 
     def countplot(self, y='letter', x='count', hue='id', order=None, plot='show',
                   figsize=None, ax=None, savefigkw={}, **kw):
+        """
+        Create a plot of letter counts
+
+        This method might undergo disrupting changes or it might be removed in a later version.
+
+        Under the hood this method uses pandas and seaborn libraries.
+        For a help on most arguments, see ``seaborn.barplot()``.
+        """
         import matplotlib.pyplot as plt
         import seaborn as sns
         df = self.countall(rtype='df')
@@ -867,6 +936,15 @@ class BioBasket(collections.UserList):
 
     @classmethod
     def fromobj(cls, obj, tool=None):
+        """
+        Create a `BioBasket` object from a Python object created by another tool.
+
+        This method is *WIP* - work in progress.
+
+        :param obj: The object to convert.
+        :param tool: the used tool (default: autodetect,
+            allowed: ``'biopython'``)
+        """
         if tool is None and len(obj)>0:
             tool = _detect_tool(obj[0])
         if tool is None:
@@ -877,18 +955,27 @@ class BioBasket(collections.UserList):
         else:
             raise ValueError(f'Unsupported tool: {tool}')
 
-    @classmethod
-    def fromfmtstr(cls, in_, **kw):
+    @staticmethod
+    def fromfmtstr(in_, **kw):
+        """
+        Read sequences from a string
+        """
         from sugar import read
         if not isinstance(in_, bytes):
             in_ = in_.encode('latin1')
         return read(io.BytesIO(in_), **kw)
 
     def todict(self):
+        """
+        Return a dictionary with sequence ids as keys and sequences as values
+        """
         return {seq.id: seq for seq in self}
 
     @property
     def d(self):
+        """
+        Alias for `BioBasket.todict()`
+        """
         return self.todict()
 
     def match(self, *args, **kw):
@@ -920,11 +1007,17 @@ class BioBasket(collections.UserList):
                       [seq.find_orfs(*args, **kw) for seq in self])
 
     def tofmtstr(self, fmt, **kw):
+        """
+        Write object to a string of specified format, see `~.main.write()`
+        """
         out = io.StringIO()
         self.write(out, fmt=fmt, **kw)
         return out.getvalue()
 
     def tostr(self, h=19, w=80, wid=19, wlen=4, showgc=True, add_hint=False, raw=False):
+        """
+        Return string with information about sequences, used by ``__str__`` magic
+        """
         if raw:
             return '\n'.join(str(seq) for seq in self)
         if len(self) == 0:
@@ -954,6 +1047,13 @@ class BioBasket(collections.UserList):
         return '\n'.join(out)
 
     def toobj(self, tool=None):
+        """
+        Convert the object to an object of another bioinformatics Python tool.
+
+        *WIP* - work in progress.
+
+        :param tool: Only ``'biopython'`` is supported.
+        """
         if tool == 'biopython':
             return [seq.toobj(tool) for seq in self]
         else:

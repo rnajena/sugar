@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
-Several core helper classes and functions, like `~.cane.translate()`, `~.cane.match()` and `.find_orfs()`
+Several core helper classes and functions, like `~.cane.translate()`, `~.cane.match()` and `~.cane.find_orfs()`
 """
 
 import collections
