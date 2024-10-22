@@ -228,39 +228,51 @@ class Feature():
     A feature describes a functional part of a sequence.
     It consists of a feature type, describing the general class of the
     feature, at least one location, describing its position on the
-    reference, and metaifiers, describing the feature in detail.
+    reference, and metadata, describing the feature in detail.
 
     Objects of this class are immutable.
 
-    Parameters
-    ----------
-    type : str
-        The name of the feature class, e.g. *gene*, *CDS* or
+    :param str type: The name of the feature class, e.g. *gene*, *CDS* or
         *regulatory*.
-    locs : list
+    :param list locs:
         A list of feature locations. In most cases this list will only
         contain one location, but multiple ones are also possible for
-        example in eukaryotic CDS (due to splicing).
-    meta : dict
-        Maps feature metaifiers to their corresponding values.
-        The types are always strings. A value is either a string or
-        ``None`` if the metaifier type do not has a value.
-        If type has multiple values, the values are separated by a
-        line break.
+        example in eukaryotic CDS (due to splicing) or in virus genomes
+        (due to frame shifts).
+    :param int start,stop:
+        Instead of specifying the locations, a single location can be given
+        by start and stop indices.
+    :param dict meta:
+        The metadata describing the feature.
+
+    ..note::
+        The following metadata attributes can be accessed directly as an
+        attribute of Feature: *type*, *name*, *id* and *seqid*.
+        For example the feature id can be obtained by both `Feature.id`
+        and `Feature.meta.id`.
     """
 
-    def __init__(self, type, locs=None, start=None, stop=None, meta=None):
+    def __init__(self, type=None, locs=None, start=None, stop=None, meta=None):
+        if meta is None:
+            meta = {}
+        self.meta = Meta(meta)
+        if type is not None:
+            self.meta.type = type
         if start is not None or stop is not None:
             if locs is not None:
                 raise ValueError('One of locs or start/stop can be given')
             locs = [Location(start, stop)]
-        self.type = type
         if len(locs) == 0:
             raise ValueError("A feature must have at least one location")
         self.locs = list(locs)  # frozenset
-        if meta is None:
-            meta = {}
-        self.meta = Meta(meta)
+
+    @property
+    def type(self):
+        return self.meta.get('type')
+
+    @type.setter
+    def type(self, value):
+        self.meta.type = value
 
     @property
     def id(self):

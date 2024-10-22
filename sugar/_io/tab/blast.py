@@ -26,7 +26,8 @@ def read_fts(f, *, sep='\t', outfmt=None, ftype=None, comments=None):
         can be set to ``None`` for any whitespace.
     :param str outfmt: The outfmt string passed to BLAST, can be omitted for outfmt 7
         or default outfmt 6 or 10 output.
-    :param str ftype: Parameter used as ftype
+    :param str ftype: Parameter used as ftype, if parameter is not present use the value
+        of ftype itself.
     :param list comments: comment lines inside the file are stored in
         the comments list (optional)
     """

@@ -32,7 +32,8 @@ is_format_fts = is_format
 
 copyattrs = [('Name', 'name'), ('ID', 'id'), ('score', 'score'),
              ('evalue', 'evalue'),
-             ('seqid', 'seqid'), ('phase', 'phase')]
+             ('seqid', 'seqid'), ('phase', 'phase'),
+             ('type', 'type')]
 
 
 @_add_fmt_doc('read_fts')
@@ -68,12 +69,14 @@ def read_fts(f, filt=None, default_ftype=None, comments=None):
                attrs[unquote(k.strip())] = (
                    unquote(v.strip()) if ',' not in v else
                    [unquote(vv.strip()) for vv in v.strip().split(',')])
-        attrs['seqid'] = seqid
-        attrs['source'] = source
-        # attrs['type'] = type_
-        attrs['score'] = score
-        attrs['phase'] = phase
-
+        if seqid != '.':
+            attrs['seqid'] = seqid
+        if source != '.':
+            attrs['source'] = source
+        if score != '.':
+            attrs['score'] = float(score)
+        if phase != '.':
+            attrs['phase'] = int(phase)
         if 'ID' in attrs:
             id_ = (attrs['ID'], type_, seqid)
         else:
@@ -89,24 +92,10 @@ def read_fts(f, filt=None, default_ftype=None, comments=None):
             meta = Meta(_gff=attrs)
             fts.append(Feature(type_, locs=[loc], meta=meta))
         lastid = id_
-
     for ft in fts:
-        meta = ft.meta
-        if meta._gff.seqid == '.':
-            del meta._gff.seqid
-        if meta._gff.score != '.':
-            meta._gff.score = float(meta._gff.score)
-        else:
-            del meta._gff.score
-        if meta._gff.source == '.':
-            del meta._gff.source
-        if meta._gff.phase != '.':
-            meta._gff.phase = int(meta._gff.phase)
-        else:
-            del meta._gff.phase
         for gffattr, metaattr in copyattrs:
-            if gffattr in meta._gff:
-                meta[metaattr] = meta._gff[gffattr]
+            if gffattr in ft.meta._gff:
+                ft.meta[metaattr] = ft.meta._gff[gffattr]
     return FeatureList(fts)
 
 
@@ -148,8 +137,7 @@ def write_fts(fts, f, header=None):
         source = quote(meta._gff.pop('source', '.'))
         score = meta._gff.pop('score', '.')
         phase = meta._gff.pop('phase', '.')
-        # meta._gff.pop('type', None)
-        type_ = '.' if ft.type is None else ft.type
+        type_ = meta._gff.pop('type', None) or meta.get('type') or '.'
         for i, loc in enumerate(ft.locs):
             if i == 0:
                 gff_meta = meta._gff
