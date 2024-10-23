@@ -635,12 +635,55 @@ class FeatureList(collections.UserList):
             d.setdefault(seqid, FeatureList()).append(ft)
         return d
 
+    def groupby(self, keys=('seqid',)):
+        """
+        Group features
+
+        :param str attr: Which attributes to group by.
+            Allowed values: rf, seqid, both,
+            default: rf
+
+        :param keys: Tuple of meta keys or functions to use for grouping.
+            May also be a single string or callable.
+            By default the method groups by only seqid.
+        :return: Nested dict structure
+
+        .. rubric:: Example:
+
+        >>> from sugar import read_fts
+        >>> fts = read_fts()
+        >>> fts.groupby('type');
+        """
+        from collections.abc import Iterable
+        if isinstance(keys, str):
+            keys = keys.split()
+        if not isinstance(keys, Iterable):
+            keys = [keys]
+        keyfuncs = [
+            (lambda ft: ft.meta.get(key)) if isinstance(key, str) else key
+            for key in keys
+            ]
+        d = {}
+        for ft in self:
+            d2 = d
+            for keyfunc in keyfuncs[:-1]:
+                d2 = d2.setdefault(keyfunc(ft), {})
+            d2.setdefault(keyfuncs[-1](ft), FeatureList()).append(ft)
+        return d
+        if attr == 'both':
+            for ft in self:
+                d.setdefault(ft.seqid, {}).setdefault(ft.meta.rf, FeatureList()).append(ft)
+        else:
+            for ft in self:
+                d.setdefault(getattr(ft.meta, attr), FeatureList()).append(ft)
+        return d
+
     @property
     def d(self):
         """
-        Alias for `FeatureList.todict()`
+        Alias for ``FeatureList.groupby('seqid')``
         """
-        return self.todict()
+        return self.groupby('seqid')
 
     @property
     def loc_range(self):
@@ -728,22 +771,35 @@ class FeatureList(collections.UserList):
             ft.reverse()
         return self
 
-    def sort(self, key=None, reverse=False):
+    def sort(self, keys=None, reverse=False):
         """
         Sort features in-place
 
-        :param key: Key to use for sorting.
-            Should be a string, which is expected to be a valid attribute in the metadata of each feature.
-            Alternatively, the key sort function can be specified directly.
+        :param keys: Tuple of meta keys or functions to use for sorting.
+            None can be used as a single value or in the tuple
+            to apply the default sorting by position.
+            May also be a single string or callable.
         :param reverse: Use reversed order (default: False)
 
         :return: Sorted features
+
+        .. rubric:: Example:
+
+        >>> from sugar import read_fts
+        >>> fts = read_fts()
+        >>> fts.sort(('type', len));
         """
-        if key is not None and isinstance(key, str):
-            kfunc = lambda ft: ft.meta[key]
-        else:
-            kfunc = key
-        self.data = sorted(self, key=kfunc, reverse=reverse)
+        from collections.abc import Iterable
+        if isinstance(keys, str):
+            keys = keys.split()
+        if not isinstance(keys, Iterable):
+            keys = [keys]
+        keyfuncs = [
+            (lambda ft: ft.meta.get(key)) if isinstance(key, str) else key
+            for key in keys
+            ]
+        for keyfunc in keyfuncs[::-1]:
+            self.data = sorted(self.data, key=keyfunc, reverse=reverse)
         return self
 
     def copy(self):

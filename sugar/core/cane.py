@@ -11,10 +11,29 @@ from sugar.core.fts import FeatureList
 
 
 class BioMatch(object):
+    """
+    The BioMatch object is returned by `~cane.match()` and the different match methods.
+
+    It is designed to behave as the original `python:re.Match` object.
+    See there for available methods.
+    Additionally, it has the `BioMatch.rf` attribute which holds the
+    reading frame (between -3 and 2, inclusive) of the match.
+
+    .. rubric:: Example::
+
+    >>> match = read()[0].match('AT.')
+    >>> match
+    <sugar.BioMatch object; seqid=AB047639; rf=2; span=(11, 14); match=ATA>
+    >>> print(match.group(), match.rf)
+    ATA 2
+    """
     def __init__(self, match, rf=None, lenseq=None, seqid=None):
+        #: original Match object
         self._match = match
+        #: reading frame (-3 to 2)
         self.rf = rf
         self.lenseq = lenseq
+        #: sequence id
         self.seqid = seqid
     def __getattr__(self, attr):
         return getattr(self._match, attr)
@@ -28,7 +47,22 @@ class BioMatch(object):
 
 
 class BioMatchList(collections.UserList):
+    """
+    List of `BioMatch` objects
+    """
     def groupby(self, attr='rf'):
+        """
+        Group matches
+
+        TODO: Use re-use groupby
+
+        :param str attr: Which attribute to group by.
+            Allowed values: rf, seqid, both,
+            default: rf
+        :return: dict with the group-by attributes as keys and BioMatchLists as values.
+            For ``'both'`` returns a nested dictionary,
+            outer keys are seqids, inner keys ar reading frames
+        """
         assert attr in ('rf', 'seqid', 'both')
         d = {}
         if attr == 'both':
@@ -41,32 +75,24 @@ class BioMatchList(collections.UserList):
 
     @property
     def d(self):
+        """
+        Group matches by seqid, alias for ``BioMatchList.groupby('seqid')``
+        """
         return self.groupby('seqid')
 
 
 class ORFList(FeatureList):
-    def groupby(self, attr='rf'):
-        assert attr in ('rf', 'seqid', 'both')
-        d = {}
-        if attr == 'both':
-            for ft in self:
-                d.setdefault(ft.seqid, {}).setdefault(ft.meta.rf, ORFList()).append(ft)
-        else:
-            for ft in self:
-                d.setdefault(getattr(ft.meta, attr), ORFList()).append(ft)
-        return d
+    """
+    List of open reading frames (ORFs)
 
+    This object is a FeatureList with additional methods.
+    """
     def filter(self, minlen=0, rfs=None):
         orfs = []
         for orf in self:
             if len(orf) > minlen and (rfs is None or orf.meta.rf in rfs):
                 orfs.append(orf)
         self.data = orfs
-        return self
-
-    def sort(self, s=('len',), reverse=False):
-        for k in s[::-1]:
-            self.data = sorted(self, key=len if k == 'len' else (lambda ft: ft.meta.get(k)), reverse=reverse)
         return self
 
     @property
@@ -118,8 +144,8 @@ def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', ne
     # rf  0, 1, 2, -1, -2, -3, 'fwd', 'bwd', 'both'
     assert need_start in ('never', 'always', 'once')
     if need_start in ('once', 'always'):
-        starts = seq.matchall(start, rf=rf, gap=gap).groupby()
-    stops = seq.matchall(stop, rf=rf, gap=gap).groupby()
+        starts = seq.matchall(start, rf=rf, gap=gap).groupby('rf')
+    stops = seq.matchall(stop, rf=rf, gap=gap).groupby('rf')
     if rf == 'fwd':
         rf = (0, 1, 2)
     elif rf == 'bwd':

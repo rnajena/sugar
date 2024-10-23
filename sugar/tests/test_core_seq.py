@@ -197,7 +197,7 @@ def test_orf():
     seqs=read()
     orfs = seqs[0].find_orfs()
     assert len(orfs) > 0
-    longest_orf = orfs.sort()[-1]
+    longest_orf = orfs.sort(len)[-1]
     assert seqs[0][longest_orf] == seqs[0]['cds']
 
     orfs2 = seqs[0].find_orfs(rf='both')
@@ -205,4 +205,4 @@ def test_orf():
 
     orfs = seqs.find_orfs()
     for id_ in seqs.ids:
-        assert seqs.d[id_][orfs.d[id_].sort()[-1]] == seqs.d[id_]['cds']
+        assert seqs.d[id_][orfs.d[id_].sort(len)[-1]] == seqs.d[id_]['cds']
