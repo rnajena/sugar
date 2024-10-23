@@ -50,27 +50,30 @@ class BioMatchList(collections.UserList):
     """
     List of `BioMatch` objects
     """
-    def groupby(self, attr='rf'):
+    def groupby(self, keys='rf'):
         """
         Group matches
 
-        TODO: Use re-use groupby
-
-        :param str attr: Which attribute to group by.
-            Allowed values: rf, seqid, both,
-            default: rf
-        :return: dict with the group-by attributes as keys and BioMatchLists as values.
-            For ``'both'`` returns a nested dictionary,
-            outer keys are seqids, inner keys ar reading frames
+        :param keys: Tuple of meta keys or functions to use for grouping.
+            May also be a single string or callable.
+            By default the method groups by only seqid.
+        :return: Nested dict structure
         """
-        assert attr in ('rf', 'seqid', 'both')
+        from collections.abc import Iterable
+        if isinstance(keys, str):
+            keys = keys.split()
+        if not isinstance(keys, Iterable):
+            keys = [keys]
+        keyfuncs = [
+            (lambda m: getattr(m, key)) if isinstance(key, str) else key
+            for key in keys
+            ]
         d = {}
-        if attr == 'both':
-            for m in self:
-                d.setdefault(m.seqid, {}).setdefault(m.rf, BioMatchList()).append(m)
-        else:
-            for m in self:
-                d.setdefault(getattr(m, attr), BioMatchList()).append(m)
+        for match in self:
+            d2 = d
+            for keyfunc in keyfuncs[:-1]:
+                d2 = d2.setdefault(keyfunc(match), {})
+            d2.setdefault(keyfuncs[-1](match), FeatureList()).append(match)
         return d
 
     @property
@@ -95,14 +98,11 @@ class ORFList(FeatureList):
         self.data = orfs
         return self
 
-    @property
-    def d(self):
-        return self.groupby('seqid')
-
-
-
 
 def _inds2orf(i1, i2, rf, lensec, ftype='ORF', seqid=None):
+    """
+    Create ORF feature from indices
+    """
     from sugar import Feature
     if rf is None or rf >= 0:
         strand = '+'

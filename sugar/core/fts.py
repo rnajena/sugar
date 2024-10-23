@@ -639,10 +639,6 @@ class FeatureList(collections.UserList):
         """
         Group features
 
-        :param str attr: Which attributes to group by.
-            Allowed values: rf, seqid, both,
-            default: rf
-
         :param keys: Tuple of meta keys or functions to use for grouping.
             May also be a single string or callable.
             By default the method groups by only seqid.
