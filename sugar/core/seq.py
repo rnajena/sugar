@@ -32,7 +32,7 @@ class _Slicable_GetItem():
         return self.obj.getitem(i, **self.kw)
 
 
-class _BioSeqStrMethods():
+class _BioSeqStr():
     """
     Helper class to hold all string methods in the `BioSeq.str` namespace
 
@@ -201,7 +201,7 @@ class _BioSeqStrMethods():
     # def zfill(self, width):
     #     return self.__class__(self.data.zfill(width))
 
-class _BioBasketStrMethods():
+class _BioBasketStr():
     """
     Helper class to move all string methods into the `BioBasket.str` namespace
 
@@ -239,9 +239,9 @@ class MutableMetaString():
 
     def __init__(self, data, id='', meta=None, type=None):
         #: Namespace holding all available string methods,
-        #: see `_BioSeqStrMethods` for available methods
+        #: see `_BioSeqStr` for available methods
         #: and `python:str` for documentation of the methods
-        self.str = _BioSeqStrMethods(self)
+        self.str = _BioSeqStr(self)
         #: Property holding the data string
         self.data = str(data).upper()
         if hasattr(data, 'meta'):
@@ -719,7 +719,9 @@ class BioSeq(MutableMetaString):
 
     def translate(self, *args, **kw):
         """
-        Translate nucleotide sequence to amino acid sequence, see `~.cane.translate()`
+        Translate nucleotide sequence to amino acid sequence, see `~.cane.translate()`.
+
+        The original translate method of the str class can be used via ``BioBasket.str.translate()``.
         """
         from sugar.core.cane import translate
         self.data = translate(self.data, *args, **kw)
@@ -768,9 +770,9 @@ class BioBasket(collections.UserList):
         #:
         #: The `BioBasket.str` methods call the corresponding `BioSeq.str` methods under the hood
         #: and return either the altered `BioBasket` object or a list with results.
-        #: See `_BioSeqStrMethods` for available methods
+        #: See `_BioSeqStr` for available methods
         #: and `python:str` for documentation of the methods
-        self.str = _BioBasketStrMethods(self)
+        self.str = _BioBasketStr(self)
         if data is None:
             data = []
         if hasattr(data, 'meta'):
@@ -956,7 +958,9 @@ class BioBasket(collections.UserList):
 
     def translate(self, *args, **kw):
         """
-        Translate nucleotide sequences to amino acid sequences, see `~.cane.translate()`
+        Translate nucleotide sequences to amino acid sequences, see `~.cane.translate()`.
+
+        The original translate method of the str class can be used via ``BioBasket.str.translate()``.
         """
         for seq in self:
             seq.translate(*args, **kw)

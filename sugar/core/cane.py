@@ -153,14 +153,14 @@ def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', ne
 def match(seq, sub, *, rf='fwd',
           start=0, gap='-', matchall=False):
     """
-    Return match object for first found occurence of regex sub, None if not found
+    Return `BioMatch` object for first found occurrence of regex sub, None if not found
 
     Args:
         sub (str): regex or ``'start'`` or ``'stop'`` to find start/stop codon,
             please specify different codons like
         rf (int): May be set to an integer between -3 and 2
             inclusive to respect the corresponding reading frame.
-            Rfs 0 to 2 are on the forward starnd,
+            Rfs 0 to 2 are on the forward strand,
             rfs -3 to -1 are on the backward strand,
             You may also specify a set or tuple of reading frames.
             Additionally you can use one of ('fwd', 'bwd', 'both') to select
@@ -171,12 +171,12 @@ def match(seq, sub, *, rf='fwd',
         gap (str): Consider gaps of given character, Defaults to '-'. The
             character is inserted between each two letters of the regex.
             Be careful, this approach does not work for arbitrary regexes.
-        matchall (bool): False will return first match of type `~BioMatch`,
-            True will return all matches in a `~BioMatchList`.
+        matchall (bool): False will return first match of type `BioMatch`,
+            True will return all matches in a `BioMatchList`.
             Defaults to False.
 
     Returns:
-        match (match or list of matches or None)
+        match (`BioMatch` or `BioMatchList` of matches or None)
     """
     from bisect import bisect
     import re
@@ -267,6 +267,8 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
         nucleotide sequence and afterwards after each third gap,
         default is 2
     :param int tt: the number of the translation table, default is 1
+
+    :return: Translated string
     """
     gc = gcode(tt)
     aas = []
