@@ -60,7 +60,6 @@ rst_epilog = """
 .. _Infernal: http://eddylab.org/infernal/
 .. _MMseqs2: https://github.com/soedinglab/MMseqs2
 .. _Stockholm: https://en.wikipedia.org/wiki/Stockholm_format
-.. _str: https://docs.python.org/3/library/stdtypes.html#string-methods
 """
 
 extensions = ['sphinx.ext.autodoc',
@@ -96,5 +95,6 @@ html_theme_options = {
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
-    #'seaborn': ('https://seaborn.pydata.org/', None),
+    # cannot download objects.inv of seaborn, see https://github.com/mwaskom/seaborn/issues/1133
+    # 'seaborn': ('https://seaborn.pydata.org/objects.inv', None),
     }

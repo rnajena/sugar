@@ -240,7 +240,7 @@ class MutableMetaString():
     def __init__(self, data, id='', meta=None, type=None):
         #: Namespace holding all available string methods,
         #: see `_BioSeqStrMethods` for available methods
-        #: and str_ for documentation of the methods
+        #: and `python:str` for documentation of the methods
         self.str = _BioSeqStrMethods(self)
         #: Property holding the data string
         self.data = str(data).upper()
@@ -769,7 +769,7 @@ class BioBasket(collections.UserList):
         #: The `BioBasket.str` methods call the corresponding `BioSeq.str` methods under the hood
         #: and return either the altered `BioBasket` object or a list with results.
         #: See `_BioSeqStrMethods` for available methods
-        #: and str_ for documentation of the methods
+        #: and `python:str` for documentation of the methods
         self.str = _BioBasketStrMethods(self)
         if data is None:
             data = []

@@ -6,6 +6,3 @@ sugar.core.seq module
 
     .. autoclass:: BioSeq
         :inherited-members:
-
-
-
