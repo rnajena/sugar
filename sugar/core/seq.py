@@ -216,7 +216,7 @@ class _BioBasketStr():
     def __getattr__(self, name):
         def method(*args, **kw):
             results = [
-                getattr(seq, name)(*args, **kw)
+                getattr(seq.str, name)(*args, **kw)
                 for seq in self.__parent
             ]
             if name in (
@@ -241,6 +241,12 @@ class MutableMetaString():
         #: Namespace holding all available string methods,
         #: see `_BioSeqStr` for available methods
         #: and `python:str` for documentation of the methods
+        #:
+        #: .. rubric:: Example:
+        #:
+        #: >>> seq = read()[0]
+        #: >>> seq.str.find('ATG')  # Use string method
+        #: 30
         self.str = _BioSeqStr(self)
         #: Property holding the data string
         self.data = str(data).upper()
@@ -766,12 +772,19 @@ class BioBasket(collections.UserList):
     attribute.
     """
     def __init__(self, data=None, meta=None):
+        # Documentation for str attribute:
         #: Namespace holding all available string methods,
         #:
         #: The `BioBasket.str` methods call the corresponding `BioSeq.str` methods under the hood
         #: and return either the altered `BioBasket` object or a list with results.
         #: See `_BioSeqStr` for available methods
         #: and `python:str` for documentation of the methods
+        #:
+        #: .. rubric:: Example:
+        #:
+        #: >>> seqs = read()
+        #: >>> seqs.str.find('ATG')  # Use string method
+        #: [30, 12]
         self.str = _BioBasketStr(self)
         if data is None:
             data = []
