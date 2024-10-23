@@ -16,7 +16,7 @@ def create_logo(fname, seed=None, **kw):
     gc = gcode()
     first_codon = random.choice(sorted(gc.ttinv[name[0]]))
     last_codon = random.choice(sorted(gc.ttinv[name[-1]]))
-    seq = BioSeq(first_codon + name[1:-1] + last_codon).replace('T', 'U')
+    seq = BioSeq(first_codon + name[1:-1] + last_codon).str.replace('T', 'U')
     i, j = seq.match('stop').span()
     aa = seq.copy().translate(complete=True)
 
