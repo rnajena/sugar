@@ -41,6 +41,11 @@ class _BioSeqStr():
     def __init__(self, parent):
         self.__parent = parent
 
+    def __deepcopy__(self, orig):
+        # TODO test
+        return self
+
+
     def center(self, width, *args):
         self.__parent.data = self.__parent.data.center(width, *args)
         return self.__parent
@@ -456,7 +461,7 @@ class BioSeq():
             if gap is not None:
                 # from bisect import bisect
                 nogaps = [i for i, nt in enumerate(self.data) if nt not in gap]
-                adj = lambda i: nogaps[i] if i is not None else None
+                adj = lambda i: nogaps[i] if i is not None and i < len(nogaps) else None
                 if isinstance(index, int):
                     index = adj(index)
                 elif isinstance(index, slice):
