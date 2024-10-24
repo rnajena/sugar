@@ -1169,6 +1169,34 @@ class BioBasket(collections.UserList):
         from sugar.core.cane import _groupby
         return _groupby(self, keys, attr='meta')
 
+    def filter(self, inplace=True, **kw):
+        """
+        Filter sequences
+
+        :param \*\*kw: All kwargs need to be of the form
+            ``key_op=value``, where op is one of
+            the operators from the `python:operator` module.
+            Additionally, the operators ``'in'`` (membership),
+            ``'max'`` (alias for le)
+            ``'min'`` (alias for ge) are supported.
+            The different filter conditions are combined with
+            the *and* operator.
+        :return: Filtered sequences
+
+        .. rubric:: Example:
+
+        >>> from sugar import read
+        >>> seqs = read()
+        >>> seqs.filter(len_gt=9500)  # doctest: +SKIP
+        """
+        from sugar.core.cane import _filter
+        filtered = _filter(self.data, **kw)
+        if inplace:
+            self.data = filtered
+            return self
+        else:
+            return self.__class__(filtered)
+
     def tofmtstr(self, fmt, **kw):
         """
         Write sequences to a string of specified format, see `~.main.write()`

@@ -31,6 +31,10 @@ def test_docs_core_seq():
     from sugar.core import seq
     doctest_module(seq)
 
+def test_docs_core_fts():
+    from sugar.core import fts
+    doctest_module(fts)
+
 def test_docs_core_meta():
     from sugar.core import meta
     doctest_module(meta)

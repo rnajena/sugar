@@ -17,8 +17,10 @@ def _keyfuncs(objs, keys, attr=None):
     if not isinstance(keys, Iterable):
         keys = [keys]
     keyfuncs = [
-        (lambda ft: getattr(ft, key, None) if attr is None else getattr(getattr(ft, attr), key, None))
-        if isinstance(key, str) else key for key in keys
+        (lambda ft, key=key: (getattr(ft, key, None) if attr is None else
+                              getattr(getattr(ft, attr), key, None))) if isinstance(key, str) else
+        key
+        for key in keys
         ]
     return keyfuncs
 
@@ -67,17 +69,20 @@ def _filter(objs, attr='meta', **kwargs):
     Filter objects, used by several objects in sugar.core
 
     :param attr: Attribute where to look for keys
-    :param \*\*kw: All other kwargs need to be of the form
-        ``key_op=value``, where op is one of (is, in, min, max).
+    :param \*\*kw: All kwargs need to be of the form
+        ``key_op=value``, where op is one of
+        the operators from the `python:operator` module.
+        Additionally, the operators ``'in'`` (membership),
+        ``'max'`` (alias for le)
+        ``'min'`` (alias for ge) are supported.
         The different filter conditions are combined with
-        *and* operator.
+        the *and* operator.
     :return: Filtered objects
     """
     import operator
-    ops = {'is': operator.eq,
-           'max': operator.le,
+    ops = {'max': operator.le,
            'min': operator.ge,
-           'in': lambda a, b: operator.contains(b, a)}
+           'in': lambda a, b: a in b}
     allowed_funcs = {'len': len}
     getv = lambda obj, key: (allowed_funcs[key](obj) if key in allowed_funcs else
                              getattr(obj, key, None) if attr is None else

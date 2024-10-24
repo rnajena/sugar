@@ -648,7 +648,7 @@ class FeatureList(collections.UserList):
 
         >>> from sugar import read_fts
         >>> fts = read_fts()
-        >>> fts.groupby('type');
+        >>> fts.groupby('type')  # doctest: +SKIP
         """
         from sugar.core.cane import _groupby
         return _groupby(self, keys, attr='meta')
@@ -762,7 +762,7 @@ class FeatureList(collections.UserList):
 
         >>> from sugar import read_fts
         >>> fts = read_fts()
-        >>> fts.sort(('type', len));
+        >>> fts.sort(('type', len))  # doctest: +SKIP
         """
         from sugar.core.cane import _sorted
         self.data = _sorted(self.data, keys=keys, reverse=reverse, attr='meta')
@@ -773,16 +773,20 @@ class FeatureList(collections.UserList):
         Filter features
 
         :param \*\*kw: All kwargs need to be of the form
-            ``key_op=value``, where op is one of (is, in, min, max).
+            ``key_op=value``, where op is one of
+            the operators from the `python:operator` module.
+            Additionally, the operators ``'in'`` (membership),
+            ``'max'`` (alias for le)
+            ``'min'`` (alias for ge) are supported.
             The different filter conditions are combined with
-            *and* operator.
-        :return: Filtered objects
+            the *and* operator.
+        :return: Filtered features
 
         .. rubric:: Example:
 
         >>> from sugar import read_fts
         >>> fts = read_fts()
-        >>> fts.filter(len_min=100000)
+        >>> fts.filter(len_gt=100_000)  # doctest: +SKIP
         """
         from sugar.core.cane import _filter
         filtered = _filter(self.data, **kw)
