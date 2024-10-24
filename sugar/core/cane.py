@@ -10,6 +10,58 @@ from sugar.data import gcode
 from sugar.core.fts import FeatureList
 
 
+def _keyfuncs(objs, keys, attr=None):
+    from collections.abc import Iterable
+    if isinstance(keys, str):
+        keys = keys.split()
+    if not isinstance(keys, Iterable):
+        keys = [keys]
+    keyfuncs = [
+        (lambda ft: getattr(ft, key, None) if attr is None else getattr(getattr(ft, attr), key, None))
+        if isinstance(key, str) else key for key in keys
+        ]
+    return keyfuncs
+
+
+def _groupby(objs, keys, attr=None):
+    """
+    Group objects
+
+    :param keys: Tuple of keys or functions to use for grouping.
+        May also be a single string or callable.
+    :param attr: Attribute were to look for keys
+    :return: Nested dict structure
+    """
+    keyfuncs = _keyfuncs(objs, keys, attr=attr)
+    d = {}
+    cls = objs.__class__
+    for obj in objs:
+        d2 = d
+        for keyfunc in keyfuncs[:-1]:
+            d2 = d2.setdefault(keyfunc(obj), {})
+        d2.setdefault(keyfuncs[-1](obj), cls()).append(obj)
+    return d
+
+
+def _sorted(objs, keys=None, reverse=False, attr=None):
+    """
+    Sort objects
+
+    :param keys: Tuple of keys or functions to use for sorting.
+        None can be used as a single value or in the tuple
+        to apply the default sorting.
+        May also be a single string or callable.
+    :param reverse: Use reversed order (default: False)
+    :param attr: Attribute were to look for keys
+
+    :return: Sorted objects
+    """
+    keyfuncs = _keyfuncs(objs, keys, attr=attr)
+    for keyfunc in keyfuncs[::-1]:
+        objs = sorted(objs, key=keyfunc, reverse=reverse)
+    return objs
+
+
 class BioMatch(object):
     """
     The BioMatch object is returned by `~cane.match()` and the different match methods.
@@ -59,6 +111,7 @@ class BioMatchList(collections.UserList):
             By default the method groups by only seqid.
         :return: Nested dict structure
         """
+        return _groupby(self, keys)
         from collections.abc import Iterable
         if isinstance(keys, str):
             keys = keys.split()

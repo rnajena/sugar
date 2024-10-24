@@ -650,29 +650,8 @@ class FeatureList(collections.UserList):
         >>> fts = read_fts()
         >>> fts.groupby('type');
         """
-        from collections.abc import Iterable
-        if isinstance(keys, str):
-            keys = keys.split()
-        if not isinstance(keys, Iterable):
-            keys = [keys]
-        keyfuncs = [
-            (lambda ft: ft.meta.get(key)) if isinstance(key, str) else key
-            for key in keys
-            ]
-        d = {}
-        for ft in self:
-            d2 = d
-            for keyfunc in keyfuncs[:-1]:
-                d2 = d2.setdefault(keyfunc(ft), {})
-            d2.setdefault(keyfuncs[-1](ft), FeatureList()).append(ft)
-        return d
-        if attr == 'both':
-            for ft in self:
-                d.setdefault(ft.seqid, {}).setdefault(ft.meta.rf, FeatureList()).append(ft)
-        else:
-            for ft in self:
-                d.setdefault(getattr(ft.meta, attr), FeatureList()).append(ft)
-        return d
+        from sugar.core.cane import _groupby
+        return _groupby(self, keys, attr='meta')
 
     @property
     def d(self):
@@ -785,17 +764,8 @@ class FeatureList(collections.UserList):
         >>> fts = read_fts()
         >>> fts.sort(('type', len));
         """
-        from collections.abc import Iterable
-        if isinstance(keys, str):
-            keys = keys.split()
-        if not isinstance(keys, Iterable):
-            keys = [keys]
-        keyfuncs = [
-            (lambda ft: ft.meta.get(key)) if isinstance(key, str) else key
-            for key in keys
-            ]
-        for keyfunc in keyfuncs[::-1]:
-            self.data = sorted(self.data, key=keyfunc, reverse=reverse)
+        from sugar.core.cane import _sorted
+        self.data = _sorted(self.data, keys=keys, reverse=reverse, attr='meta')
         return self
 
     def copy(self):
