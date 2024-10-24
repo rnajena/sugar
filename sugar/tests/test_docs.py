@@ -7,14 +7,15 @@ import io
 def doctest_module(m):
     from doctest import testmod, ELLIPSIS
     raised = False
+    flags = ELLIPSIS
     try:
-        testmod(m, raise_on_error=True, optionflags=ELLIPSIS)
+        testmod(m, raise_on_error=True, optionflags=flags)
     except Exception:
         raised = True
     if raised:
         report = io.StringIO()
         with redirect_stdout(report):
-            testmod(m, report=True)
+            testmod(m, optionflags=flags, report=True)
         assert report.getvalue() == ''
 
 

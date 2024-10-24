@@ -1086,6 +1086,12 @@ class BioBasket(collections.UserList):
     def todict(self):
         """
         Return a dictionary with sequence ids as keys and sequences as values
+
+        .. note::
+            This method is different from the `BioBasket.groupby()` method.
+            Each value of the dict returned by ``todict()`` is a sequence,
+            whereas each value of the dict returned by ``groupby()`` is a
+            BioBasket.
         """
         return {seq.id: seq for seq in self}
 
@@ -1123,6 +1129,45 @@ class BioBasket(collections.UserList):
         """
         return reduce(lambda orfs1, orfs2: orfs1 + orfs2,
                       [seq.find_orfs(*args, **kw) for seq in self])
+
+    def sort(self, keys=('id',), reverse=False):
+        """
+        Sort sequences in-place
+
+        :param keys: Tuple of meta keys or functions to use for sorting.
+            May also be a single string or callable.
+            Defaults to sorting by id.
+        :param reverse: Use reversed order (default: False)
+
+        :return: Sorted sequences
+
+        .. rubric:: Example:
+
+        >>> from sugar import read
+        >>> seqs = read()
+        >>> seqs.sort(len)  # doctest: +SKIP
+        """
+        from sugar.core.cane import _sorted
+        self.data = _sorted(self.data, keys=keys, reverse=reverse, attr='meta')
+        return self
+
+    def groupby(self, keys=('id',)):
+        """
+        Group sequences
+
+        :param keys: Tuple of meta keys or functions to use for grouping.
+            May also be a single string or callable.
+            By default the method groups by only id.
+        :return: Nested dict structure
+
+        .. rubric:: Example:
+
+        >>> from sugar import read
+        >>> seqs = read()
+        >>> grouped = seqs.groupby()
+        """
+        from sugar.core.cane import _groupby
+        return _groupby(self, keys, attr='meta')
 
     def tofmtstr(self, fmt, **kw):
         """
