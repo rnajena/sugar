@@ -25,11 +25,11 @@ def _keyfuncs(objs, keys, attr=None):
 
 def _groupby(objs, keys, attr=None):
     """
-    Group objects
+    Group objects, used by several objects in sugar.core
 
     :param keys: Tuple of keys or functions to use for grouping.
         May also be a single string or callable.
-    :param attr: Attribute were to look for keys
+    :param attr: Attribute where to look for keys
     :return: Nested dict structure
     """
     keyfuncs = _keyfuncs(objs, keys, attr=attr)
@@ -45,20 +45,50 @@ def _groupby(objs, keys, attr=None):
 
 def _sorted(objs, keys=None, reverse=False, attr=None):
     """
-    Sort objects
+    Sort objects, used by several objects in sugar.core
 
     :param keys: Tuple of keys or functions to use for sorting.
         None can be used as a single value or in the tuple
         to apply the default sorting.
         May also be a single string or callable.
     :param reverse: Use reversed order (default: False)
-    :param attr: Attribute were to look for keys
+    :param attr: Attribute where to look for keys
 
     :return: Sorted objects
     """
     keyfuncs = _keyfuncs(objs, keys, attr=attr)
     for keyfunc in keyfuncs[::-1]:
         objs = sorted(objs, key=keyfunc, reverse=reverse)
+    return objs
+
+
+def _filter(objs, attr='meta', **kwargs):
+    """
+    Filter objects, used by several objects in sugar.core
+
+    :param attr: Attribute where to look for keys
+    :param \*\*kw: All other kwargs need to be of the form
+        ``key_op=value``, where op is one of (is, in, min, max).
+        The different filter conditions are combined with
+        *and* operator.
+    :return: Filtered objects
+    """
+    import operator
+    ops = {'is': operator.eq,
+           'max': operator.le,
+           'min': operator.ge,
+           'in': lambda a, b: operator.contains(b, a)}
+    allowed_funcs = {'len': len}
+    getv = lambda obj, key: (allowed_funcs[key](obj) if key in allowed_funcs else
+                             getattr(obj, key, None) if attr is None else
+                             getattr(getattr(obj, attr), key, None))
+    for kw, value in kwargs.items():
+        key, kop = kw.rsplit('_', 1)
+        op = ops.get(kop)
+        if op is None:
+            op = getattr(operator, kop)
+        filt = lambda obj: op(getv(obj, key), value)
+        objs = [obj for obj in objs if filt(obj)]
     return objs
 
 
@@ -112,22 +142,6 @@ class BioMatchList(collections.UserList):
         :return: Nested dict structure
         """
         return _groupby(self, keys)
-        from collections.abc import Iterable
-        if isinstance(keys, str):
-            keys = keys.split()
-        if not isinstance(keys, Iterable):
-            keys = [keys]
-        keyfuncs = [
-            (lambda m: getattr(m, key)) if isinstance(key, str) else key
-            for key in keys
-            ]
-        d = {}
-        for match in self:
-            d2 = d
-            for keyfunc in keyfuncs[:-1]:
-                d2 = d2.setdefault(keyfunc(match), {})
-            d2.setdefault(keyfuncs[-1](match), FeatureList()).append(match)
-        return d
 
     @property
     def d(self):

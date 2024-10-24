@@ -768,6 +768,30 @@ class FeatureList(collections.UserList):
         self.data = _sorted(self.data, keys=keys, reverse=reverse, attr='meta')
         return self
 
+    def filter(self, inplace=True, **kw):
+        """
+        Filter features
+
+        :param \*\*kw: All kwargs need to be of the form
+            ``key_op=value``, where op is one of (is, in, min, max).
+            The different filter conditions are combined with
+            *and* operator.
+        :return: Filtered objects
+
+        .. rubric:: Example:
+
+        >>> from sugar import read_fts
+        >>> fts = read_fts()
+        >>> fts.filter(len_min=100000)
+        """
+        from sugar.core.cane import _filter
+        filtered = _filter(self.data, **kw)
+        if inplace:
+            self.data = filtered
+            return self
+        else:
+            return self.__class__(filtered)
+
     def copy(self):
         """
         Return a deep copy of the object

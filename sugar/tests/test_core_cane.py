@@ -1,7 +1,7 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 import pytest
 
-from sugar import read
+from sugar import read, read_fts
 from  sugar.core.cane import translate
 
 
@@ -37,3 +37,13 @@ def test_translate_final_stop():
     assert len(seq.copy().translate(final_stop=True)) == 2
 
 # TODO more translation tests
+
+
+def test_filter_fts():
+    fts = read_fts()
+    fts2 = fts.copy().filter(len_gt=30_000)
+    assert len(fts2) == 5
+    fts2 = fts.copy().filter(len_le=3000, type_is='cDNA_match')
+    assert len(fts2) == 1
+    fts2 = fts.copy().filter(len_min=1000, type_in=('CDS', 'exon'))
+    assert len(fts2) == 2
