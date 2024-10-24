@@ -31,7 +31,7 @@ def create_logo(fname, seed=None, **kw):
               color='0.7', lw=2)
     ax.add_patch(ellipse)
     ax.add_patch(arc)
-    ax.annotate(aa.replace('*', '    '), (0.5, 0.5), ha='center', size=50)
+    ax.annotate(aa.str.replace('*', '    '), (0.5, 0.5), ha='center', size=50)
     ax.annotate(seq[i:j], (0.5, 0.44), ha='center', size=32)
     ax.annotate(seq[:i], (0.37, 0.4), ha='right', size=18, color='0.7')
     ax.annotate(seq[j:], (0.63, 0.4), ha='left', size=18, color='0.7')
