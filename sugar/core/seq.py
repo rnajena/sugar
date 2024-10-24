@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
-Sequence related classes, `.MutableMetaString`, `.BioSeq`, `.BioBasket`
+Sequence related classes, `.BioSeq`, `.BioBasket`
 """
 
 import collections
@@ -230,11 +230,23 @@ class _BioBasketStr():
         return method
 
 
-class MutableMetaString():
-    """
-    A Class behaving like a string with metadata, base for `BioSeq`.
+def _detect_tool(obj):
+    try:
+        from Bio.Seq import Seq
+        from Bio.SeqRecord import SeqRecord
+    except ImportError:
+        pass
+    else:
+        if isinstance(obj, (Seq, SeqRecord)):
+            return 'biopython'
 
-    TODO Integrate this directly into the BioSeq class.
+
+class BioSeq():
+    """
+    Class holding sequence data and metadata, exposing bioinformatics methods.
+
+    Most methods operate by default in-place, but return the BioSeq object again.
+    Therefore, method chaining can be used.
     """
 
     def __init__(self, data, id='', meta=None, type=None):
@@ -271,15 +283,6 @@ class MutableMetaString():
         #: type of the sequence, either ``'nt'`` or ``'aa'``
         self.type = type
 
-    @property
-    def id(self):
-        """Alias for ``BioSeq.meta.id``"""
-        return self.meta.id
-
-    @id.setter
-    def id(self, value):
-        self.meta.id = value
-
     def _repr_pretty_(self, p, cycle):
         if cycle:
             p.text('...')
@@ -293,45 +296,28 @@ class MutableMetaString():
         metastr = ', '.join(f'{prop}={repr(val)}' for prop, val in vars(self.meta).items())
         return f'{type(self).__name__}([{repr(self.data)}, meta=dict({metastr}))'
 
-    ## adapted from Pythons UserString
-
-    # def __int__(self):
-    #     return int(self.data)
-
-    # def __float__(self):
-    #     return float(self.data)
-
-    # def __complex__(self):
-    #     return complex(self.data)
-
-    #def __hash__(self):
-    #    return hash(self.data)
-
-    # def __getnewargs__(self):
-    #     return (self.data[:],)
-
     def __eq__(self, string):
-        if isinstance(string, MutableMetaString):
+        if isinstance(string, BioSeq):
             return self.data == string.data and self.meta == string.meta
         return self.data == string
 
     def __lt__(self, string):
-        if isinstance(string, MutableMetaString):
+        if isinstance(string, BioSeq):
             return self.id < string.id
         self.id < ''
 
     def __le__(self, string):
-        if isinstance(string, MutableMetaString):
+        if isinstance(string, BioSeq):
             return self.id <= string.id
         self.id <= ''
 
     def __gt__(self, string):
-        if isinstance(string, MutableMetaString):
+        if isinstance(string, BioSeq):
             return self.id > string.id
         self.id > ''
 
     def __ge__(self, string):
-        if isinstance(string, MutableMetaString):
+        if isinstance(string, BioSeq):
             return self.id >= string.id
         self.id >= ''
 
@@ -341,71 +327,31 @@ class MutableMetaString():
     def __len__(self):
         return len(self.data)
 
-    def getitem(self, index, gap=None):
-        """
-        TODO
-        """
-        if gap is not None:
-            # from bisect import bisect
-            nogaps = [i for i, nt in enumerate(self.data) if nt not in gap]
-            adj = lambda i: nogaps[i] if i is not None else None
-            if isinstance(index, int):
-                index = adj(index)
-            elif isinstance(index, slice):
-                index = slice(adj(index.start), adj(index.stop), index.step)
-        return self.__class__(self.data[index], meta=self.meta)
-
-
-    def __getitem__(self, index):
-        return self.getitem(index)
-
     def __setitem__(self, index, value):
         l = list(self.data)
         l[index] = value
         self.data = ''.join(l)
 
     def __add__(self, other):
-        if isinstance(other, MutableMetaString):
-            meta = self.meta if self.meta == other.meta else None
-            id_ = self.id if self.id == other.id else None
-            return self.__class__(self.data + other.data, id=id_, meta=meta)
-        elif isinstance(other, str):
-            return self.__class__(self.data + other, meta=self.meta)
+        if isinstance(other, BioSeq) and self.meta != other.meta:
+            warn('Try to add two BioSeq objects with different meta data')
         return self.__class__(self.data + str(other), meta=self.meta)
 
     def __iadd__(self, other):
-        if isinstance(other, MutableMetaString):
-            self.data = self.data + other.data
-        elif isinstance(other, str):
-            self.data = self.data + other
-        else:
-            self.data = self.data + str(other)
+        self = self + other
         return self
 
     def __radd__(self, other):
-        if isinstance(other, str):
-            return self.__class__(other + self.data, meta=self.meta)
         return self.__class__(str(other) + self.data, meta=self.meta)
 
+    @property
+    def id(self):
+        """Alias for ``BioSeq.meta.id``"""
+        return self.meta.id
 
-def _detect_tool(obj):
-    try:
-        from Bio.Seq import Seq
-        from Bio.SeqRecord import SeqRecord
-    except ImportError:
-        pass
-    else:
-        if isinstance(obj, (Seq, SeqRecord)):
-            return 'biopython'
-
-
-class BioSeq(MutableMetaString):
-    """
-    Class holding sequence data and metadata, exposing bioinformatics methods.
-
-    Most methods operate by default in-place, but return the BioSeq object again.
-    Therefore, method chaining can be used.
-    """
+    @id.setter
+    def id(self, value):
+        self.meta.id = value
 
     @property
     def fts(self):
@@ -507,7 +453,16 @@ class BioSeq(MutableMetaString):
         """
         # TODO: add correct_fts kwargs
         try:
-            subseq = super().getitem(index, gap=gap)
+            if gap is not None:
+                # from bisect import bisect
+                nogaps = [i for i, nt in enumerate(self.data) if nt not in gap]
+                adj = lambda i: nogaps[i] if i is not None else None
+                if isinstance(index, int):
+                    index = adj(index)
+                elif isinstance(index, slice):
+                    index = slice(adj(index.start), adj(index.stop), index.step)
+            subseq = self.__class__(self.data[index], meta=self.meta)
+            # subseq = super().getitem(index, gap=gap)
         except:
             if isinstance(index, str):
                 index = self.fts.get(index)
@@ -1181,6 +1136,7 @@ class BioBasket(collections.UserList):
             ``'min'`` (alias for ge) are supported.
             The different filter conditions are combined with
             the *and* operator.
+        :param inplace: Whether to modify the original object.
         :return: Filtered sequences
 
         .. rubric:: Example:

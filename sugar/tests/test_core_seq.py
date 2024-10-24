@@ -2,7 +2,6 @@
 
 import pytest
 from sugar import read, Attr, BioSeq, BioBasket, Feature, FeatureList
-from sugar.core.seq import MutableMetaString as MMS
 from sugar.tests.util import tempfilename
 
 
@@ -10,13 +9,13 @@ def test_attr():
     assert Attr(a=1) == Attr(a=1)
     assert Attr(a=1) != Attr(a=2)
 
-def test_mutablemetastring():
-    s1 = MMS('bla', id='5')
-    s2 = MMS('bla', id='5')
-    s3 = MMS('bla', id='6')
+def test_bioseq_equal():
+    s1 = BioSeq('bla', id='5')
+    s2 = BioSeq('bla', id='5')
+    s3 = BioSeq('bla', id='6')
     assert s1 == s2
     assert s1 != s3
-    s4 = MMS(s1)
+    s4 = BioSeq(s1)
     assert s1 == s4
 
 

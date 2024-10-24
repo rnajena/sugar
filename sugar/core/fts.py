@@ -611,7 +611,9 @@ class FeatureList(collections.UserList):
 
     def select(self, type):
         """
-        Return new `featureList` with all features of specified feature type, e.g. ``'cds'``
+        Return features of specified feature type, e.g. ``'cds'``
+
+        For a more powerful selection method, use `filter()`.
 
         :param type: String or list of multiple strings
         """
@@ -780,6 +782,7 @@ class FeatureList(collections.UserList):
             ``'min'`` (alias for ge) are supported.
             The different filter conditions are combined with
             the *and* operator.
+        :param inplace: Whether to modify the original object.
         :return: Filtered features
 
         .. rubric:: Example:

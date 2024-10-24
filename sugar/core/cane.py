@@ -186,7 +186,7 @@ def match(seq, sub, *, rf='fwd',
     """
     from bisect import bisect
     import re
-    from sugar.core.seq import MutableMetaString
+    from sugar.core.seq import BioSeq
 
     if isinstance(rf, int):
         rf = (rf,)
@@ -198,7 +198,7 @@ def match(seq, sub, *, rf='fwd',
             rf = (-1, -2, -3)
         elif rf == 'both':
             rf = (0, 1, 2, -1, -2, -3)
-    if isinstance(sub, MutableMetaString):
+    if isinstance(sub, BioSeq):
         sub = sub.data
     if sub == 'start':
         sub = 'AUG|ATG'
