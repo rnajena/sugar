@@ -64,7 +64,7 @@ def _sorted(objs, keys=None, reverse=False, attr=None):
     return objs
 
 
-def _filter(objs, attr='meta', **kwargs):
+def _filter(objs2, attr='meta', **kwargs):
     """
     Filter objects, used by several objects in sugar.core
 
@@ -84,6 +84,7 @@ def _filter(objs, attr='meta', **kwargs):
            'min': operator.ge,
            'in': lambda a, b: a in b}
     allowed_funcs = {'len': len}
+    objs = objs2
     getv = lambda obj, key: (allowed_funcs[key](obj) if key in allowed_funcs else
                              getattr(obj, key, None) if attr is None else
                              getattr(getattr(obj, attr), key, None))

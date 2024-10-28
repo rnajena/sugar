@@ -313,7 +313,7 @@ class Feature():
 
     def __repr__(self):
         """Represent Feature as a string for debugging."""
-        return f"Feature('{self.type}', [{', '.join([loc.__repr__() for loc in self.locs])}], meta={self.meta!r})"
+        return f'Feature("{self.type}", [{", ".join([loc.__repr__() for loc in self.locs])}], meta={self.meta!r})'
 
     @property
     def loc_range(self):

@@ -69,6 +69,18 @@ def test_io_file():
                 assert str(seq2) == str(seq1)
 
 
+def test_write_fmtstr_seq():
+    seqs = read()
+    with tempfile.NamedTemporaryFile() as f:
+        seqs[0].write(f.name, 'fasta')
+        f.seek(0)
+        seqs2 = read(f.name)
+        assert str(seqs2[0]) == str(seqs[0])
+    s = seqs[0].tofmtstr('fasta')
+    seqs2 = seqs.fromfmtstr(s)
+    assert str(seqs2[0]) == str(seqs[0])
+
+
 def test_io_fmtstr():
     seqs = read()
     for fmt in TESTIOFMTS:

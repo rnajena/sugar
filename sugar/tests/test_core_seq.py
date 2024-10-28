@@ -5,9 +5,16 @@ from sugar import read, Attr, BioSeq, BioBasket, Feature, FeatureList
 from sugar.tests.util import tempfilename
 
 
+def test_siformat():
+    from sugar.core.seq import _si_format
+    assert _si_format(10000) == '10k'
+    assert _si_format(0) == '0'
+
+
 def test_attr():
     assert Attr(a=1) == Attr(a=1)
     assert Attr(a=1) != Attr(a=2)
+
 
 def test_bioseq_equal():
     s1 = BioSeq('bla', id='5')
@@ -73,6 +80,11 @@ def test_copy():
     assert seq.copy()[10:] != seq
     assert len(seq.copy()[10:]) == n - 10
     assert seq.copy() == seq
+    seqs = read()
+    seqs2 = seqs.copy()
+    assert seqs2 == seqs
+    seqs2[0].data = 'NNN'
+    assert seqs2 != seqs
 
 
 def test_countall():
@@ -102,10 +114,22 @@ def test_meta_str():
     assert 'CDS' in str(meta)
 
 
+def test_biobasket_str():
+    seqs = read()
+    seqs2 = seqs.copy()
+    seqs2.data = []
+    assert str(seqs2).startswith('0 seq')
+    seqs2 = seqs.copy()
+    seqs.data = 10 * seqs.data
+    assert '...' in str(seqs2)
+
+
 def test_shortcuts():
     seq = read()[0]
     assert seq.id == seq.meta.id
     assert seq.fts == seq.meta.fts
+    seq.id = 'XXX'
+    assert seq.id == seq.meta.id
 
 
 def test_getitem():
@@ -140,6 +164,13 @@ def test_getitem():
     # assert seqs[0][3:6].meta.features[0].orig_len == 4
     # assert len(seqs[0][10:20].meta.features) == 0
 
+    ## TODO!!!
+
+
+def test_sl_slicable_inplace():
+    seqs = read()
+    assert seqs.sl()[:1] == seqs[:1]
+
 
 def test_setitem():
     seqs = read()
@@ -150,6 +181,9 @@ def test_setitem():
     seqs[0] = 'ABC'
     assert isinstance(seqs[0], BioSeq)
     assert seqs[0] == 'ABC'
+    seqs = read()
+    seqs[:2] = ['AGT', 'TGA']
+    assert str(seqs[0]) == 'AGT'
 
 
 def test_add_fts():
@@ -167,41 +201,34 @@ def test_add_fts():
     assert seq.fts[1] == ft
     assert seq.fts[-1] != ft
 
-
-def test_match():
-    seq = BioSeq('NNNUAGDDDUAGAUG')
-    seqs = BioBasket([seq])
-    seq2 = BioSeq('-UU-U-AG')
-    assert seq.match('stop').start() == 3
-    assert seq.match('start').end() == len(seq)
-    matches = seq.matchall('stop')
-    assert matches[0].span() == seq.match('stop').span()
-    assert len(matches) == 2
-    assert seqs.match('stop')[0].start() == 3
-    matches = seq2.matchall('stop', gap=None)
-    assert len(matches) == 0
-    match = seq2.match('stop', gap='-')
-    assert match.group() == 'U-AG'
-    assert seq2.match('stop', gap='-', rf=1) == None
-    assert seq2.match('stop', gap='-', rf=2).group() == 'U-AG'
-    assert seq2.match('stop', gap='-', rf=(1, 2)).group() == 'U-AG'
-    assert seq2.match('stop', gap='-', rf=(0, 1)) == None
-    seq3 = seq2.copy().rc()
-    match3 = seq3.match('stop', gap='-', rf='bwd')
-    assert match.span() == match3._match.span()
-    assert match.span() != match3.span()
+    ft = seqs.fts[0]
+    ft.seqid = 'unknown'
+    with pytest.warns(UserWarning, match='.*unknown'):
+        seqs.add_fts([ft])
+    with pytest.warns(UserWarning, match='.*unknown'):
+        seqs.fts = [ft]
+    with pytest.warns(UserWarning, match='.*mismatch'):
+        seqs[0].add_fts([ft])
 
 
-def test_orf():
-    seqs=read()
-    orfs = seqs[0].find_orfs()
-    assert len(orfs) > 0
-    longest_orf = orfs.sort(len)[-1]
-    assert seqs[0][longest_orf] == seqs[0]['cds']
+def test_biobasket_rc():
+    seqs = read()
+    seqs2 = seqs.copy().rc()
+    assert seqs[0].rc() == seqs2[0]
 
-    orfs2 = seqs[0].find_orfs(rf='both')
-    assert len(orfs2) > len(orfs)
 
-    orfs = seqs.find_orfs()
-    for id_ in seqs.ids:
-        assert seqs.d[id_][orfs.d[id_].sort(len)[-1]] == seqs.d[id_]['cds']
+def test_repr():
+    from sugar import Location, Meta
+    seqs = read()
+    assert eval(repr(seqs[0])) == seqs[0]
+    assert eval(repr(seqs)) == seqs
+
+
+def test_magic_methods():
+    # TODO
+    pass
+
+
+def test_str_methods():
+    # TODO
+    pass

@@ -41,11 +41,6 @@ class _BioSeqStr():
     def __init__(self, parent):
         self.__parent = parent
 
-    def __deepcopy__(self, orig):
-        # TODO test
-        return self
-
-
     def center(self, width, *args):
         self.__parent.data = self.__parent.data.center(width, *args)
         return self.__parent
@@ -255,16 +250,6 @@ class BioSeq():
     """
 
     def __init__(self, data, id='', meta=None, type=None):
-        #: Namespace holding all available string methods,
-        #: see `_BioSeqStr` for available methods
-        #: and `python:str` for documentation of the methods
-        #:
-        #: .. rubric:: Example:
-        #:
-        #: >>> seq = read()[0]
-        #: >>> seq.str.find('ATG')  # Use string method
-        #: 30
-        self.str = _BioSeqStr(self)
         #: Property holding the data string
         self.data = str(data).upper()
         if hasattr(data, 'meta'):
@@ -299,7 +284,7 @@ class BioSeq():
 
     def __repr__(self):
         metastr = ', '.join(f'{prop}={repr(val)}' for prop, val in vars(self.meta).items())
-        return f'{type(self).__name__}([{repr(self.data)}, meta=dict({metastr}))'
+        return f'{type(self).__name__}({repr(self.data)}, meta=dict({metastr}))'
 
     def __eq__(self, string):
         if isinstance(string, BioSeq):
@@ -350,6 +335,21 @@ class BioSeq():
         return self.__class__(str(other) + self.data, meta=self.meta)
 
     @property
+    def str(self):
+        """
+        Namespace holding all available string methods,
+        see `_BioSeqStr` for available methods
+        and `python:str` for documentation of the methods
+
+        .. rubric:: Example:
+
+        >>> seq = read()[0]
+        >>> seq.str.find('ATG')  # Use string method
+        30
+        """
+        return _BioSeqStr(self)
+
+    @property
     def id(self):
         """Alias for ``BioSeq.meta.id``"""
         return self.meta.id
@@ -383,7 +383,7 @@ class BioSeq():
 
         :param fts: features to add
         """
-        self.fts = self.fts + fts
+        self.fts = self.fts + FeatureList(fts)
         self.fts.sort()
 
     @property
@@ -732,20 +732,6 @@ class BioBasket(collections.UserList):
     attribute.
     """
     def __init__(self, data=None, meta=None):
-        # Documentation for str attribute:
-        #: Namespace holding all available string methods,
-        #:
-        #: The `BioBasket.str` methods call the corresponding `BioSeq.str` methods under the hood
-        #: and return either the altered `BioBasket` object or a list with results.
-        #: See `_BioSeqStr` for available methods
-        #: and `python:str` for documentation of the methods
-        #:
-        #: .. rubric:: Example:
-        #:
-        #: >>> seqs = read()
-        #: >>> seqs.str.find('ATG')  # Use string method
-        #: [30, 12]
-        self.str = _BioBasketStr(self)
         if data is None:
             data = []
         if hasattr(data, 'meta'):
@@ -765,6 +751,24 @@ class BioBasket(collections.UserList):
         if isinstance(other, BioBasket):
             return self.data == other.data and self.meta == other.meta
         return self.data == other
+
+    @property
+    def str(self):
+        """
+        Namespace holding all available string methods.
+
+        The `BioBasket.str` methods call the corresponding `BioSeq.str` methods under the hood
+        and return either the altered `BioBasket` object or a list with results.
+        See `_BioSeqStr` for available methods
+        and `python:str` for documentation of the methods.
+
+        .. rubric:: Example:
+
+        >>> seqs = read()
+        >>> seqs.str.find('ATG')  # Use string method
+        [30, 12]
+        """
+        return _BioBasketStr(self)
 
     @property
     def ids(self):
@@ -805,7 +809,7 @@ class BioBasket(collections.UserList):
         for seq in self:
             if seq.id in fts:
                 seq.fts = seq.fts + fts.pop(seq.id)
-                seq.meta.fts.sort()
+                seq.fts.sort()
         if len(fts) > 0:
             missing_ids = ', '.join(fts.keys())
             warn(f'Features for seqids {missing_ids} could not be '

@@ -1,7 +1,7 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 import pytest
 
-from sugar import read, read_fts
+from sugar import read, read_fts, BioSeq, BioBasket
 from  sugar.core.cane import translate
 
 
@@ -38,6 +38,45 @@ def test_translate_final_stop():
 
 # TODO more translation tests
 
+def test_match():
+    seq = BioSeq('NNNUAGDDDUAGAUG')
+    seqs = BioBasket([seq])
+    seq2 = BioSeq('-UU-U-AG')
+    assert seq.match('stop').start() == 3
+    assert seq.match('start').end() == len(seq)
+    matches = seq.matchall('stop')
+    assert matches[0].span() == seq.match('stop').span()
+    assert len(matches) == 2
+    assert seqs.match('stop')[0].start() == 3
+    matches = seq2.matchall('stop', gap=None)
+    assert seqs.matchall('stop')[0].start() == 3
+    assert len(matches) == 0
+    match = seq2.match('stop', gap='-')
+    assert match.group() == 'U-AG'
+    assert seq2.match('stop', gap='-', rf=1) == None
+    assert seq2.match('stop', gap='-', rf=2).group() == 'U-AG'
+    assert seq2.match('stop', gap='-', rf=(1, 2)).group() == 'U-AG'
+    assert seq2.match('stop', gap='-', rf=(0, 1)) == None
+    seq3 = seq2.copy().rc()
+    match3 = seq3.match('stop', gap='-', rf='bwd')
+    assert match.span() == match3._match.span()
+    assert match.span() != match3.span()
+
+
+def test_orf():
+    seqs=read()
+    orfs = seqs[0].find_orfs()
+    assert len(orfs) > 0
+    longest_orf = orfs.sort(len)[-1]
+    assert seqs[0][longest_orf] == seqs[0]['cds']
+
+    orfs2 = seqs[0].find_orfs(rf='both')
+    assert len(orfs2) > len(orfs)
+
+    orfs = seqs.find_orfs()
+    for id_ in seqs.ids:
+        assert seqs.d[id_][orfs.d[id_].sort(len)[-1]] == seqs.d[id_]['cds']
+
 
 def test_filter_fts():
     fts = read_fts()
@@ -54,6 +93,11 @@ def test_filter_seqs():
     seqs = read()
     seqs.filter(len_gt=9500)
     assert len(seqs) == 1
+    seqs = read()
+    seqs2 = seqs.filter(len_gt=9500, inplace=False)
+    assert len(seqs2) == 1
+    assert len(seqs2) < len(seqs)
+
 
 
 def test_groupby_fts_nested():

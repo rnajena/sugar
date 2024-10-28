@@ -65,8 +65,9 @@ def _submat_files():
 @lru_cache
 def submat(fname):
     """
-    Return substition matrix as a dict of dicts
+    Return substitution matrix as a dict of dicts
 
+    >>> from sugar.data import submat
     >>> bl = submat('blosum62')
     >>> bl['A']['A']
     4
@@ -123,6 +124,7 @@ def gcode(tt=1):
 
     :param tt: number of the translation table (default: 1)
 
+    >>> from sugar.data import gcode
     >>> gc = gcode()
     >>> gc.tt['TAG']
     '*'

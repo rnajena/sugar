@@ -2,20 +2,22 @@
 
 from contextlib import redirect_stdout
 import io
+from sugar import read, read_fts
 
 
 def doctest_module(m):
     from doctest import testmod, ELLIPSIS
     raised = False
     flags = ELLIPSIS
+    globs = {'read': read, 'read_fts': read_fts}
     try:
-        testmod(m, raise_on_error=True, optionflags=flags)
+        testmod(m, raise_on_error=True, optionflags=flags, extraglobs=globs)
     except Exception:
         raised = True
     if raised:
         report = io.StringIO()
         with redirect_stdout(report):
-            testmod(m, optionflags=flags, report=True)
+            testmod(m, optionflags=flags, report=True, extraglobs=globs)
         assert report.getvalue() == ''
 
 
