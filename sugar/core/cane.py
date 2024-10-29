@@ -325,7 +325,7 @@ def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', ne
                   starts[frame].pop(0).start())
             if i2 is not None and i1 < i2:  # start codon before last stop codon (alread present in another ORF)
                 continue
-            while len(stops[frame]) > 0:
+            while len(stops.get(frame, [])) > 0:
                 i2 = stops[frame].pop(0).end()
                 if i2 > i1:  # stop codon before ORF is ignored
                     break

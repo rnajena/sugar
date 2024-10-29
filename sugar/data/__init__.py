@@ -109,6 +109,10 @@ def scale_submat(sm, scale=1):
     multiplied with the scale factor.
 
     :param scale: scale factor
+
+    .. warning::
+        It is not clear if this function is useful. It might be removed in
+        a later version of sugar without further notice.
     """
     s = sum(abs(v) for row in sm.values() for v in row.values())
     for k1 in sm:

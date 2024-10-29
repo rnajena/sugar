@@ -319,7 +319,7 @@ class BioSeq():
 
     def __setitem__(self, index, value):
         l = list(self.data)
-        l[index] = value
+        l[index] = str(value)
         self.data = ''.join(l)
 
     def __add__(self, other):
@@ -328,7 +328,9 @@ class BioSeq():
         return self.__class__(self.data + str(other), meta=self.meta)
 
     def __iadd__(self, other):
-        self = self + other
+        if isinstance(other, BioSeq) and self.meta != other.meta:
+            warn('Try to add two BioSeq objects with different meta data')
+        self.data = self.data + str(other)
         return self
 
     def __radd__(self, other):
