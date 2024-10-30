@@ -228,7 +228,7 @@ def test_bioseq_magic_methods():
     s1, s2 = read()
     with pytest.warns(UserWarning, match='Join'):
         assert len(s1+s2) == len(s1) + len(s2)
-    str(s1 + s2) == str(s1 + s2.data) == str(s1.data + s2)
+        assert str(s1 + s2) == str(s1 + s2.data) == str(s1.data + s2)
     s3 = s1.copy()
     s3 += s2.data
     assert len(s3) == len(s1) + len(s2)
@@ -288,3 +288,7 @@ def test_str_methods():
     assert len(seq.str.splitlines()) == 1
     assert len(seqs.str.find('A')) == 2
     assert all(seqs.copy().str.lower().str.islower())
+
+
+def test_tostr():
+    assert read()[0].tostr().strip() == read().tostr(add_header=False).splitlines()[0].strip()

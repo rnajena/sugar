@@ -593,6 +593,13 @@ class BioSeq():
         from sugar.core.cane import find_orfs
         return find_orfs(self, *args, **kw)
 
+    def tostr(self, **kw):
+        """
+        Return nice string, see `BioBasket.tostr()`
+        """
+        kw.setdefault('add_header', False)
+        return BioBasket([self]).tostr(**kw)
+
     def tofmtstr(self, fmt, **kw):
         """
         Write object to a string of specified format, see `~.main.write()`
@@ -1151,15 +1158,16 @@ class BioBasket(collections.UserList):
         self.write(out, fmt=fmt, **kw)
         return out.getvalue()
 
-    def tostr(self, h=19, w=80, wid=19, wlen=4, showgc=True, add_hint=False, raw=False):
+    def tostr(self, h=19, w=80, wid=19, wlen=4, showgc=True,
+              add_hint=False, raw=False, add_header=True):
         """
         Return string with information about sequences, used by ``__str__()`` method
         """
         if raw:
             return '\n'.join(str(seq) for seq in self)
         if len(self) == 0:
-            return '0 seqs in basket!'
-        out = [f'{len(self)} seqs in basket']
+            return '0 seqs in basket!' * add_header
+        out = [f'{len(self)} seqs in basket'] * add_header
         lenid = min(max([len(seq.id) for seq in self if seq.id], default=-2), wid)+2
         maxwlen = max(len(str(len(seq))) for seq in self)
         if 0 < wlen < 4:
