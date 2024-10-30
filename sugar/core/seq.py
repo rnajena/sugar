@@ -246,28 +246,11 @@ class BioSeq():
             return self.data == string.data and self.meta == string.meta
         return self.data == string
 
-    def __lt__(self, string):
-        if isinstance(string, BioSeq):
-            return self.id < string.id
-        self.id < ''
-
-    def __le__(self, string):
-        if isinstance(string, BioSeq):
-            return self.id <= string.id
-        self.id <= ''
-
-    def __gt__(self, string):
-        if isinstance(string, BioSeq):
-            return self.id > string.id
-        self.id > ''
-
-    def __ge__(self, string):
-        if isinstance(string, BioSeq):
-            return self.id >= string.id
-        self.id >= ''
-
-    def __contains__(self, char):
-        return str(char) in self.data
+    def __lt__(self, other):
+        if isinstance(other, BioSeq):
+            return self.meta.get('id', '') < other.meta.get('id', '')
+        msg = f"'<' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
 
     def __len__(self):
         return len(self.data)
@@ -279,12 +262,12 @@ class BioSeq():
 
     def __add__(self, other):
         if isinstance(other, BioSeq) and self.meta != other.meta:
-            warn('Try to add two BioSeq objects with different meta data')
+            warn('Join two BioSeq objects with different meta data')
         return self.__class__(self.data + str(other), meta=self.meta)
 
     def __iadd__(self, other):
         if isinstance(other, BioSeq) and self.meta != other.meta:
-            warn('Try to add two BioSeq objects with different meta data')
+            warn('Join two BioSeq objects with different meta data')
         self.data = self.data + str(other)
         return self
 

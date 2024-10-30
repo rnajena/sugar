@@ -224,9 +224,19 @@ def test_repr():
     assert eval(repr(seqs)) == seqs
 
 
-def test_magic_methods():
-    # TODO
-    pass
+def test_bioseq_magic_methods():
+    s1, s2 = read()
+    with pytest.warns(UserWarning, match='Join'):
+        assert len(s1+s2) == len(s1) + len(s2)
+    str(s1 + s2) == str(s1 + s2.data) == str(s1.data + s2)
+    s3 = s1.copy()
+    s3 += s2.data
+    assert len(s3) == len(s1) + len(s2)
+    s1, s2 = read().sort()
+    assert s1 < s2
+    assert s1.id < s2.id
+    with pytest.raises(TypeError):
+        s1 < ''
 
 
 def test_str_methods():
