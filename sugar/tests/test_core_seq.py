@@ -239,6 +239,26 @@ def test_bioseq_magic_methods():
         s1 < ''
 
 
+def test_biobasket_magic_methods():
+    seqs = read()
+    seqs2 = seqs.copy()
+    seqs2 += seqs
+    assert len(seqs2) == len(seqs + seqs) == len(seqs.data + seqs) == 2 * len(seqs)
+    seqs2 = seqs.copy()
+    seqs2 &= seqs[:1]
+    assert len(seqs2) == len(seqs & seqs[:1]) == len(seqs.data & seqs[:1]) == 1
+    seqs2 = seqs.copy()
+    seqs2 |= seqs[:1]
+    assert len(seqs2) == len(seqs | seqs[:1]) == len(seqs.data | seqs[:1]) == 2
+    seqs2 = seqs.copy()
+    seqs2 -= seqs[:1]
+    assert len(seqs2) == len(seqs - seqs[:1]) == len(seqs.data - seqs[:1]) == 1
+    seqs2 = seqs[1:].copy()
+    seqs2 ^= seqs[:1]
+    assert len(seqs2) == len(seqs[1:] ^ seqs[:1]) == len(seqs.data[1:] ^ seqs[:1]) == 2
+    assert seqs.data == seqs
+
+
 def test_str_methods():
     seqs = read()
     seq = seqs[0]

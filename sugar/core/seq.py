@@ -496,7 +496,6 @@ class BioSeq():
         #                 subseq.meta.features.append(ft2)
         # return subseq
 
-
     def sl(self, **kw):
         """
         Method allowing to call `BioSeq.getitem()` with non-default options and extended indexing syntax
@@ -515,7 +514,6 @@ class BioSeq():
         ACG
         """
         return _Slicable_GetItem(self, **kw)
-
 
     def biotranslate(self, *args, **kw):
         from sugar.core.translate import translate
@@ -692,6 +690,47 @@ class BioBasket(collections.UserList):
             return self.data == other.data and self.meta == other.meta
         return self.data == other
 
+    # Implement all variants of &, |, -, ^
+    def __and__(self, other):
+        return self.__class__([seq for seq in self if seq in other])
+
+    def __rand__(self, other):
+        return self & other
+
+    def __iand__(self, other):
+        self.data = [seq for seq in self if seq in other]
+        return self
+
+    def __or__(self, other):
+        return self + [seq for seq in other if seq not in self]
+
+    def __ror__(self, other):
+        return self | other
+
+    def __ior__(self, other):
+        self.data += [seq for seq in other if seq not in self]
+        return self
+
+    def __sub__(self, other):
+        return self.__class__([seq for seq in self if seq not in other])
+
+    def __rsub__(self, other):
+        return self.__class__(other) - self
+
+    def __isub__(self, other):
+        self.data = [seq for seq in self if seq not in other]
+        return self
+
+    def __xor__(self, other):
+        return (self | other) - (self & other)
+
+    def __rxor__(self, other):
+        return self ^ other
+
+    def __ixor__(self, other):
+        self.data = (self ^ other).data
+        return self
+
     @property
     def str(self):
         """
@@ -806,14 +845,14 @@ class BioBasket(collections.UserList):
             slice
                 Returns a new `BioBasket` object with a subset of the sequences
             str,feature,location
-                Updates all sequences inisde the basket, see `BioSeq.getitem()`
+                Updates all sequences inside the basket, see `BioSeq.getitem()`
             (int, object)
                 Returns a `BioSeq` from the basket and slices it with the object, see `BioSeq.getitem()`
             (slice, object)
                 Returns a new `BioBasket` object with a subset of the sequences which are replaced
                 by subsequences according to `BioSeq.getitem()`
         :param \*\*kw:
-            Aditional kwargs are passed to `BioSeq.getitem()`.
+            Additional kwargs are passed to `BioSeq.getitem()`.
         """
         if isinstance(i, int):
             return self.data[i]
@@ -1084,7 +1123,9 @@ class BioBasket(collections.UserList):
             ``'max'`` (alias for le)
             ``'min'`` (alias for ge) are supported.
             The different filter conditions are combined with
-            the *and* operator.
+            the *and* operator. If you need *or*, call filter twice
+            and combine the results with ``|`` operator, e.g.
+            ``seqs.filter(...) | seqs.filter(...)``
         :param inplace: Whether to modify the original object.
         :return: Filtered sequences
 
