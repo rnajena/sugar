@@ -230,5 +230,31 @@ def test_magic_methods():
 
 
 def test_str_methods():
-    # TODO
-    pass
+    seqs = read()
+    seq = seqs[0]
+    assert seq.copy().str.lower().str.islower()
+    assert seq.copy().str.upper().str.isupper()
+    assert seq.copy().str.swapcase().str.swapcase() == seq
+    seq2 = seq.copy().str.center(len(seq)+4)
+    assert seq2.str.startswith('  ') and seq2.str.endswith('  ')
+    seq2.str.strip(' ')
+    assert seq2 == seq
+    seq2 = seq.copy().str.ljust(len(seq)+2)
+    assert seq2.str.endswith('  ')
+    seq2.str.rstrip(' ')
+    assert seq2 == seq
+    seq2 = seq.copy().str.rjust(len(seq)+2)
+    assert seq2.str.startswith('  ')
+    seq2.str.lstrip(' ')
+    assert seq2 == seq
+    assert seq.copy().str.removeprefix('ACCT') == seq[4:]
+    assert seq.copy().str.removesuffix('TGT') == seq[:-3]
+    assert seq.str.encode().decode() == seq.data
+    assert seq.str.index('ACCT') == seq.str.find('ACCT') == 0
+    assert seq.str.rindex('TGT') == seq.str.rfind('TGT') == len(seq) - 3
+    assert seq.str.isalpha() and seq.str.isascii()
+    seq.str.maketrans('A', 'T')
+    assert len(seq.str.split('ACCT', 1)) == len(seq.str.rsplit('ACCT', 1)) == 2
+    assert len(seq.str.splitlines()) == 1
+    assert len(seqs.str.find('A')) == 2
+    assert all(seqs.copy().str.lower().str.islower())

@@ -64,59 +64,23 @@ class _BioSeqStr():
     def endswith(self, suffix, start=0, end=sys.maxsize):
         return self.__parent.data.endswith(str(suffix), start, end)
 
-    # def expandtabs(self, tabsize=8):
-    #     return self.__class__(self.data.expandtabs(tabsize))
-
     def find(self, sub, start=0, end=sys.maxsize):
         return self.__parent.data.find(str(sub), start, end)
 
-    def format(self, /, *args, **kwds):
-        return self.__parent.data.format(*args, **kwds)
-
-    def format_map(self, mapping):
-        return self.__parent.data.format_map(mapping)
-
-    def index(self, isub, start=0, end=sys.maxsize):
+    def index(self, sub, start=0, end=sys.maxsize):
         return self.__parent.data.index(str(sub), start, end)
 
     def isalpha(self):
         return self.__parent.data.isalpha()
 
-    # def isalnum(self):
-    #     return self.__parent.data.isalnum()
-
     def isascii(self):
         return self.__parent.data.isascii()
-
-    # def isdecimal(self):
-    #     return self.data.isdecimal()
-
-    # def isdigit(self):
-    #     return self.data.isdigit()
-
-    # def isidentifier(self):
-    #     return self.data.isidentifier()
 
     def islower(self):
         return self.__parent.data.islower()
 
-    # def isnumeric(self):
-    #     return self.data.isnumeric()
-
-    # def isprintable(self):
-    #     return self.data.isprintable()
-
-    # def isspace(self):
-    #     return self.data.isspace()
-
-    # def istitle(self):
-    #     return self.data.istitle()
-
     def isupper(self):
         return self.__parent.data.isupper()
-
-    # def join(self, seq):
-    #     return self.data.join(seq)
 
     def ljust(self, width, *args):
         self.__parent.data = self.__parent.data.ljust(width, *args)
@@ -127,15 +91,14 @@ class _BioSeqStr():
         return self.__parent
 
     def lstrip(self, chars=None):
-        self.__parentdata = self.__parent.data.lstrip(chars)
+        if chars is not None:
+            chars = str(chars)
+        self.__parent.data = self.__parent.data.lstrip(chars)
         return self.__parent
 
     @staticmethod
     def maketrans(*args):
         return str.maketrans(*args)
-
-    # def partition(self, sep):
-    #     return self.data.partition(sep)
 
     def replace(self, old, new, maxsplit=-1):
         self.__parent.data = self.__parent.data.replace(
@@ -151,9 +114,6 @@ class _BioSeqStr():
     def rjust(self, width, *args):
         self.__parent.data = self.__parent.data.rjust(width, *args)
         return self.__parent
-
-    # def rpartition(self, sep):
-    #     return self.data.rpartition(sep)
 
     def rstrip(self, chars=None):
         if chars is not None:
@@ -187,9 +147,6 @@ class _BioSeqStr():
         self.__parent.data = self.__parent.data.swapcase()
         return self.__parent
 
-    # def title(self):
-    #     return self.__class__(self.data.title())
-
     def translate(self, *args):
         self.__parent.data = self.__parent.data.translate(*args)
         return self.__parent
@@ -198,8 +155,6 @@ class _BioSeqStr():
         self.__parent.data = self.__parent.data.upper()
         return self.__parent
 
-    # def zfill(self, width):
-    #     return self.__class__(self.data.zfill(width))
 
 class _BioBasketStr():
     """
