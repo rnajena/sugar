@@ -849,7 +849,7 @@ class BioBasket(collections.UserList):
             Returns a new `BioBasket` object with a subset of the sequences which are replaced
             by subsequences according to `BioSeq.sl()`
 
-       .. rubric:: Example:
+        .. rubric:: Example:
 
         >>> from sugar import read
         >>> seqs = read()

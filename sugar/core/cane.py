@@ -100,7 +100,7 @@ def _filter(objs2, attr='meta', **kwargs):
 
 class BioMatch(object):
     """
-    The BioMatch object is returned by `~cane.match()` and the different match methods.
+    The BioMatch object is returned by `~.cane.match()` and the different match methods.
 
     It is designed to behave as the original `python:re.Match` object.
     See there for available methods.

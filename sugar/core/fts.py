@@ -53,40 +53,42 @@ class Defect(Flag):
 
     A location has a defect, when the feature itself is not directly
     located in the range of the start to the stop base.
-
-       - **NONE** - No location defect
-       - **MISS_LEFT** - A part of the feature has been truncated
-         before the start base/residue of the :class:`Location`
-         (probably by indexing an :class:`FeatureList` object)
-       - **MISS_RIGHT** - A part of the feature has been truncated
-         after the stop base/residue of the :class:`Location`
-         (probably by indexing an :class:`FeatureList` object)
-       - **BEYOND_LEFT** - The feature starts at an unknown position
-         before the start base/residue of the :class:`Location`
-       - **BEYOND_RIGHT** - The feature ends at an unknown position
-         after the stop base/residue of the :class:`Location`
-       - **UNK_LOC** - The exact position is unknown, but it is at a
-         single base/residue between the start and stop residue of
-         the :class:`Location`, inclusive
-       - **BETWEEN** - The position is between to consecutive
-         bases/residues.
     """
+    #: No location defect
     NONE         = auto()
+    #: A part of the feature has been truncated
+    #: before the start base/residue of the :class:`Location`
+    #: (probably by indexing an :class:`FeatureList` object)
     MISS_LEFT    = auto()
+    #: A part of the feature has been truncated
+    #: after the stop base/residue of the :class:`Location`
+    #: (probably by indexing an :class:`FeatureList` object)
     MISS_RIGHT   = auto()
+    #: The feature starts at an unknown position
+    #: before the start base/residue of the :class:`Location`
     BEYOND_LEFT  = auto()
+    #: The feature starts at an unknown position
+    #: before the start base/residue of the :class:`Location`
     BEYOND_RIGHT = auto()
+    #: The exact position is unknown, but it is at a
+    #: single base/residue between the start and stop residue of
+    #: the :class:`Location`, inclusive
     UNK_LOC      = auto()
+    #: The position is between to consecutive
+    #: bases/residues.
     BETWEEN      = auto()
 
 class Strand(StrEnum):
     """
     This enum type describes the strand of the feature location.
-    This is not relevant for protein sequence features.
     """
+    #: The feature is located on the forward strand
     FORWARD = '+'
+    #: The feature is located on the reverse strand
     REVERSE = '-'
+    #: The feature is not associated with any strand, e.g. for proteins
     NONE = '.'
+    #: The strandness of the feature is unknown
     UNKNOWN = '?'
 
 
@@ -122,7 +124,9 @@ class Location():
             raise ValueError(
                 "The start position must be lower than the stop position"
             )
+        #:
         self.start = start
+        #:
         self.stop = stop
         self.strand = strand
         self.defect = defect
@@ -147,7 +151,7 @@ class Location():
     @property
     def stride(self):
         """
-        Stride is -1 for the negative strand, else +1
+        Stride is -1 for the reverse strand, else +1
         """
         return -1 if self.strand == '-' else 1
 
@@ -250,7 +254,7 @@ class Feature():
         The following metadata attributes can be accessed directly as an
         attribute of Feature: *type*, *name*, *id* and *seqid*.
         For example the feature id can be obtained by both `Feature.id`
-        and `Feature.meta.id`.
+        and ``Feature.meta.id``.
     """
 
     def __init__(self, type=None, locs=None, start=None, stop=None, meta=None):
