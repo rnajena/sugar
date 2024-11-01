@@ -203,7 +203,7 @@ def _slice_locs(seq, locs, splitter=None, filler=None, gap=None):
         # slice_start = loc.start - seq._seqstart
         # slice_stop = loc.stop - seq._seqstart
         # add_seq = seq[slice_start:slice_stop]
-        add_seq = seq.getitem(slice(loc.start, loc.stop), gap=gap)
+        add_seq = seq.sl(gap=gap)[loc.start:loc.stop]
         if loc.strand == '-':
             add_seq = add_seq.reverse().complement()
         if filler is not None and prev_loc is not None:

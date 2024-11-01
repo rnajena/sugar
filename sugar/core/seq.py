@@ -23,13 +23,13 @@ COMPLEMENT_ALL = {c: CODES_INV[frozenset(COMPLEMENT[nt] for nt in nts)] for c, n
 COMPLEMENT_TRANS = str.maketrans(COMPLEMENT_ALL)
 
 
-class _Slicable_GetItem():
+class _Sliceable_GetItem():
     def __init__(self, obj, **kw):
         self.obj = obj
         self.kw = kw
 
     def __getitem__(self, i):
-        return self.obj.getitem(i, **self.kw)
+        return self.obj._getitem(i, **self.kw)
 
 
 class _BioSeqStr():
@@ -340,13 +340,13 @@ class BioSeq():
 
     @property
     def i(self):
-        """Return slicable object to support in-place slicing
+        """Return sliceable object to support in-place slicing
 
         Deprecated: Use getitem() or sl attribute.
         """
         msg = 'BioSeq.i is deprecated, use geitem() method or sl attribute'
         warnings.warn(msg, DeprecationWarning, stacklevel=2)
-        return _Slicable_GetItem(self, inplace=True)
+        return _Sliceable_GetItem(self, inplace=True)
 
     def rc(self):
         """
@@ -354,47 +354,64 @@ class BioSeq():
         """
         return self.reverse().complement()
 
-
     def __getitem__(self, index):
-        return self.getitem(index)
+        return self._getitem(index)
 
-    def getitem(self, index, inplace=False, gap=None):
+    def sl(self, **kw):
         """
-        Slice the sequence and return a subsequence
+        Method allowing to slice the `BioSeq` object with non-default options.
 
-        This is the method which is called if you slice with ``BioSeq[]`` syntax.
-        If you want to use non-default options call this method directly,
-        or by the `BioSeq.sl` attribute.
+        If you want to use the default options, you can slice the BioSeq object directly.
+        For non-default options, slice the sliceable object returned by this method.
 
-        .. rubric:: Example:
-
-        >>> from sugar import read
-        >>> seq = read()[0]
-        >>> print(seq[5:10])
-        CCCCT
-        >>> print(seq[5])
-        C
-        >>> print(seq['cds'][:3])
-        ATG
-
-        :param index: Specifies which part of the sequence is returned.
-           The following types are supported.
-
-           int,slice
-             location is specified by int or slice
-           `.Location`
-             specified by location
-           `.Feature`
-             specified by feature
-           str
-             position of first feature of given type, e.g. ``'cds'``
-             will return sequence with first coding sequence
         :param bool inplace:
             The subsequence is not only returned, but the original
             sequence is modified in-place (default: False)
         :param str gap:
             gaps of the given characters will be accounted for when
             slicing the sequence (default: gaps will not be accounted for)
+
+        .. rubric:: Slicing options:
+
+        The slice specifies which part of the sequence is returned and
+        is defined inside the square brackets ``[]``
+        The following types are supported.
+
+        int,slice
+            location is specified by int or slice
+        `.Location`
+            specified by location
+        `.Feature`
+            specified by feature
+        str
+            position of first feature of given type, e.g. ``'cds'``
+            will return sequence with first coding sequence
+
+        .. rubric:: Example:
+
+        >>> from sugar import read
+        >>> seq = read()[0]
+        >>> print(seq[:5])  # use direct slicing for default options
+        ACCTG
+        >>> print(seq[4])
+        G
+        >>> print(seq['cds'][:3])
+        ATG
+        >>> print(seq.sl(inplace=True, gap='-')[:5:2])  # non-default options
+        ACG
+        >>> print(seq)  # was modified in-place
+        ACG
+        """
+        return _Sliceable_GetItem(self, **kw)
+
+    def _getitem(self, index, inplace=False, gap=None):
+        """
+        Slice the sequence and return a subsequence
+
+        This is the method which is called if you slice with ``BioSeq[]`` syntax
+        or with ``BioSeq.sl()[]`` syntax
+        If you want to use non-default options call this method directly,
+        or by the `BioSeq.sl` attribute.
         """
         # TODO: add correct_fts kwargs
         try:
@@ -495,25 +512,6 @@ class BioSeq():
         #                     ft2.orig_len = getattr(ft, 'orig_len', abs(ft.start - ft.stop))
         #                 subseq.meta.features.append(ft2)
         # return subseq
-
-    def sl(self, **kw):
-        """
-        Method allowing to call `BioSeq.getitem()` with non-default options and extended indexing syntax
-
-        Returns a slicable object. Use the ``BioSeq[]`` notation directly if you use default arguments.
-
-        .. rubric:: Example:
-
-        >>> from sugar import read
-        >>> seq = read()[0]
-        >>> print(seq[:5])
-        ACCTG
-        >>> print(seq.sl(inplace=True, gap='-')[:5:2])
-        ACG
-        >>> print(seq)  # was modified in-place
-        ACG
-        """
-        return _Slicable_GetItem(self, **kw)
 
     def biotranslate(self, *args, **kw):
         from sugar.core.translate import translate
@@ -821,17 +819,37 @@ class BioBasket(collections.UserList):
         return f'{type(self).__name__}({super().__repr__()}, meta=dict({metastr}))'
 
     def __getitem__(self, i):
-        return self.getitem(i)
+        return self._getitem(i)
 
-    def getitem(self, i, **kw):
+    def sl(self, **kw):
         """
-        Slice sequences
+        Method allowing to slice the `BioBasket` object with non-default options.
 
-        This is the method which is called if you slice with ``BioBasket[]`` syntax.
-        If you want to use non-default options call this method directly,
-        or by the `BioBasket.sl` attribute.
+        If you want to use the default options, you can slice the BioBasket object directly.
+        For non-default options, slice the sliceable object returned by this method.
 
-        .. rubric:: Example:
+        :param \*\*kw:
+            All kwargs are documented in `BioSeq.sl()`.
+
+        .. rubric:: Slice options:
+
+        The slice specifies which part of the sequence(s) are returned and
+        is defined inside the square brackets ``[]``
+        The following options are supported.
+
+        int
+            Returns a `BioSeq` from the basket
+        slice
+            Returns a new `BioBasket` object with a subset of the sequences
+        str,feature,location
+            Returns a new `BioBasket` object with updated sequences inside, see `BioSeq.sl()`
+        (int, object)
+            Returns a `BioSeq` from the basket and slices it with the object, see `BioSeq.sl()`
+        (slice, object)
+            Returns a new `BioBasket` object with a subset of the sequences which are replaced
+            by subsequences according to `BioSeq.sl()`
+
+       .. rubric:: Example:
 
         >>> from sugar import read
         >>> seqs = read()
@@ -843,23 +861,16 @@ class BioBasket(collections.UserList):
         2 seqs in basket
         AB047639  3  ATG  ...
         AB677533  3  ATG  ...
+        """
+        return _Sliceable_GetItem(self, **kw)
 
-        :param index:
-            Specifies which part of the sequences or which sequences are returned.
+    def _getitem(self, i, **kw):
+        """
+        Slice sequences
 
-            int
-                Returns a `BioSeq` from the basket
-            slice
-                Returns a new `BioBasket` object with a subset of the sequences
-            str,feature,location
-                Updates all sequences inside the basket, see `BioSeq.getitem()`
-            (int, object)
-                Returns a `BioSeq` from the basket and slices it with the object, see `BioSeq.getitem()`
-            (slice, object)
-                Returns a new `BioBasket` object with a subset of the sequences which are replaced
-                by subsequences according to `BioSeq.getitem()`
-        :param \*\*kw:
-            Additional kwargs are passed to `BioSeq.getitem()`.
+        This is the method which is called if you slice with ``BioBasket[]`` syntax.
+        If you want to use non-default options call this method directly,
+        or by the `BioBasket.sl` attribute.
         """
         if isinstance(i, int):
             return self.data[i]
@@ -867,27 +878,19 @@ class BioBasket(collections.UserList):
             seqs = self.__class__(self.data[i], meta=self.meta)
         elif isinstance(i, (str, Feature, Location)):
             seqs = self.__class__(self.data, meta=self.meta)
-            seqs.data = [seq.getitem(i, **kw) for seq in seqs.data]
+            seqs.data = [seq._getitem(i, **kw) for seq in seqs.data]
         elif len(i) == 2:
             i, j = i
             if isinstance(i, int):
-                return self.data[i].getitem(j, **kw)
+                return self.data[i]._getitem(j, **kw)
             elif isinstance(i, slice):
                 seqs = self.__class__(self.data[i], meta=self.meta)
-                seqs.data = [seq.getitem(j, **kw) for seq in seqs.data]
+                seqs.data = [seq._getitem(j, **kw) for seq in seqs.data]
             else:
                 raise TypeError('Index not supported')
         else:
             raise TypeError('Index not supported')
         return seqs
-
-    def sl(self, **kw):
-        """
-        Method allowing to call `BioBasket.getitem()` with non-default options and extended indexing syntax
-
-        Returns a slicable object. Use the ``BioBasket[]`` notation directly if you use default arguments.
-        """
-        return _Slicable_GetItem(self, **kw)
 
     def __setitem__(self, i, value):
         if isinstance(i, (int, slice)):
