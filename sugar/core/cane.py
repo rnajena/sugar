@@ -251,16 +251,8 @@ def match(seq, sub, *, rf='fwd',
 class ORFList(FeatureList):
     """
     List of open reading frames (ORFs)
-
-    This object is a FeatureList with additional methods.
     """
-    def filter(self, minlen=0, rfs=None):
-        orfs = []
-        for orf in self:
-            if len(orf) > minlen and (rfs is None or orf.meta.rf in rfs):
-                orfs.append(orf)
-        self.data = orfs
-        return self
+    pass
 
 
 def _inds2orf(i1, i2, rf, lensec, ftype='ORF', seqid=None):
