@@ -9,7 +9,7 @@ import json
 
 from sugar.core.fts import Location, Defect, Strand, Feature, FeatureList
 from sugar.core.meta import Attr, Meta
-from sugar.core.seq import BioBasket, BioSeq, _BioBasketStr, _BioSeqStr
+from sugar.core.seq import BioBasket, BioSeq
 from sugar._io.util import _add_fmt_doc
 
 
@@ -30,11 +30,13 @@ class _SJSONEncoder(json.JSONEncoder):
             return obj
         elif isinstance(o, SUGAR):
             obj = {k: v for k, v in o.__dict__.items()
-                   if not k.startswith("_") or k == '_fmtcomment'}
+                   if not k.startswith("_") or k in '_fmtcomment'}
+            if isinstance(o, Feature):
+                obj['locs'] = o.locs
             obj['_cls'] = type(o).__name__
             return obj
-        elif isinstance(o, (_BioBasketStr, _BioSeqStr)):
-            return '<<ignored>>'
+        # elif isinstance(o, (_BioBasketStr, _BioSeqStr)):
+        #     return '<<ignored>>'
         else:
             # Let the base class default method raise the TypeError
             return json.JSONEncoder.default(self, o)

@@ -87,7 +87,7 @@ def read_fts_gff(f, filt=None, default_ftype=None, comments=None):
                     if not hasattr(loc, '_gff'):
                         loc._gff = Attr()
                     loc._gff[k] = v
-            fts[-1].locs.append(loc)
+            fts[-1].locs = fts[-1].locs + (loc,)
         else:
             meta = Meta(_gff=attrs)
             fts.append(Feature(type_, locs=[loc], meta=meta))

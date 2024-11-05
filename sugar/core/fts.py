@@ -92,7 +92,6 @@ class Strand(StrEnum):
     UNKNOWN = '?'
 
 
-
 class Location():
     Strand = Strand
     Defect = Defect
@@ -149,7 +148,7 @@ class Location():
         return hash((self.start, self.stop, self.strand, self.defect))
 
     @property
-    def stride(self):
+    def _stride(self):
         """
         Stride is -1 for the reverse strand, else +1
         """
@@ -173,6 +172,15 @@ class Location():
     @defect.setter
     def defect(self, v):
         self._defect = Defect(v)
+
+    def _slice(self):
+        if self._stride == 1:
+            return slice(self.start, self.stop, self._stride)
+        else:
+            start = self.start - 1
+            if start == -1:
+                start = None
+            return slice(self.stop-1, start, self._stride)
 
 
 # def _slice_loc(seq, loc):
@@ -226,6 +234,106 @@ def _slice_locs(seq, locs, splitter=None, filler=None, gap=None):
     return sub_seq
 
 
+class LocationTuple(tuple):
+    """
+    Tuple of locations
+    """
+    def __new__(cls, locs=None, start=None, stop=None, strand='+'):
+        if start is not None or stop is not None:
+            if locs is not None:
+                raise ValueError('One of locs or start/stop can be given')
+            locs = (Location(start, stop, strand),)
+        if locs is None:
+            raise ValueError('No location specified')
+        if len(locs) == 0:
+            raise ValueError('A Locations must include at least one location')
+        for loc in locs:
+            if not isinstance(loc, Location):
+                msg = 'Locations needs ot be initialized with a tuple of Locations'
+                raise TypeError(msg)
+        strands = set(loc.strand for loc in locs)
+        if len(strands) > 1:
+            msg = f'Found multiple strand values in Locations: {" ".join(strands)}'
+            raise ValueError(msg)
+        locs = tuple(locs)
+        if locs[0].strand == '-':
+            locs = sorted(locs, key=lambda loc: loc.stop, reverse=True)
+        else:
+            locs = sorted(locs, key=lambda loc: loc.start)
+        return super().__new__(cls, locs)
+
+    @property
+    def range(self):
+        """
+        Get the minimum start base/residue and maximum stop base/residue
+        of all feature locations.
+
+        This can be used to create a location, that spans all of the
+        feature's locations.
+
+        Returns
+        -------
+        start : int
+            The minimum start base/residue of all locations.
+        stop : int
+            The maximum stop base/residue of all locations.
+        """
+        start = min(loc.start for loc in self)
+        stop = max(loc.stop for loc in self)
+        return start, stop
+
+    def __lt__(self, other):
+        if isinstance(other, LocationTuple):
+            start, stop = self.range
+            start2, stop2 = other.range
+            return start < start2 or (start==start2 and stop < stop2)
+        msg = f"'<' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def __le__(self, other):
+        if isinstance(other, LocationTuple):
+            start, stop = self.range
+            start2, stop2 = other.range
+            return start < start2 or (start==start2 and stop <= stop2)
+        msg = f"'<=' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def __gt__(self, other):
+        if isinstance(other, LocationTuple):
+            start, stop = self.range
+            start2, stop2 = other.range
+            return start > start2 or (start==start2 and stop > stop2)
+        msg = f"'>' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def __ge__(self, other):
+        if isinstance(other, LocationTuple):
+            start, stop = self.range
+            start2, stop2 = other.range
+            return start > start2 or (start==start2 and stop >= stop2)
+        msg = f"'>=' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def __sub__(self, other):
+        if isinstance(other, LocationTuple):
+            lr1 = self.range
+            lr2 = other.range
+            return (sum(lr1) - sum(lr2)) / 2
+        msg = f"'-' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def overlaps(self, other):
+        """
+        Weather the location ranges overlaps with other feature
+        """
+        if isinstance(other, LocationTuple):
+            lr1 = self.range
+            lr2 = other.range
+            return lr1[0] < lr2[1] and lr1[1] > lr2[0]
+        msg = f"LocationTuple.overlaps() not supported for instances of '{type(other).__name__}'"
+        raise TypeError(msg)
+
+
 class Feature():
     """
     This class represents a single sequence feature, for example from a
@@ -244,9 +352,9 @@ class Feature():
         contain one location, but multiple ones are also possible for
         example in eukaryotic CDS (due to splicing) or in virus genomes
         (due to frame shifts).
-    :param int start,stop:
+    :param start,stop,strand:
         Instead of specifying the locations, a single location can be given
-        by start and stop indices.
+        by start and stop indices and optionally strand.
     :param dict meta:
         The metadata describing the feature.
 
@@ -257,19 +365,24 @@ class Feature():
         and ``Feature.meta.id``.
     """
 
-    def __init__(self, type=None, locs=None, start=None, stop=None, meta=None):
+    def __init__(self, type=None, locs=None, meta=None, **kw):
         if meta is None:
             meta = {}
         self.meta = Meta(meta)
         if type is not None:
             self.meta.type = type
-        if start is not None or stop is not None:
-            if locs is not None:
-                raise ValueError('One of locs or start/stop can be given')
-            locs = [Location(start, stop)]
-        if len(locs) == 0:
-            raise ValueError("A feature must have at least one location")
-        self.locs = list(locs)  # frozenset
+        self._locs = LocationTuple(locs=locs, **kw)
+
+    @property
+    def locs(self):
+        """
+        List of feature locations
+        """
+        return self._locs
+
+    @locs.setter
+    def locs(self, value):
+        self._locs = LocationTuple(value)
 
     @property
     def type(self):
@@ -317,31 +430,9 @@ class Feature():
 
     def __repr__(self):
         """Represent Feature as a string for debugging."""
-        return f'Feature("{self.type}", [{", ".join([loc.__repr__() for loc in self.locs])}], meta={self.meta!r})'
-
-    @property
-    def loc_range(self):
-        """
-        Get the minimum start base/residue and maximum stop base/residue
-        of all feature locations.
-
-        This can be used to create a location, that spans all of the
-        feature's locations.
-
-        Returns
-        -------
-        start : int
-            The minimum start base/residue of all locations.
-        stop : int
-            The maximum stop base/residue of all locations.
-        """
-        start = min(loc.start for loc in self.locs)
-        stop = max(loc.stop for loc in self.locs)
-        return start, stop
-
-    def _slice(self):  # needs to return list of slices
-        loc = self.loc
-        return slice(loc.start, loc.stop, loc.stride)
+        meta = self.meta.copy()
+        meta.pop('type', None)
+        return f'Feature("{self.type}", [{", ".join([loc.__repr__() for loc in self.locs])}], meta={meta!r})'
 
     @property
     def loc(self):
@@ -359,58 +450,29 @@ class Feature():
                 and self.meta == other.meta)
 
     def __lt__(self, other):
-        if not isinstance(other, Feature):
-            return False
-        if self.seqid != other.seqid:
-            return self.seqid < other.seqid
-        start, stop = self.loc_range
-        start2, stop2 = other.loc_range
-        return start < start2 or (start==start2 and stop < stop2)
-        # The start base/residue is most significant,
-        # if it is emeta for both features, look at stop base/residue
-        # if start < it_start:
-        #     return True
-        # elif start > it_start:
-        #     return False
-        # else: # start is emeta
-        #     return stop < it_stop
-
-    def __gt__(self, item):
-        if not isinstance(item, Feature):
-            return False
-        if self.seqid != item.seqid:
-            return self.seqid > item.seqid
-        start, stop = self.loc_range
-        it_start, it_stop = item.loc_range
-        # The start base/residue is most significant,
-        # if it is emeta for both features, look at stop base/residue
-        if start > it_start:
-            return True
-        elif start < it_start:
-            return False
-        else: # start is emeta
-            return stop < it_stop
+        if isinstance(other, Feature):
+            if self.seqid != other.seqid:
+                return self.seqid < other.seqid
+            return self.locs < other.locs
+        if isinstance(other, LocationTuple):
+            return self.locs < other
+        msg = f"'<' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
 
     def __len__(self):
-        lr = self.loc_range
+        lr = self.locs.range
         return lr[1] - lr[0]
 
     def overlaps(self, other):
         """
         Weather the location ranges overlaps with other feature
         """
-        if not isinstance(other, Feature):
-            raise NotImplementedError()
-        lr1 = self.loc_range
-        lr2 = other.loc_range
-        return lr1[0] < lr2[1] and lr1[1] > lr2[0]
-
-    def __sub__(self, other):
-        if not isinstance(other, Feature):
-            raise NotImplementedError()
-        lr1 = self.loc_range
-        lr2 = other.loc_range
-        return (sum(lr1) - sum(lr2)) // 2
+        if isinstance(other, Feature):
+            return self.locs.overlaps(other.locs)
+        if isinstance(other, LocationTuple):
+            return self.locs.overlaps(other)
+        msg = f"Feature.overlaps() not supported for instances of '{type(other).__name__}'"
+        raise TypeError(msg)
 
     def reverse(self):
         """
@@ -425,7 +487,8 @@ class Feature():
                 loc.strand = '-'
             elif loc.strand == '-':
                 loc.strand = '+'
-        ft.locs = sorted(ft.locs, key=lambda l: l.start)
+        # ft.locs = sorted(ft.locs, key=lambda l: l.start)
+        ft.locs = ft.locs
         return ft
 
     def write(self, *args, **kw):
@@ -530,6 +593,47 @@ class FeatureList(collections.UserList):
             p.text('...')
         else:
             p.text(str(self))
+
+    # Implement all variants of &, |, -, ^
+    def __and__(self, other):
+        return self.__class__([ft for ft in self if ft in other])
+
+    def __rand__(self, other):
+        return self & other
+
+    def __iand__(self, other):
+        self.data = [ft for ft in self if ft in other]
+        return self
+
+    def __or__(self, other):
+        return self + [ft for ft in other if ft not in self]
+
+    def __ror__(self, other):
+        return self | other
+
+    def __ior__(self, other):
+        self.data += [ft for ft in other if ft not in self]
+        return self
+
+    def __sub__(self, other):
+        return self.__class__([ft for ft in self if ft not in other])
+
+    def __rsub__(self, other):
+        return self.__class__(other) - self
+
+    def __isub__(self, other):
+        self.data = [ft for ft in self if ft not in other]
+        return self
+
+    def __xor__(self, other):
+        return (self | other) - (self & other)
+
+    def __rxor__(self, other):
+        return self ^ other
+
+    def __ixor__(self, other):
+        self.data = (self ^ other).data
+        return self
 
     def tostr(self, raw=False, w=80, wt=12, wl=20, h=80, exclude_fts=()):
         """
@@ -681,8 +785,8 @@ class FeatureList(collections.UserList):
         """
         start = sys.maxsize
         stop = -sys.maxsize
-        for feature in self:
-            for loc in feature.locs:
+        for ft in self:
+            for loc in ft.locs:
                 if loc.start < start:
                     start = loc.start
                 if loc.stop > stop:
@@ -785,7 +889,9 @@ class FeatureList(collections.UserList):
             ``'max'`` (alias for le)
             ``'min'`` (alias for ge) are supported.
             The different filter conditions are combined with
-            the *and* operator.
+            the *and* operator. If you need *or*, call filter twice
+            and combine the results with ``|`` operator, e.g.
+            ``fts.filter(...) | fts.filter(...)``
         :param inplace: Whether to modify the original object.
         :return: Filtered features
 

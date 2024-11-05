@@ -72,9 +72,13 @@ def _filter(objs2, attr='meta', **kwargs):
     :param \*\*kw: All kwargs need to be of the form
         ``key_op=value``, where op is one of
         the operators from the `python:operator` module.
-        Additionally, the operators ``'in'`` (membership),
-        ``'max'`` (alias for le)
-        ``'min'`` (alias for ge) are supported.
+        Additionally, the operators
+        ``'in'`` (membership),
+        ``'lowerin'`` (membership of lower case word),
+        ``'lowereq'`` (equality of lower case word),
+        ``'max'`` (alias for le),
+        ``'min'`` (alias for ge)
+        are supported.
         The different filter conditions are combined with
         the *and* operator.
     :return: Filtered objects
@@ -82,7 +86,10 @@ def _filter(objs2, attr='meta', **kwargs):
     import operator
     ops = {'max': operator.le,
            'min': operator.ge,
-           'in': lambda a, b: a in b}
+           'in': lambda a, b: a in b,
+           'lowerin': lambda a, b: a.lower() in b,
+           'lowereq': lambda a, b: a.lower() == b,
+           }
     allowed_funcs = {'len': len}
     objs = objs2
     getv = lambda obj, key: (allowed_funcs[key](obj) if key in allowed_funcs else

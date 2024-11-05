@@ -61,7 +61,7 @@ def fts2row(fts):
     for ft in fts.sort():
         if len(ft.locs) > 1:
             warn('More than one location in feature, use full loc_range')
-        start, stop = ft.loc_range
+        start, stop = ft.locs.range
         if last_stop is not None:
             dif = start - last_stop
             if dif > 0:
