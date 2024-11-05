@@ -120,8 +120,8 @@ _ADD_FMT_DOC = """
         This function should NOT be called directly, it registers via {call}, call this instead.
 """
 FULLCALL = {
-    'read': '`~.main.read()`',
-    'read_fts': '`~.main.read_fts()`',
+    'read': '`.read()` and `.iter_()`',
+    'read_fts': '`.read_fts()`',
     'write': '`.BioBasket.write()`',
     'write_fts': '`.FeatureList.write()`',
     }
