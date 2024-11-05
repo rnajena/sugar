@@ -571,7 +571,7 @@ class FeatureList(collections.UserList):
             t = str(getattr(ft, 'type', None))
             if t in exclude_fts:
                 continue
-            exclude_types = ('translation', )
+            exclude_types = ('translation', 'type')
             metastr = ';'.join(f'{k}={v}' for k, v in
                                sorted(vars(ft.meta).items(), key=_sort_meta_key)
                                if k not in exclude_types)

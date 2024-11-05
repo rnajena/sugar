@@ -13,7 +13,7 @@ gc  bias  score   E-value inc olp anyidx afrct1 afrct2 winidx wfrct1 wfrct2
 mdl len seq len description of target""".split())
 
 
-def is_format_fts(f, **kw):
+def is_fts_infernal(f, **kw):
     content = f.read(1000)
     lines = content.splitlines()
     return (set(lines[0].lstrip('#').split()) <= _HEADER_KW and
@@ -21,7 +21,7 @@ def is_format_fts(f, **kw):
 
 
 @_add_fmt_doc('read_fts')
-def read_fts(f, ftype=None, comments=None):
+def read_fts_infernal(f, ftype=None, comments=None):
     """
     Infernal reader for output generated with tblout fmt 1, 2, 3
 

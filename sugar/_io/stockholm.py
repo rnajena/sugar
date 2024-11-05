@@ -14,7 +14,7 @@ from sugar._io.util import _add_fmt_doc
 filename_extensions = ['stk', 'sto', 'stockholm']
 
 
-def is_format(f, **kw):
+def is_stockholm(f, **kw):
     content = f.read(11)
     return content == '# STOCKHOLM'
 
@@ -91,7 +91,7 @@ def fts2row(fts):
 
 
 @_add_fmt_doc('read')
-def read(f, comments=None):
+def read_stockholm(f, comments=None):
     """
     Read Stockholm file
 
@@ -162,7 +162,7 @@ def read(f, comments=None):
 
 
 @_add_fmt_doc('write')
-def write(seqs, f):
+def write_stockholm(seqs, f):
     """
     Write sequences to Stockholm file
     """

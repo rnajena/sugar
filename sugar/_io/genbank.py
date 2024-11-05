@@ -8,16 +8,16 @@ from sugar._io._genbank_loc import _parse_locs
 from sugar._io.util import _add_fmt_doc
 
 
-def is_format(f, **kw):
+def is_genbank(f, **kw):
     content = f.read(5)
     return content.lower() == 'locus'
 
 
-is_format_fts = is_format
+is_fts_genbank = is_genbank
 
 
 @_add_fmt_doc('read_fts')
-def read_fts(f, exclude=()):
+def read_fts_genbank(f, exclude=()):
     """
     Read Genbank feature records from file into `.FeatureList`
 
@@ -26,13 +26,13 @@ def read_fts(f, exclude=()):
         sequences are excluded anyway.
     """
     fts = FeatureList()
-    for seq in iter_(f, exclude=('seq',) + exclude):
+    for seq in iter_genbank(f, exclude=('seq',) + exclude):
         fts.extend(seq.fts)
     return fts
 
 
 @_add_fmt_doc('read')
-def iter_(f, exclude=()):
+def iter_genbank(f, exclude=()):
     """
     Read Genbank records and sequences from file into `.BioBasket`
 

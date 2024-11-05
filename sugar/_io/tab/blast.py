@@ -7,18 +7,18 @@ from sugar._io.tab.core import read_tabular
 from sugar._io.util import _add_fmt_doc
 
 
-def is_format_fts(f, outfmt=None, **kw):
+def is_fts_blast(f, outfmt=None, **kw):
     content = f.read(1000)
     if content.startswith('#') and 'BLAST' in content:
         return True
     # just try to read first line
     line = content.splitlines()[0]
-    fts = read_fts([line], outfmt=outfmt, **kw)
+    fts = read_fts_blast([line], outfmt=outfmt, **kw)
     return len(fts) == 1 and (outfmt is not None or 0 <= fts[0].meta._blast.pident <= 100)
 
 
 @_add_fmt_doc('read_fts')
-def read_fts(f, *, sep='\t', outfmt=None, ftype=None, comments=None):
+def read_fts_blast(f, *, sep='\t', outfmt=None, ftype=None, comments=None):
     """
     BLAST reader for output generated with option outfmt 7 (preferred), 6, or 10
 

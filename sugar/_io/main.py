@@ -62,7 +62,7 @@ def detect(fname, what='seqs', *, encoding=None, **kw):
         fpos = f.tell()
         for fmt in FMTS_ALL[what]:
             module = EPS[what][fmt].load()
-            if hasattr(module, 'is_format' + suf):
+            if hasattr(module, funcname := f'is{suf}_{fmt}'):
                 if _binary(module, what) and not isinstance(f, io.BufferedIOBase):
                     continue
                 if not _binary(module, what) and isinstance(f, io.BufferedIOBase):
@@ -70,7 +70,7 @@ def detect(fname, what='seqs', *, encoding=None, **kw):
                 else:
                     f_text_or_binary = f
                 try:
-                    if getattr(module, 'is_format' + suf)(f_text_or_binary, **kw):
+                    if getattr(module, funcname)(f_text_or_binary, **kw):
                         return fmt
                 except Exception:
                     pass
@@ -229,13 +229,13 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     else:
         module = EPS['seqs'][fmt].load()
         with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
-            if hasattr(module, 'iter_'):
-                seqs = module.iter_(f, **kw)
+            if hasattr(module, funcname := f'iter_{fmt}'):
+                seqs = getattr(module, funcname)(f, **kw)
                 for seq in seqs:
                     seq.meta._fmt = fmt
                     yield seq
-            elif hasattr(module, 'read'):
-                seqs = module.read(f, **kw)
+            elif hasattr(module, funcname := f'read_{fmt}'):
+                seqs = getattr(module, funcname)(f, **kw)
             else:
                 raise RuntimeError(f'No read support for format {fmt}')
         for seq in seqs:
@@ -304,10 +304,10 @@ def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
         raise ValueError(f'Unrecognized tool: {tool}')
     module = EPS['seqs'][fmt].load()
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
-        if hasattr(module, 'read'):
-            seqs = module.read(f, **kw)
-        elif hasattr(module, 'iter_'):
-            seqs = list(module.iter_(f, **kw))
+        if hasattr(module, funcname := f'read_{fmt}'):
+            seqs = getattr(module, funcname)(f, **kw)
+        elif hasattr(module, funcname := f'iter_{fmt}'):
+            seqs = list(getattr(module, funcname)(f, **kw))
         else:
             raise RuntimeError(f'No read support for format {fmt}')
     seqs = BioBasket(seqs)
@@ -346,8 +346,8 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
     fmt = fmt.lower()
     module = EPS['fts'][fmt].load()
     with _file_opener(fname, mode=mode, binary=_binary(module, 'fts'), encoding=encoding) as f:
-        if hasattr(module, 'read_fts'):
-            fts = module.read_fts(f, **kw)
+        if hasattr(module, funcname := f'read_fts_{fmt}'):
+            fts = getattr(module, funcname)(f, **kw)
         else:
             raise RuntimeError(f'No fts read support for format {fmt}')
     for ft in fts:
@@ -391,14 +391,14 @@ def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
         raise ValueError(f'Unrecognized tool: {tool}')
     module = EPS['seqs'][fmt].load()
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
-        if hasattr(module, 'append') and 'a' in mode:
+        if hasattr(module, funcname := f'append_{fmt}') and 'a' in mode:
             for seq in seqs:
-                module.append(seq, f, **kw)
-        elif hasattr(module, 'write'):
-            module.write(seqs, f, **kw)
-        elif hasattr(module, 'append') and 'w' in mode:
+                getattr(module, funcname)(seq, f, **kw)
+        elif hasattr(module, funcname := f'write_{fmt}'):
+            getattr(module, funcname)(seqs, f, **kw)
+        elif hasattr(module, funcname := f'append_{fmt}') and 'w' in mode:
             for seq in seqs:
-                module.append(seq, f, **kw)
+                getattr(module, funcname)(seq, f, **kw)
         else:
             raise RuntimeError(f'No write support for format {fmt}')
 
@@ -433,7 +433,7 @@ def write_fts(fts, fname, fmt=None, *, mode='w', **kw):
     with _file_opener(fname, mode=mode, binary=_binary(module, 'fts')) as f:
         if hasattr(module, 'binary_fmt_fts') and module.binary_fmt_fts and 'b' not in mode:
             mode = 'b' + mode
-        if hasattr(module, 'write_fts'):
-            module.write_fts(fts, f, **kw)
+        if hasattr(module, funcname := f'write_fts_{fmt}'):
+            getattr(module, funcname)(fts, f, **kw)
         else:
             raise RuntimeError(f'No fts write support for format {fmt}')

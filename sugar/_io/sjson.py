@@ -53,13 +53,13 @@ def _json_hook(d):
         return d
 
 
-def is_format(f, **kw):
+def is_sjson(f, **kw):
     content = f.read(51)
     return COMMENT[:17].lower() in content.lower()
 
 
 @_add_fmt_doc('read')
-def read(f):
+def read_sjson(f):
     """
     Read SJson file
     """
@@ -67,7 +67,7 @@ def read(f):
 
 
 @_add_fmt_doc('write')
-def write(seqs, f):
+def write_sjson(seqs, f):
     """
     Write sequences into SJson file
     """

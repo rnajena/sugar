@@ -17,7 +17,7 @@ filename_extensions = ['gff']
 filename_extensions_fts = ['gff']
 
 
-def is_format(f, **kw):
+def is_gff(f, **kw):
     content = f.read(100)
     if content.strip().startswith('##gff-version 3'):
         return True
@@ -27,7 +27,7 @@ def is_format(f, **kw):
     return strand in '+-.?' and phase in '.012'
 
 
-is_format_fts = is_format
+is_fts_gff = is_gff
 
 
 copyattrs = [('Name', 'name'), ('ID', 'id'), ('score', 'score'),
@@ -37,7 +37,7 @@ copyattrs = [('Name', 'name'), ('ID', 'id'), ('score', 'score'),
 
 
 @_add_fmt_doc('read_fts')
-def read_fts(f, filt=None, default_ftype=None, comments=None):
+def read_fts_gff(f, filt=None, default_ftype=None, comments=None):
     """
     Read a GFF file and return `.FeatureList`
 
@@ -100,18 +100,18 @@ def read_fts(f, filt=None, default_ftype=None, comments=None):
 
 
 @_add_fmt_doc('read')
-def read(f, **kw):
+def read_gff(f, **kw):
     """
     Read sequences and their features from GFF file
     """
-    fts = read_fts(f, **kw)
+    fts = read_fts_gff(f, **kw)
     seqs = read_seqs(f, fmt='fasta')
     seqs.fts = fts
     return seqs
 
 
 @_add_fmt_doc('write_fts')
-def write_fts(fts, f, header=None):
+def write_fts_gff(fts, f, header=None):
     """
     Write features to GFF file
 
@@ -161,10 +161,10 @@ def write_fts(fts, f, header=None):
 
 
 @_add_fmt_doc('write')
-def write(seqs, f, **kw):
+def write_gff(seqs, f, **kw):
     """
     Write sequences and their features to GFF file
     """
-    write_fts(seqs.fts, f, **kw)
+    write_fts_gff(seqs.fts, f, **kw)
     f.write('##FASTA\n')
     write_seqs(seqs, f, fmt='fasta')

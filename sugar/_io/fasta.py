@@ -10,7 +10,7 @@ from sugar._io.util import _add_fmt_doc
 
 filename_extensions = ['fasta', 'fa']
 
-def is_format(f, **kw):
+def is_fasta(f, **kw):
     content = f.read(50)
     return content.strip().startswith('>')
 
@@ -45,7 +45,7 @@ def _id_from_header(header):
 
 
 @_add_fmt_doc('read')
-def iter_(f, comments=None):
+def iter_fasta(f, comments=None):
     """
     Iterate through a FASTA file and yield `.BioSeq` sequences
 
@@ -81,7 +81,7 @@ def iter_(f, comments=None):
 
 
 @_add_fmt_doc('write')
-def append(seq, f):
+def append_fasta(seq, f):
     """
     Append a `.BioSeq` sequence to a FASTA file
     """

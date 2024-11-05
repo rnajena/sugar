@@ -44,36 +44,36 @@ def _create_format_plugin_table(what, io, ws=0, fancy=False):
         module = EPS[what][fmt].load()
         row = [fmt, f'`{module.__name__}`' if fancy else module.__name__]
         if what == 'seqs':
-            if rc and ((hr:=hasattr(module, 'read')) or hasattr(module, 'iter_')):
+            if rc and ((hr:=hasattr(module, f'read_{fmt}')) or hasattr(module, f'iter_{fmt}')):
                 if fancy:
-                    t1 = f'`{yes}<{module.__name__}.read()>`'
-                    t2 = f'`{yes}<{module.__name__}.iter_()>`'
+                    t1 = f'`{yes}<{module.__name__}.read_{fmt}()>`'
+                    t2 = f'`{yes}<{module.__name__}.iter_{fmt}()>`'
                     row.append(t1 if hr else t2)
                 else:
                     row.append('yes')
             elif rc and wc:
                 row.append('..' if fancy else 'no')
-            if wc and ((hw:=hasattr(module, 'write')) or hasattr(module, 'append')):
+            if wc and ((hw:=hasattr(module, f'write_{fmt}')) or hasattr(module, f'append_{fmt}')):
                 if fancy:
-                    t1 = f'`{yes}<{module.__name__}.write()>`'
-                    t2 = f'`{yes}<{module.__name__}.append()>`'
+                    t1 = f'`{yes}<{module.__name__}.write_{fmt}()>`'
+                    t2 = f'`{yes}<{module.__name__}.append_{fmt}()>`'
                     row.append(t1 if hw else t2)
                 else:
                     row.append('yes')
             elif rc and wc:
                 row.append('..' if fancy else 'no')
         elif what == 'fts':
-            if rc and hasattr(module, 'read_fts'):
+            if rc and hasattr(module, f'read_fts_{fmt}'):
                 if fancy:
-                    t1 = f'`{yes}<{module.__name__}.read_fts()>`'
+                    t1 = f'`{yes}<{module.__name__}.read_fts_{fmt}()>`'
                 else:
                     t1 = 'yes'
                 row.append(t1)
             elif rc and wc:
                 row.append('..' if fancy else 'no')
-            if wc and hasattr(module, 'write_fts'):
+            if wc and hasattr(module, f'write_fts_{fmt}'):
                 if fancy:
-                    t1 = f'`{yes}<{module.__name__}.write_fts()>`'
+                    t1 = f'`{yes}<{module.__name__}.write_fts_{fmt}()>`'
                 else:
                     t1 = 'yes'
                 row.append(t1)
