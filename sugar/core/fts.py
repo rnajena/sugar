@@ -829,7 +829,7 @@ class FeatureList(collections.UserList):
         return self
 
     def filter(self, inplace=True, **kw):
-        """
+        r"""
         Filter features
 
         :param \*\*kw: All kwargs need to be of the form

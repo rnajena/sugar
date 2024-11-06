@@ -795,7 +795,7 @@ class BioBasket(collections.UserList):
         return self._getitem(i)
 
     def sl(self, **kw):
-        """
+        r"""
         Method allowing to slice the `BioBasket` object with non-default options.
 
         If you want to use the default options, you can slice the BioBasket object directly.
@@ -1096,7 +1096,7 @@ class BioBasket(collections.UserList):
         return _groupby(self, keys, attr='meta')
 
     def filter(self, inplace=True, **kw):
-        """
+        r"""
         Filter sequences
 
         :param \*\*kw: All kwargs need to be of the form

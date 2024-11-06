@@ -23,13 +23,13 @@ def _create_bioseq(datalines, id_, header):
     return seq
 
 
-CHS = '[^,|;\s]'  # allowed characters in the seq ID
+CHS = r'[^,|;\s]'  # allowed characters in the seq ID
 
 # capture some cases from https://de.wikipedia.org/wiki/FASTA-Format
 IDPATTERN= (
-    f'[^\s]*gb[:|]({CHS}+)'  # gb:id, gb|id
-    f'|[^\s]*(?:emb|dbj|sp|tr|ref|lcl)[|]({CHS}+)' # xxx|id
-    f'|({CHS}+)'  # "id ", "id;", "id|", "id,"
+    rf'[^\s]*gb[:|]({CHS}+)'  # gb:id, gb|id
+    rf'|[^\s]*(?:emb|dbj|sp|tr|ref|lcl)[|]({CHS}+)' # xxx|id
+    rf'|({CHS}+)'  # "id ", "id;", "id|", "id,"
     )
 
 

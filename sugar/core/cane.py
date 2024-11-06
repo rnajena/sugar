@@ -65,7 +65,7 @@ def _sorted(objs, keys=None, reverse=False, attr=None):
 
 
 def _filter(objs2, attr='meta', **kwargs):
-    """
+    r"""
     Filter objects, used by several objects in sugar.core
 
     :param attr: Attribute where to look for keys
