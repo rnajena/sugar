@@ -13,7 +13,7 @@ import sys
 from warnings import warn
 
 from sugar.data import CODES
-from sugar.core.fts import Feature, FeatureList, Location
+from sugar.core.fts import Feature, FeatureList, Location, LocationTuple
 from sugar.core.meta import Attr, Meta
 
 
@@ -348,11 +348,14 @@ class BioSeq():
         warnings.warn(msg, DeprecationWarning, stacklevel=2)
         return _Sliceable_GetItem(self, inplace=True)
 
-    def rc(self):
+    def rc(self, update_fts=False):
         """
         Reverse complement, alias for ``BioSeq.reverse().complement()``
         """
-        return self.reverse().complement()
+        self.reverse().complement()
+        if update_fts:
+            self.fts = self.fts.reverse(lenseq=len(self))
+        return self
 
     def __getitem__(self, index):
         return self._getitem(index)
@@ -404,7 +407,42 @@ class BioSeq():
         """
         return _Sliceable_GetItem(self, **kw)
 
-    def _getitem(self, index, inplace=False, gap=None):
+    def _slice_locs(self, locs, splitter=None, filler=None, gap=None, update_fts=False):
+        # TODO document
+        # Merge the sequences corresponding to the ordered locations
+        sub_seqs = []
+        prev_loc = None
+        for i, loc in enumerate(locs):
+            # slice_start = loc.start - seq._seqstart
+            # slice_stop = loc.stop - seq._seqstart
+            # add_seq = seq[slice_start:slice_stop]
+            add_seq = self.sl(gap=gap)[loc.start:loc.stop]
+            if loc.strand == '-':
+                add_seq = add_seq.rc()
+            if filler is not None and prev_loc is not None:
+                if loc.strand == '-':
+                    num = prev_loc.start - loc.stop
+                else:
+                    num = loc.start - prev_loc.stop
+                if num > 0:
+                    sub_seqs.append(num * filler)
+            sub_seqs.append(add_seq.data)
+            prev_loc = loc
+        sub_seq = self[:0]
+        if splitter is None:
+            splitter = ''
+        sub_seq.data = splitter.join(sub_seqs)
+        if update_fts:
+            start, stop = locs.range[0]
+            fts = FeatureList()
+            for loc in locs:
+                fts.extend(self.fts.slice(loc.start, loc.stop, rel=start))
+            if locs[0].strand == '-':
+                fts = fts.reverse(lenseq=stop)
+            sub_seq.fts = fts
+        return sub_seq
+
+    def _getitem(self, index, inplace=False, gap=None, update_fts=False, **kw):
         """
         Slice the sequence and return a subsequence
 
@@ -413,8 +451,21 @@ class BioSeq():
         If you want to use non-default options call this method directly,
         or by the `BioSeq.sl` attribute.
         """
-        # TODO: add correct_fts kwargs
-        try:
+        # TODO: add update_fts tests
+        if not isinstance(index, (int, slice)):
+            if isinstance(index, str):
+                index = self.fts.get(index)
+                if index is None:
+                    raise TypeError('Feature not found')
+            if isinstance(index, Location):
+                index = LocationTuple([Location])
+            elif isinstance(index, Feature):
+                index = index.locs
+            if isinstance(index, LocationTuple):
+                subseq = self._slice_locs(index, gap=gap, update_fts=update_fts, **kw)
+            else:
+                raise TypeError('Index not supported')
+        else:
             if gap is not None:
                 # from bisect import bisect
                 nogaps = [i for i, nt in enumerate(self.data) if nt not in gap]
@@ -424,25 +475,14 @@ class BioSeq():
                 elif isinstance(index, slice):
                     index = slice(adj(index.start), adj(index.stop), index.step)
             subseq = self.__class__(self.data[index], meta=self.meta)
-            # subseq = super().getitem(index, gap=gap)
-        except:
-            if isinstance(index, str):
-                index = self.fts.get(index)
-                if index is None:
-                    raise TypeError('Feature not found')
-            if isinstance(index, Location):
-                from sugar.core.fts import _slice_locs
-                subseq = _slice_locs(self, [index], gap=gap)
-            elif isinstance(index, Feature):
-                from sugar.core.fts import _slice_locs
-                subseq = _slice_locs(self, index.locs, gap=gap)
-                # index = index._slice()
-                # if index is None:
-                #     msg = f'Feature {index.type} of seq {self.id} has no location'
-                #     raise TypeError(msg)
-                # subseq = super().__getitem__(index)
-            else:
-                raise TypeError('Index not supported')
+            if update_fts:
+                if isinstance(index, int):
+                    start, stop = index, index + 1
+                elif isinstance(index, slice):
+                    start, stop = index.start, index.stop
+                    if index.step != 1:
+                        raise ValueError('update_fts for slices only supported with step==1')
+                subseq.fts = self.fts.slice(start, stop, rel=start)
         if inplace:
             self.data = subseq.data
         return subseq
@@ -799,11 +839,13 @@ class BioBasket(collections.UserList):
             warn(f'Features for seqids {missing_ids} could not be '
                  'attached to any sequence')
 
-    def rc(self):
+    def rc(self, **kw):
         """
-        Reverse complement, alias for ``BioSeq.reverse().complement()``
+        Reverse complement, alias for ``BioBasket.reverse().complement()``
         """
-        return self.reverse().complement()
+        for seq in self:
+            seq.rc(**kw)
+        return self
 
     def __str__(self):
         return self.tostr(add_hint=True)

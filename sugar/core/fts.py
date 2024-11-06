@@ -78,6 +78,14 @@ class Defect(Flag):
     #: bases/residues.
     BETWEEN      = auto()
 
+    def reverse(self):
+        defect = Defect(self)
+        if (self.MISS_LEFT | MISS_RIGHT) & self:
+            defect ^= self.MISS_LEFT | MISS_RIGHT
+        if (self.BEYOND_LEFT | BEYOND_RIGHT) & self:
+            defect ^= self.BEYOND_LEFT | BEYOND_RIGHT
+        return defect
+
 class Strand(StrEnum):
     """
     This enum type describes the strand of the feature location.
@@ -173,14 +181,25 @@ class Location():
     def defect(self, v):
         self._defect = Defect(v)
 
-    def _slice(self):
-        if self._stride == 1:
-            return slice(self.start, self.stop, self._stride)
-        else:
-            start = self.start - 1
-            if start == -1:
-                start = None
-            return slice(self.stop-1, start, self._stride)
+    def _reverse(self, seqlen=0):
+        loc = self
+        start, stop = seqlen-loc.stop, seqlen-loc.start
+        strand = loc.strand
+        if strand == '+':
+            strand = '-'
+        elif strand == '-':
+            strand = '+'
+        defect = loc.defect.reverse()
+        return Location(start, stop, strand, defect)
+
+    # def _slice(self):
+    #     if self._stride == 1:
+    #         return slice(self.start, self.stop, self._stride)
+    #     else:
+    #         start = self.start - 1
+    #         if start == -1:
+    #             start = None
+    #         return slice(self.stop-1, start, self._stride)
 
 
 # def _slice_loc(seq, loc):
@@ -188,50 +207,6 @@ class Location():
 #     if loc.strand == '-':
 #         nseq = nseq.reverse().complement()
 #     return nseq
-
-
-def _slice_locs(seq, locs, splitter=None, filler=None, gap=None):
-    # TODO document
-    # Concatenate subsequences for each location of the feature
-    strand = None
-    for loc in locs:
-        if loc.strand == strand:
-            pass
-        elif strand is None:
-            strand = loc.strand
-        else: # loc.strand != strand
-            raise ValueError(
-                "All locations of the feature must have the same "
-                "strand direction"
-            )
-    if strand == '-':
-        sorted_locs = sorted(locs, key=lambda loc: loc.stop, reverse=True)
-    else:
-        sorted_locs = sorted(locs, key=lambda loc: loc.start)
-    # Merge the sequences corresponding to the ordered locations
-    sub_seqs = []
-    prev_loc = None
-    for i, loc in enumerate(sorted_locs):
-        # slice_start = loc.start - seq._seqstart
-        # slice_stop = loc.stop - seq._seqstart
-        # add_seq = seq[slice_start:slice_stop]
-        add_seq = seq.sl(gap=gap)[loc.start:loc.stop]
-        if loc.strand == '-':
-            add_seq = add_seq.reverse().complement()
-        if filler is not None and prev_loc is not None:
-            if loc.strand == '-':
-                num = prev_loc.start - loc.stop
-            else:
-                num = loc.start - prev_loc.stop
-            if num > 0:
-                sub_seqs.append(num * filler)
-        sub_seqs.append(add_seq.data)
-        prev_loc = loc
-    sub_seq = seq[:0]
-    if splitter is None:
-        splitter = ''
-    sub_seq.data = splitter.join(sub_seqs)
-    return sub_seq
 
 
 class LocationTuple(tuple):
@@ -332,6 +307,9 @@ class LocationTuple(tuple):
             return lr1[0] < lr2[1] and lr1[1] > lr2[0]
         msg = f"LocationTuple.overlaps() not supported for instances of '{type(other).__name__}'"
         raise TypeError(msg)
+
+    def _reverse(self, seqlen=0):
+        return LocationTuple([loc._reverse(seqlen=seqlen) for loc in self])
 
 
 class Feature():
@@ -474,22 +452,14 @@ class Feature():
         msg = f"Feature.overlaps() not supported for instances of '{type(other).__name__}'"
         raise TypeError(msg)
 
-    def reverse(self):
+    def reverse(self, seqlen=0):
         """
         Reverse the feature.
 
         After the operation the feature will be located on the reverse complement strand.
         """
-        ft = self
-        for loc in ft.locs:
-            loc.start, loc.stop = -loc.stop, -loc.start
-            if loc.strand == '+':
-                loc.strand = '-'
-            elif loc.strand == '-':
-                loc.strand = '+'
-        # ft.locs = sorted(ft.locs, key=lambda l: l.start)
-        ft.locs = ft.locs
-        return ft
+        self.locs = self.locs._reverse(seqlen=seqlen)
+        return self
 
     def write(self, *args, **kw):
         """
@@ -802,58 +772,54 @@ class FeatureList(collections.UserList):
         write_fts(self, fname, fmt=fmt, **kw)
 
 
-    def slice(self, start, stop):
+    def slice(self, start, stop, rel=0):
         """
         Return a sub-annotation between start and stop
         """
         if start is None:
-            i_start = -sys.maxsize
-        else:
-            i_start = start
+            start = -sys.maxsize
         if stop is None:
-            i_stop = sys.maxsize
-        else:
-            i_stop = stop - 1
-        sub_annot = FeatureList()
-        for feature in self:
+            stop = sys.maxsize
+        # else:
+        #     i_stop = stop - 1
+        sub_annot = []
+        for ft in self:
             locs_in_scope = []
-            for loc in feature.locs:
+            for loc in ft.locs:
                 # Always true for maxsize values
                 # in case no start or stop index is given
-                if loc.start <= i_stop and loc.stop >= i_start:
+                if loc.start <= stop and loc.stop >= start:
                     # The location is at least partly in the
                     # given location range
                     # Handle defects
-                    start = loc.start
-                    stop = loc.stop
+                    lstart = loc.start - rel
+                    lstop = loc.stop - rel
                     defect = loc.defect
-                    if loc.start < i_start:
+                    if loc.start < start:
                         defect |= Location.Defect.MISS_LEFT
-                        start = i_start
-                    if loc.stop > i_stop:
+                        lstart = start - rel
+                    if loc.stop > stop:
                         defect |= Location.Defect.MISS_RIGHT
-                        stop = i_stop
+                        lstop = stop - rel
                     locs_in_scope.append(Location(
-                        start, stop, loc.strand, defect
+                        lstart, lstop, loc.strand, defect
                     ))
             if len(locs_in_scope) > 0:
                 # The feature is present in the new annotation
                 # if any of the original locations is in the new
                 # scope
-                new_feature = Feature(
-                    type=feature.type, locs=locs_in_scope, meta=feature.meta
-                )
-                sub_annot.append(new_feature)
-        return sub_annot
+                new_ft = Feature(locs=locs_in_scope, meta=ft.meta)
+                sub_annot.append(new_ft)
+        return FeatureList(sub_annot)
 
-    def reverse(self):
+    def reverse(self, seqlen=0):
         """
         Reverse all features, see `Feature.reverse()`
 
         :return: Reversed features
         """
         for ft in self:
-            ft.reverse()
+            ft.reverse(seqlen=seqlen)
         return self
 
     def sort(self, keys=None, reverse=False):
@@ -914,320 +880,3 @@ class FeatureList(collections.UserList):
         Return a deep copy of the object
         """
         return deepcopy(self)
-
-
-
-
-
-# class AnnotatedSequence():
-#     """
-#     An :class:`AnnotatedSequence` is a combination of a
-#     :class:`Sequence` and an :class:`FeatureList`.
-
-#     Indexing an :class:`AnnotatedSequence` with a slice returns another
-#     :class:`AnnotatedSequence` with the corresponding subannotation and
-#     a sequence start corrected subsequence, i.e. indexing starts at 1
-#     with the default sequence start 1.
-#     The sequence start in the newly created :class:`AnnotatedSequence`
-#     is the start of the slice.
-#     Furthermore, integer indices are allowed in which case the
-#     corresponding symbol of the sequence is returned (also sequence
-#     start corrected).
-#     In both cases the index must be in range of the sequence, e.g. if
-#     sequence start is 1, index 0 is not allowed.
-#     Negative indices do not mean indexing from the end of the sequence,
-#     in contrast to the behavior in :class:`Sequence` objects.
-#     Both index types can also be used to modify the sequence.
-
-#     Another option is indexing with a :class:`Feature` (preferably from the
-#     :class:`FeatureList` in the same :class:`AnnotatedSequence`).
-#     In this case a sequence, described by the location(s) of the
-#     :class:`Feature`, is returned.
-#     When using a :class:`Feature` for setting an
-#     :class:`AnnotatedSequence` with a sequence, the new sequence is
-#     replacing the locations of the
-#     :class:`Feature`.
-#     Note the the replacing sequence must have the same length as the
-#     sequence of the :class:`Feature` index.
-
-#     Parameters
-#     ----------
-#     sequence : Sequence
-#         The sequence.
-#         Usually a :class:`NucleotideSequence` or
-#         :class:`ProteinSequence`.
-#     annotation : FeatureList
-#         The annotation corresponding to `sequence`.
-#     sequence_start : int, optional
-#         By default, the start symbol of the sequence is corresponding
-#         to location 1 of the features in the annotation. The location
-#         of the start symbol can be changed by setting this parameter.
-#         Negative values are not supported yet.
-
-#     Attributes
-#     ----------
-#     sequence : Sequence
-#         The represented sequence.
-#     annotation : FeatureList
-#         The annotation corresponding to `sequence`.
-#     sequence_start : int
-#         The location of the start symbol in the sequence.
-
-#     See also
-#     --------
-#     FeatureList, Sequence
-
-#     Examples
-#     --------
-#     Creating an annotated sequence
-
-#     >>> sequence = NucleotideSequence("ATGGCGTACGATTAGAAAAAAA")
-#     >>> feature1 = Feature("misc_feature", [Location(1,2), Location(11,12)],
-#     ...                    {"note" : "walker"})
-#     >>> feature2 = Feature("misc_feature", [Location(16,22)], {"note" : "poly-A"})
-#     >>> annotation = FeatureList([feature1, feature2])
-#     >>> annot_seq = AnnotatedSequence(annotation, sequence)
-#     >>> print(annot_seq.sequence)
-#     ATGGCGTACGATTAGAAAAAAA
-#     >>> for f in sorted(list(annot_seq.annotation)):
-#     ...     print(f.meta["note"])
-#     walker
-#     poly-A
-
-#     Indexing with integers, note the sequence start correction
-
-#     >>> print(annot_seq[2])
-#     T
-#     >>> print(annot_seq.sequence[2])
-#     G
-
-#     indexing with slices
-
-#     >>> annot_seq2 = annot_seq[:16]
-#     >>> print(annot_seq2.sequence)
-#     ATGGCGTACGATTAG
-#     >>> for f in annot_seq2.annotation:
-#     ...     print(f.meta["note"])
-#     walker
-
-#     Indexing with features
-
-#     >>> print(annot_seq[feature1])
-#     ATAT
-#     >>> print(annot_seq[feature2])
-#     AAAAAAA
-#     >>> print(annot_seq.sequence)
-#     ATGGCGTACGATTAGAAAAAAA
-#     >>> annot_seq[feature1] = NucleotideSequence("CCCC")
-#     >>> print(annot_seq.sequence)
-#     CCGGCGTACGCCTAGAAAAAAA
-#     """
-
-#     def __init__(self, annotation, sequence, sequence_start=1):
-#         self._annotation = annotation
-#         self._sequence = sequence
-#         self._seqstart = sequence_start
-
-#     def __repr__(self):
-#         """Represent AnnotatedSequence as a string for debugging."""
-#         return f'AnnotatedSequence({self._annotation.__repr__()}, {self._sequence.__repr__()}, ' \
-#                f'sequence_start={self._seqstart})'
-
-#     @property
-#     def sequence_start(self):
-#         return self._seqstart
-
-#     @property
-#     def sequence(self):
-#         return self._sequence
-
-#     @property
-#     def annotation(self):
-#         return self._annotation
-
-#     def __copy_create__(self):
-#         return AnnotatedSequence(
-#             self._annotation.copy(), self._sequence.copy, self._seqstart)
-
-#     def reverse_complement(self, sequence_start=1):
-#         """
-#         Create the reverse complement of the annotated sequence.
-
-#         This method accurately converts the position and the strand of
-#         the annotation.
-#         The information on the sequence start is lost.
-
-#         Parameters
-#         ----------
-#         sequence_start : int, optional
-#             The location of the start symbol in the reverse complement
-#             sequence.
-
-#         Returns
-#         -------
-#             The reverse complement of the annotated sequence.
-#         """
-#         rev_seqstart = sequence_start
-
-#         rev_sequence = self._sequence.reverse().complement()
-
-#         seq_len = len(self._sequence)
-#         rev_features = []
-#         for feature in self._annotation:
-#             rev_locs = []
-#             for loc in feature.locs:
-#                 # Transform location to the reverse complement strand
-#                 # (seq_len-1) -> stop sequence index
-#                 # (loc.stop-self._seqstart) -> location to index
-#                 # ... + rev_seqstart -> index to location
-#                 rev_loc_start \
-#                     = (seq_len-1) - (loc.stop-self._seqstart) + rev_seqstart
-#                 rev_loc_stop \
-#                     = (seq_len-1) - (loc.start-self._seqstart) + rev_seqstart
-
-#                 if loc.strand == Location.Strand.FORWARD:
-#                     rev_loc_strand = Location.Strand.REVERSE
-#                 else:
-#                     rev_loc_strand = Location.Strand.FORWARD
-
-#                 rev_loc_defect = Location.Defect.NONE
-#                 if loc.defect & Location.Defect.MISS_LEFT:
-#                     rev_loc_defect |= Location.Defect.MISS_RIGHT
-#                 if loc.defect & Location.Defect.MISS_RIGHT:
-#                     rev_loc_defect |= Location.Defect.MISS_LEFT
-#                 if loc.defect & Location.Defect.BEYOND_RIGHT:
-#                     rev_loc_defect |= Location.Defect.BEYOND_LEFT
-#                 if loc.defect & Location.Defect.BEYOND_LEFT:
-#                     rev_loc_defect |= Location.Defect.BEYOND_RIGHT
-#                 if loc.defect & Location.Defect.UNK_LOC:
-#                     rev_loc_defect |= Location.Defect.UNK_LOC
-#                 if loc.defect & Location.Defect.BETWEEN:
-#                     rev_loc_defect |= Location.Defect.BETWEEN
-
-#                 rev_locs.append(Location(
-#                         rev_loc_start, rev_loc_stop,
-#                         rev_loc_strand, rev_loc_defect
-#                 ))
-#             rev_features.append(Feature(
-#                 feature.type, rev_locs, feature.meta
-#             ))
-
-#         return AnnotatedSequence(
-#             FeatureList(rev_features), rev_sequence, rev_seqstart
-#         )
-
-#     def __getitem__(self, index):
-#         if isinstance(index, Feature):
-#             # Concatenate subsequences for each location of the feature
-#             locs = index.locs
-#             if len(locs) == 0:
-#                 raise ValueError("Feature does not contain any locations")
-#             # Start by creating an empty sequence
-#             sub_seq = self._sequence.copy(new_seq_code=np.array([]))
-#             # Locations need to be sorted, as otherwise the locations
-#             # chunks would be merged in the wrong order
-#             # The order depends on whether the locs are on the forward
-#             # or reverse strand
-#             strand = None
-#             for loc in locs:
-#                 if loc.strand == strand:
-#                     pass
-#                 elif strand is None:
-#                     strand = loc.strand
-#                 else: # loc.strand != strand
-#                     raise ValueError(
-#                         "All locations of the feature must have the same "
-#                         "strand direction"
-#                     )
-#             if strand == Location.Strand.FORWARD:
-#                 sorted_locs = sorted(
-#                     locs, type=lambda loc: loc.start
-#                 )
-#             else:
-#                 sorted_locs = sorted(
-#                     locs, type=lambda loc: loc.stop, reverse=True
-#                 )
-#             # Merge the sequences corresponding to the ordered locations
-#             for loc in sorted(locs, type=lambda loc: loc.start):
-#                 slice_start = loc.start - self._seqstart
-#                 # +1 due to exclusive stop
-#                 slice_stop = loc.stop - self._seqstart +1
-#                 add_seq = self._sequence[slice_start:slice_stop]
-#                 if loc.strand == Location.Strand.REVERSE:
-#                     add_seq = add_seq.reverse().complement()
-#                 sub_seq += add_seq
-#             return sub_seq
-
-#         elif isinstance(index, slice):
-#             # Sequence start correction
-#             if index.start is None:
-#                 seq_start = 0
-#             else:
-#                 if index.start < self._seqstart:
-#                     raise IndexError(
-#                         f"The start of the index ({index.start}) is lower "
-#                         f"than the start of the sequence ({self._seqstart})"
-#                     )
-#                 seq_start = index.start - self._seqstart
-#             if index.stop is None:
-#                 seq_stop = len(self._sequence)
-#                 index = slice(index.start, seq_stop, index.step)
-#             else:
-#                 seq_stop = index.stop - self._seqstart
-#             # New value for the sequence start, value is base position
-#             if index.start is None:
-#                 rel_seq_start = self._seqstart
-#             else:
-#                 rel_seq_start = index.start
-#             return AnnotatedSequence(self._annotation[index],
-#                                      self._sequence[seq_start:seq_stop],
-#                                      rel_seq_start)
-
-#         elif isinstance(index, numbers.Integral):
-#             return self._sequence[index - self._seqstart]
-
-#         else:
-#             raise TypeError(
-#                 f"'{type(index).__name__}' instances are invalid indices"
-#             )
-
-#     def __setitem__(self, index, item):
-#         if isinstance(index, Feature):
-#             # Item must be sequence
-#             # with length emeta to sum of location lengths
-#             sub_seq = item
-#             sub_seq_i = 0
-#             for loc in index.locs:
-#                 slice_start = loc.start - self._seqstart
-#                 # +1 due to exclusive stop
-#                 slice_stop = loc.stop - self._seqstart +1
-#                 interval_size = slice_stop - slice_start
-#                 self._sequence[slice_start:slice_stop] \
-#                     = sub_seq[sub_seq_i : sub_seq_i + interval_size]
-#                 sub_seq_i += interval_size
-#         elif isinstance(index, slice):
-#             # Sequence start correction
-#             if index.start is None:
-#                 seq_start = 0
-#             else:
-#                 seq_start = index.start - self._seqstart
-#             if index.stop is None:
-#                 seq_stop = len(self._sequence)
-#             else:
-#                 seq_stop = index.stop - self._seqstart
-#             # Item is a Sequence
-#             self._sequence[seq_start:seq_stop] = item
-#         elif isinstance(index, numbers.Integral):
-#             # Item is a symbol
-#             self._sequence[index - self._seqstart] = item
-#         else:
-#             raise TypeError(
-#                 f"'{type(index).__name__}' instances are invalid indices"
-#             )
-
-#     def __eq__(self, item):
-#         if not isinstance(item, AnnotatedSequence):
-#             return False
-#         return (    self.annotation == item.annotation
-#                 and self.sequence   == item.sequence
-#                 and self._seqstart  == item._seqstart)
