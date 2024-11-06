@@ -413,9 +413,6 @@ class BioSeq():
         sub_seqs = []
         prev_loc = None
         for i, loc in enumerate(locs):
-            # slice_start = loc.start - seq._seqstart
-            # slice_stop = loc.stop - seq._seqstart
-            # add_seq = seq[slice_start:slice_stop]
             add_seq = self.sl(gap=gap)[loc.start:loc.stop]
             if loc.strand == '-':
                 add_seq = add_seq.rc()
@@ -486,72 +483,6 @@ class BioSeq():
         if inplace:
             self.data = subseq.data
         return subseq
-        # it follows a lot of code to keep the feature indices intact
-        # this is not really necessary I guess, but I try anyway
-        # if 'features' in subseq.meta:
-        #     subseq.meta.features = FeatureList([])
-        #     if isinstance(index, int):
-        #         index = slice(index, index+1, 1)
-        #     (_, _, istep) = index.indices(len(self))
-        #     if istep in (1, -1):
-        #         if istep == 1:
-        #             for ft in self.meta.features:
-        #                 if (getattr(ft, 'start') is None or
-        #                         istep == 1 and getattr(ft, 'stop', -1) == -1):
-        #                     continue
-        #                 stride = getattr(ft, 'stride', 1)
-        #                 if stride == 1:
-        #                     assert ft.start < ft.stop
-        #                     start = max(0, ft.start - index.start)  # index.start might be None
-        #                     stop = ft.stop - index.start if index.stop is None else min(ft.stop - index.start, index.stop)
-        #                     if start >= stop:
-        #                         continue
-        #                 else:## todo wahaha
-        #                     assert ft.start > ft.stop or ft.stop is None
-        #                     start = max(ft.start - index.stop, -1)
-        #                     stop = min(ft.stop, index.start-1)
-        #                     if stop < 0:
-        #                         stop = None
-        #                     if start <= stop:
-        #                         continue
-        #                 ft2 = ft.copy()
-        #                 ft2.start = start
-        #                 ft2.stop = stop
-        #                 ft2.stride = stride
-        #                 if abs(stop - start) < abs(ft.start - ft.stop):
-        #                     ft2.orig_len = getattr(ft, 'orig_len', abs(ft.start - ft.stop))
-        #                 subseq.meta.features.append(ft2)
-        #         else:
-        #             for ft in self.meta.features[::-1]:
-        #                 if (getattr(ft, 'start') is None or
-        #                         istep == 1 and getattr(ft, 'stop', -1) == -1):
-        #                     continue
-        #                 stride = getattr(ft, 'stride', 1)
-        #                 if stride == 1:
-        #                     assert ft.start < ft.stop
-        #                     start = ft.stop-1 if index.start is None else max(ft.stop-1, index.start)
-        #                     stop = min(ft.start-1, index.stop)  # index.stop might be None
-        #                     if stop < 0:
-        #                         stop = None
-        #                     if start <= stop:
-        #                         continue
-        #                 else:
-        #                     assert ft.start > ft.stop or ft.stop is None
-        #                     start = 0 if ft.stop is None and index.stop is None else max(ft.stop+1, index.stop+1)
-        #                     stop = min(ft.start-1, index.start-1)
-        #                     if start >= stop:
-        #                         continue
-        #                 print(ft)
-        #                 print(index, istep)
-        #                 print(start, stop)
-        #                 ft2 = ft.copy()
-        #                 ft2.start = start
-        #                 ft2.stop = stop
-        #                 ft2.stride = -stride
-        #                 if abs(stop-start) < abs(ft.start - ft.stop):
-        #                     ft2.orig_len = getattr(ft, 'orig_len', abs(ft.start - ft.stop))
-        #                 subseq.meta.features.append(ft2)
-        # return subseq
 
     def biotranslate(self, *args, **kw):
         from sugar.core.translate import translate

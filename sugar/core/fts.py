@@ -78,7 +78,7 @@ class Defect(Flag):
     #: bases/residues.
     BETWEEN      = auto()
 
-    def reverse(self):
+    def _reverse(self):
         defect = Defect(self)
         if (self.MISS_LEFT | MISS_RIGHT) & self:
             defect ^= self.MISS_LEFT | MISS_RIGHT
@@ -189,24 +189,8 @@ class Location():
             strand = '-'
         elif strand == '-':
             strand = '+'
-        defect = loc.defect.reverse()
+        defect = loc.defect._reverse()
         return Location(start, stop, strand, defect)
-
-    # def _slice(self):
-    #     if self._stride == 1:
-    #         return slice(self.start, self.stop, self._stride)
-    #     else:
-    #         start = self.start - 1
-    #         if start == -1:
-    #             start = None
-    #         return slice(self.stop-1, start, self._stride)
-
-
-# def _slice_loc(seq, loc):
-#     nseq = seq[loc.start:loc.stop]
-#     if loc.strand == '-':
-#         nseq = nseq.reverse().complement()
-#     return nseq
 
 
 class LocationTuple(tuple):

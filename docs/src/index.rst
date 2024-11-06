@@ -21,3 +21,4 @@ Sugar's functionality is provided through the following packages:
     sugar.index
     sugar.data
     sugar.web
+
