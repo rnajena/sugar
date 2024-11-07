@@ -189,7 +189,10 @@ class Location():
         elif strand == '-':
             strand = '+'
         defect = loc.defect._reverse()
-        return Location(start, stop, strand, defect)
+        loc2 = Location(start, stop, strand, defect)
+        if hasattr(loc, '_gff'):
+            loc2._gff = loc._gff.copy()
+        return loc2
 
 
 class LocationTuple(tuple):

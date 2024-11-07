@@ -84,6 +84,7 @@ def read_fts_gff(f, filt=None, default_ftype=None, comments=None):
         if id_ is not None and id_ == lastid:
             for k, v in attrs.items():
                 if fts[-1].meta._gff.get(k) != v:
+                    # TODO: add proper meta attribute to Location?
                     if not hasattr(loc, '_gff'):
                         loc._gff = Attr()
                     loc._gff[k] = v
