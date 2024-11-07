@@ -122,6 +122,8 @@ def test_sort_fts_nested():
     types = [ft.type for ft in fts]
     assert types == sorted(types)
     assert len(fts[1]) <= len(fts[2])
+    fts.sort()
+    assert fts.loc_range[0] == fts[0].locs[0].start
 
 def test_sort_seqs():
     seqs = read()

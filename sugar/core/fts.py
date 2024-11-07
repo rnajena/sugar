@@ -55,35 +55,34 @@ class Defect(Flag):
     located in the range of the start to the stop base.
     """
     #: No location defect
-    NONE         = auto()
+    NONE         = 0
     #: A part of the feature has been truncated
-    #: before the start base/residue of the :class:`Location`
+    #: before the start base
     #: (probably by indexing an :class:`FeatureList` object)
     MISS_LEFT    = auto()
     #: A part of the feature has been truncated
-    #: after the stop base/residue of the :class:`Location`
+    #: after the stop base, inclusive
     #: (probably by indexing an :class:`FeatureList` object)
     MISS_RIGHT   = auto()
     #: The feature starts at an unknown position
-    #: before the start base/residue of the :class:`Location`
+    #: before the start base
     BEYOND_LEFT  = auto()
     #: The feature starts at an unknown position
-    #: before the start base/residue of the :class:`Location`
+    #: after the stop base, inclusive
     BEYOND_RIGHT = auto()
     #: The exact position is unknown, but it is at a
-    #: single base/residue between the start and stop residue of
-    #: the :class:`Location`, inclusive
+    #: single base between the start and stop residue
     UNK_LOC      = auto()
-    #: The position is between to consecutive
+    #: The position is between two consecutive
     #: bases/residues.
     BETWEEN      = auto()
 
     def _reverse(self):
         defect = Defect(self)
-        if (self.MISS_LEFT | MISS_RIGHT) & self:
-            defect ^= self.MISS_LEFT | MISS_RIGHT
-        if (self.BEYOND_LEFT | BEYOND_RIGHT) & self:
-            defect ^= self.BEYOND_LEFT | BEYOND_RIGHT
+        if len((self.MISS_LEFT | self.MISS_RIGHT) & self) == 1:
+            defect ^= self.MISS_LEFT | self.MISS_RIGHT
+        if len((self.BEYOND_LEFT | self.BEYOND_RIGHT) & self) == 1:
+            defect ^= self.BEYOND_LEFT | self.BEYOND_RIGHT
         return defect
 
 class Strand(StrEnum):
@@ -436,11 +435,14 @@ class Feature():
         msg = f"Feature.overlaps() not supported for instances of '{type(other).__name__}'"
         raise TypeError(msg)
 
-    def reverse(self, seqlen=0):
+    def rc(self, seqlen=0):
         """
-        Reverse the feature.
+        Reverse complement the feature.
 
         After the operation the feature will be located on the reverse complement strand.
+
+        :param int seqlen: The sequence length, the default 0 will result in negative
+            location indices.
         """
         self.locs = self.locs._reverse(seqlen=seqlen)
         return self
@@ -664,7 +666,7 @@ class FeatureList(collections.UserList):
         :param type: String or list of multiple strings
         """
         type_ = type
-        if isinstance(type_, tuple):
+        if not isinstance(type_, str):
             type_ = tuple(t.lower() for t in type_)
         for ft in self.data:
             if (isinstance(type_, str) and ft.type.lower() == type_.lower() or
@@ -680,7 +682,7 @@ class FeatureList(collections.UserList):
         :param type: String or list of multiple strings
         """
         type_ = type
-        if isinstance(type_, tuple):
+        if not isinstance(type_, str):
             type_ = tuple(t.lower() for t in type_)
         fts = []
         for ft in self.data:
@@ -796,14 +798,15 @@ class FeatureList(collections.UserList):
                 sub_annot.append(new_ft)
         return FeatureList(sub_annot)
 
-    def reverse(self, seqlen=0):
+    def rc(self, seqlen=0):
         """
-        Reverse all features, see `Feature.reverse()`
+        Reverse complement all features, see `Feature.rc()`
 
-        :return: Reversed features
+        :param int seqlen: The sequence length, the default 0 will result in negative
+            location indices.
         """
         for ft in self:
-            ft.reverse(seqlen=seqlen)
+            ft.rc(seqlen=seqlen)
         return self
 
     def sort(self, keys=None, reverse=False):
