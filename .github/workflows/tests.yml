@@ -84,7 +84,7 @@ jobs:
       - name: run test suite
         run: |
           mkdir empty; cd empty
-          sugar test --cov sugar --cov-report=xml:$PWD/coverage.xml --cov-append ${{ env.test_options }}
+          sugar test --cov sugar --cov=. --cov-report=xml:$PWD/coverage.xml --cov-append ${{ env.test_options }}
       - name: upload coverage
         uses: codecov/codecov-action@v4
         with:

@@ -29,8 +29,7 @@ def test_fts_get_select():
 
 def test_fts_str():
     fts = read_fts()
-    asser
-    t 'CDS' in fts.tostr()
+    assert 'CDS' in fts.tostr()
 
 def test_fts_slice():
     fts = read_fts()
