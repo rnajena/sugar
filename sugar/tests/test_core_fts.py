@@ -36,11 +36,6 @@ def test_fts_str():
     assert 'CDS' in fts.tostr()
 
 
-def test_fts_slice():
-    fts = read_fts()
-    assert len(fts.slice(0, 1000)) < len(fts)
-
-
 def test_fts_d():
     fts = read_fts()
     assert len(fts.d[fts[0].meta.seqid]) > 0
@@ -74,6 +69,7 @@ def test_fts_magic_methods():
 
 def test_fts_slice():
     fts = read_fts()
+    assert len(fts.slice(0, 1000)) < len(fts)
     assert fts.slice(None, None) == fts
     fts2 = fts.slice(1, fts.loc_range[1]-1)
     assert len(fts2) == len(fts)
