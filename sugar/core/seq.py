@@ -338,16 +338,6 @@ class BioSeq():
         else:
             return 0
 
-    @property
-    def i(self):
-        """Return sliceable object to support in-place slicing
-
-        Deprecated: Use getitem() or sl attribute.
-        """
-        msg = 'BioSeq.i is deprecated, use geitem() method or sl attribute'
-        warnings.warn(msg, DeprecationWarning, stacklevel=2)
-        return _Sliceable_GetItem(self, inplace=True)
-
     def rc(self, update_fts=False):
         """
         Reverse complement, alias for ``BioSeq.reverse().complement()``
