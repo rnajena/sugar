@@ -169,7 +169,7 @@ def test_seqs_getitem_special():
     assert seq2 == seq3
     assert len(seq2.fts) == 2
     assert all(len(ft) == 99 for ft in seq2.fts)
-    assert all(ft.loc.defect == ft.loc.Defect.MISS_LEFT | ft.loc.Defect.MISS_RIGHT for ft in seq2.fts)
+    assert all(ft.loc.defect == ft.loc.defect.MISS_LEFT | ft.loc.defect.MISS_RIGHT for ft in seq2.fts)
     seq2 = seq.sl(update_fts=True)['cds']
     assert seq2['cds'].data == seq['cds'].data
     assert len(seq2) == len(seq2['cds'])

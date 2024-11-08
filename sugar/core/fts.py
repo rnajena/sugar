@@ -1,7 +1,7 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 
 """
-Feature related classes `.Feature`, `.FeatureList`, `.Location`, `.Location.Strand`, `.Location.Defect`
+Feature related classes `.Feature`, `.FeatureList`, `.Location`, `.Strand`, `.Defect`
 """
 
 # Originally, this file was based on the annotation module from the biotite package.
@@ -74,8 +74,6 @@ class Strand(StrEnum):
 
 
 class Location():
-    Strand = Strand
-    Defect = Defect
 
     def __init__(self, start, stop, strand='+', defect=0, meta=None):
         """
@@ -657,9 +655,9 @@ class FeatureList(collections.UserList):
                     # given location range
                     defect = loc.defect
                     if loc.start < start:
-                        defect |= Location.Defect.MISS_LEFT
+                        defect |= Defect.MISS_LEFT
                     if loc.stop > stop:
-                        defect |= Location.Defect.MISS_RIGHT
+                        defect |= Defect.MISS_RIGHT
                     lstart = max(start, loc.start) - rel
                     lstop = min(stop, loc.stop) - rel
                     locs_in_scope.append(Location(

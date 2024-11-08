@@ -20,7 +20,7 @@ def is_stockholm(f, **kw):
 
 def row2fts(row, type_=None, seqid=None):
     import re
-    from sugar.core.fts import Feature, FeatureList, Location
+    from sugar.core.fts import Defect, Feature, FeatureList, Location
     i = 0
     fts = []
     while i < len(row):
@@ -36,14 +36,14 @@ def row2fts(row, type_=None, seqid=None):
             name = names.pop()
             if i == 0 and row[0] != '|' and j == len(row):
                 assert row[-1] != '|'
-                defect = Location.Defect.MISS_LEFT | Location.Defect.MISS_RIGHT
+                defect = Defect.MISS_LEFT | Defect.MISS_RIGHT
             if i == 0 and row[0] != '|':
-                defect = Location.Defect.MISS_LEFT
+                defect = Defect.MISS_LEFT
             elif j == len(row):
                 assert row[-1] != '|'
-                defect = Location.Defect.MISS_RIGHT
+                defect = Defect.MISS_RIGHT
             else:
-                defect = Location.Defect.NONE
+                defect = Defect.NONE
             loc = Location(i, stop, defect=defect)
             ft = Feature(type_, [loc])
             ft.meta.name = name
@@ -79,9 +79,11 @@ def fts2row(fts):
         if l < len(name)-2:
             warn('Feature name too long, shorten it')
             rowp = '.' + name[:l-2] + '.'
-        if ft.loc.Defect.MISS_LEFT not in ft.loc.defect:
+        if (ft.loc.defect.MISS_LEFT not in ft.loc.defect and
+                ft.loc.defect.BEYOND_LEFT not in ft.loc.defect):
             rowp = '|' + rowp[1:]
-        if ft.loc.Defect.MISS_RIGHT not in ft.locs[-1].defect:
+        if (ft.loc.defect.MISS_RIGHT not in ft.locs[-1].defect and
+                ft.loc.defect.BEYOND_RIGHT not in ft.locs[-1].defect):
             rowp = rowp[:-1] + '|'
         assert len(rowp) == l
         row.append(rowp)

@@ -73,8 +73,8 @@ def test_fts_slice():
     assert fts.slice(None, None) == fts
     fts2 = fts.slice(1, fts.loc_range[1]-1)
     assert len(fts2) == len(fts)
-    assert fts[0].loc.defect == fts2[0].loc.Defect.NONE
-    assert fts2[0].loc.defect == fts2[0].loc.Defect.MISS_LEFT | fts2[0].loc.Defect.MISS_RIGHT
+    assert fts[0].loc.defect == fts2[0].loc.defect.NONE
+    assert fts2[0].loc.defect == fts2[0].loc.defect.MISS_LEFT | fts2[0].loc.defect.MISS_RIGHT
 
 
 def test_ft_overlaps():

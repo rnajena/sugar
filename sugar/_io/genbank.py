@@ -3,7 +3,8 @@
 `Genbank`_ reader
 """
 
-from sugar.core.seq import Attr, BioSeq, Meta, Feature, FeatureList, Location
+from sugar.core.fts import Defect, Feature, FeatureList, Location
+from sugar.core.seq import Attr, BioSeq, Meta
 from sugar._io.util import _add_fmt_doc
 
 
@@ -34,21 +35,21 @@ def _parse_locs(loc: str):
 
 
 def _parse_single_loc(loc: str):
-    defect = Location.Defect.NONE
+    defect = Defect.NONE
     if loc[0] == '<':
-        defect |= Location.Defect.BEYOND_LEFT
+        defect |= Defect.BEYOND_LEFT
         loc = loc[1:]
     if '>' in loc:
-        defect |= Location.Defect.BEYOND_RIGHT
+        defect |= Defect.BEYOND_RIGHT
         loc = loc.replace('>', '')
     if ".." in loc:
         splitter = ".."
     elif "." in loc:
         splitter = "."
-        defect |= Location.Defect.UNKNOWN_SINGLE_BETWEEN
+        defect |= Defect.UNKNOWN_SINGLE_BETWEEN
     elif "^" in loc:
         splitter = "^"
-        defect |= Location.Defect.BETWEEN_CONSECUTIVE
+        defect |= Defect.BETWEEN_CONSECUTIVE
     else:
         # single base
         return Location(int(loc)-1, int(loc), defect=defect)

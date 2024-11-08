@@ -48,10 +48,10 @@ def test_stockholm_row2fts2row():
     assert len(fts3) == 1
     assert fts1[0].name == '1'
     assert fts2[0].name == '1'
-    Defect = fts1[0].loc.Defect
-    assert fts1[0].loc.defect == Defect.MISS_LEFT
-    assert fts1[1].loc.defect == Defect.NONE
-    assert fts2[-1].loc.defect == Defect.MISS_RIGHT
+    defect = fts1[0].loc.defect
+    assert fts1[0].loc.defect == defect.MISS_LEFT
+    assert fts1[1].loc.defect == defect.NONE
+    assert fts2[-1].loc.defect == defect.MISS_RIGHT
     assert len(fts3[0]) == 1003
     row1b = fts2row(fts1)
     row2b = fts2row(fts2)
