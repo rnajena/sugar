@@ -15,6 +15,15 @@ def test_gff():
         assert fts2 == fts
 
 
+def test_ft_gff():
+    ft = read_fts()[0]
+    with tempfile.NamedTemporaryFile(suffix='.gff') as f:
+        ft.write(f.name)
+        ft2 = read_fts(f.name)[0]
+        assert isinstance(ft2, sugar.Feature)
+        assert ft2 == ft
+
+
 def test_genbank2gff():
     fts = read_fts('!data/example.gb')
     with tempfile.NamedTemporaryFile(suffix='.gff') as f:

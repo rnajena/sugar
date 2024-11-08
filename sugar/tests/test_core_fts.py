@@ -1,5 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 
+import pytest
 from sugar import read, read_fts
 
 
@@ -11,6 +12,9 @@ def test_fts_defect():
     assert defect._reverse() == defect
     assert Defect(Defect.BEYOND_LEFT)._reverse() == Defect(Defect.BEYOND_RIGHT)
     defect = Defect(Defect.BEYOND_LEFT | Defect.BEYOND_RIGHT)
+    assert defect._reverse() == defect
+    assert Defect(Defect.UNKNOWN_LEFT)._reverse() == Defect(Defect.UNKNOWN_RIGHT)
+    defect = Defect(Defect.UNKNOWN_LEFT | Defect.UNKNOWN_RIGHT)
     assert defect._reverse() == defect
 
 
@@ -75,3 +79,50 @@ def test_fts_slice():
     assert len(fts2) == len(fts)
     assert fts[0].loc.defect == fts2[0].loc.Defect.NONE
     assert fts2[0].loc.defect == fts2[0].loc.Defect.MISS_LEFT | fts2[0].loc.Defect.MISS_RIGHT
+
+
+def test_ft_overlaps():
+    fts = read_fts()
+    assert fts.get('cds').overlaps(fts.get('region'))
+    assert fts.get('cds').overlaps(fts.get('region').locs)
+
+
+def test_ft_shortcuts():
+    ft = read_fts()[0]
+    assert ft.id == ft.meta.id
+    assert ft.type == ft.meta.type
+    assert ft.seqid == ft.meta.seqid
+    ft.id = 'XXX'
+    ft.type = 'CDS'
+    ft.seqid = 'xxx'
+    assert ft.id == ft.meta.id
+    assert ft.type == ft.meta.type
+    assert ft.seqid == ft.meta.seqid
+
+
+def test_locs_magic_methods():
+    fts = read_fts()
+    assert fts.get('cds').locs < fts.get('cDNA_match').locs
+    assert fts.get('cds').locs <= fts.get('cDNA_match').locs
+    assert fts.get('cDNA_match').locs > fts.get('cds').locs
+    assert fts.get('cDNA_match').locs >= fts.get('cds').locs
+    assert fts.get('cds').locs - fts.get('cds').locs == 0
+
+
+def test_locs_new():
+    from sugar.core.fts import Location, LocationTuple
+    with pytest.raises(ValueError, match='No location'):
+        LocationTuple()
+    with pytest.raises(ValueError, match='One of'):
+        LocationTuple([Location(0, 1)], start=0, stop=1)
+    with pytest.raises(TypeError, match='LocationTuple'):
+        LocationTuple([(0, 1)])
+    with pytest.raises(ValueError, match='Found multiple'):
+        LocationTuple([Location(0, 1, '+'), Location(1, 2, '-')])
+    with pytest.raises(ValueError, match='.*at least one location'):
+        LocationTuple([])
+
+
+def test_loc_hash():
+    locs = read_fts()[0].locs
+    assert locs in {locs}

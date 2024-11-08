@@ -114,7 +114,7 @@ def test_meta_str():
     assert 'CDS' in str(meta)
 
 
-def test_biobasket_str():
+def test_seqs_str():
     seqs = read()
     seqs2 = seqs.copy()
     seqs2.data = []
@@ -124,7 +124,7 @@ def test_biobasket_str():
     assert '...' in str(seqs2)
 
 
-def test_shortcuts():
+def test_seqs_shortcuts():
     seq = read()[0]
     assert seq.id == seq.meta.id
     assert seq.fts == seq.meta.fts
@@ -132,7 +132,7 @@ def test_shortcuts():
     assert seq.id == seq.meta.id
 
 
-def test_getitem():
+def test_seqs_getitem():
     seqs = read()
     olen = len(seqs[0])
     assert isinstance(seqs[0], BioSeq)

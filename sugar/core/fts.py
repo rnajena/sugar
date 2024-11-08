@@ -67,15 +67,20 @@ class Defect(Flag):
     #: The feature starts at an unknown position
     #: before the start base
     BEYOND_LEFT  = auto()
-    #: The feature starts at an unknown position
+    #: The feature stops at an unknown position
     #: after the stop base, inclusive
     BEYOND_RIGHT = auto()
-    #: The exact position is unknown, but it is at a
-    #: single base between the start and stop residue
-    UNK_LOC      = auto()
+    #: The feature starts at an unknown position
+    UNKNOWN_LEFT  = auto()
+    #: The feature stops at an unknown position
+    UNKNOWN_RIGHT = auto()
     #: The position is between two consecutive
     #: bases/residues.
-    BETWEEN      = auto()
+    BETWEEN = auto()
+    #: The exact position is unknown, but it is at a
+    #: single base between the start and stop residue
+    UNKNOWN_SINGLE = auto()
+
 
     def _reverse(self):
         defect = Defect(self)
@@ -83,6 +88,8 @@ class Defect(Flag):
             defect ^= self.MISS_LEFT | self.MISS_RIGHT
         if len((self.BEYOND_LEFT | self.BEYOND_RIGHT) & self) == 1:
             defect ^= self.BEYOND_LEFT | self.BEYOND_RIGHT
+        if len((self.UNKNOWN_LEFT | self.UNKNOWN_RIGHT) & self) == 1:
+            defect ^= self.UNKNOWN_LEFT | self.UNKNOWN_RIGHT
         return defect
 
 class Strand(StrEnum):
@@ -221,20 +228,21 @@ class LocationTuple(tuple):
         if locs is None:
             raise ValueError('No location specified')
         if len(locs) == 0:
-            raise ValueError('A Locations must include at least one location')
+            raise ValueError('LocationTuple must include at least one location')
         for loc in locs:
             if not isinstance(loc, Location):
-                msg = 'Locations needs ot be initialized with a tuple of Locations'
+                msg = 'LocationTuple needs ot be initialized with a tuple of Locations'
                 raise TypeError(msg)
-        strands = set(loc.strand for loc in locs)
-        if len(strands) > 1:
-            msg = f'Found multiple strand values in Locations: {" ".join(strands)}'
-            raise ValueError(msg)
         locs = tuple(locs)
-        if locs[0].strand == '-':
-            locs = sorted(locs, key=lambda loc: loc.stop, reverse=True)
-        else:
-            locs = sorted(locs, key=lambda loc: loc.start)
+        if len(locs) > 0:
+            strands = set(loc.strand for loc in locs)
+            if len(strands) > 1:
+                msg = f'Found multiple strand values in Locations: {" ".join(strands)}'
+                raise ValueError(msg)
+            if locs[0].strand == '-':
+                locs = sorted(locs, key=lambda loc: loc.stop, reverse=True)
+            else:
+                locs = sorted(locs, key=lambda loc: loc.start)
         return super().__new__(cls, locs)
 
     @property
@@ -464,11 +472,11 @@ class Feature():
         self.locs = self.locs._reverse(seqlen=seqlen)
         return self
 
-    def write(self, *args, **kw):
+    def write(self, fname, fmt=None, **kw):
         """
         Write feature to file, see `~.main.write_fts()`
         """
-        FeatureList([self]).write(self, *args, **kw)
+        FeatureList([self]).write(fname, fmt=fmt, **kw)
 
     # def __hash__(self):
     #     return hash((self.type, self.locs, frozenset(self.meta.items())))
