@@ -1,43 +1,11 @@
-# BSD 3-Clause License
-# --------------------
+# (C) 2024, Tom Eulenfeld, MIT license
 
-# Copyright 2017, The Biotite contributors
-# All rights reserved.
-
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted provided that the following conditions are met:
-
-# 1. Redistributions of source code must retain the above copyright notice, this
-# list of conditions and the following disclaimer.
-
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-# this list of conditions and the following disclaimer in the documentation and/or
-# other materials provided with the distribution.
-
-# 3. Neither the name of the copyright holder nor the names of its contributors
-# may be used to endorse or promote products derived from this software without
-# specific prior written permission.
-
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-# This code is adapted from the biotite package, 2024 Tom Eulenfeld
 """
 Feature related classes `.Feature`, `.FeatureList`, `.Location`, `.Location.Strand`, `.Location.Defect`
-
-Some code is modified from bitotite package.
 """
 
-__all__ = ["Location", "Feature", "FeatureList"]
+# Originally, this file was based on the annotation module from the biotite package.
+# Later, it was rewritten. Constants in Defect amd Strand classes mostly retained their names.
 
 from copy import deepcopy
 import collections
@@ -56,13 +24,13 @@ class Defect(Flag):
     """
     #: No location defect
     NONE         = 0
-    #: A part of the feature has been truncated
+    #: Part of the feature has been truncated
     #: before the start base
-    #: (probably by indexing an :class:`FeatureList` object)
+    #: (e.g. by slicing with `FeatureList.slice()`)
     MISS_LEFT    = auto()
-    #: A part of the feature has been truncated
+    #: Part of the feature has been truncated
     #: after the stop base, inclusive
-    #: (probably by indexing an :class:`FeatureList` object)
+    #: (e.g. by slicing with `FeatureList.slice()`)
     MISS_RIGHT   = auto()
     #: The feature starts at an unknown position
     #: before the start base
@@ -74,13 +42,11 @@ class Defect(Flag):
     UNKNOWN_LEFT  = auto()
     #: The feature stops at an unknown position
     UNKNOWN_RIGHT = auto()
-    #: The position is between two consecutive
-    #: bases/residues.
-    BETWEEN = auto()
+    #: The position is between two consecutive bases
+    BETWEEN_CONSECUTIVE = auto()
     #: The exact position is unknown, but it is at a
     #: single base between the start and stop residue
-    UNKNOWN_SINGLE = auto()
-
+    UNKNOWN_SINGLE_BETWEEN = auto()
 
     def _reverse(self):
         defect = Defect(self)
@@ -92,6 +58,7 @@ class Defect(Flag):
             defect ^= self.UNKNOWN_LEFT | self.UNKNOWN_RIGHT
         return defect
 
+
 class Strand(StrEnum):
     """
     This enum type describes the strand of the feature location.
@@ -100,7 +67,7 @@ class Strand(StrEnum):
     FORWARD = '+'
     #: The feature is located on the reverse strand
     REVERSE = '-'
-    #: The feature is not associated with any strand, e.g. for proteins
+    #: The feature is not associated with any strand
     NONE = '.'
     #: The strandness of the feature is unknown
     UNKNOWN = '?'
@@ -110,35 +77,12 @@ class Location():
     Strand = Strand
     Defect = Defect
 
-    def __init__(self, start, stop, strand=Strand.FORWARD,
-                 defect=Defect.NONE, meta=None):
+    def __init__(self, start, stop, strand='+', defect=0, meta=None):
         """
-        A :class:`Location` defines at which base(s)/residue(s) a feature is
-        located.
-
-        A feature can have multiple :class:`Location` instances if multiple
-        locations are joined.
-
-        Objects of this class are immutable.
-
-        Attributes
-        ----------
-        start : int
-            Starting base or residue position of the feature.
-        stop : int
-            Inclusive ending base or residue position of the feature.
-        strand : Strand
-            The strand direction.
-            Always `Strand.FORWARD` for peptide features.
-        defect : Defect
-            A possible defect of the location.
-        meta : Meta
-            Optionally Location may hold meta data
+        Class describing the contiguous position of a feature
         """
         if start >= stop:
-            raise ValueError(
-                "The start position must be lower than the stop position"
-            )
+            raise ValueError('start must be lower than stop')
         #:
         self.start = start
         #:
@@ -183,7 +127,6 @@ class Location():
         Stride is -1 for the reverse strand, else +1
         """
         return -1 if self.strand == '-' else 1
-
 
     def __len__(self):
         return self.stop - self.start
@@ -251,18 +194,7 @@ class LocationTuple(tuple):
     @property
     def range(self):
         """
-        Get the minimum start base/residue and maximum stop base/residue
-        of all feature locations.
-
-        This can be used to create a location, that spans all of the
-        feature's locations.
-
-        Returns
-        -------
-        start : int
-            The minimum start base/residue of all locations.
-        stop : int
-            The maximum stop base/residue of all locations.
+        Get the minimum start base and maximum stop base of all locations
         """
         start = min(loc.start for loc in self)
         stop = max(loc.stop for loc in self)
@@ -325,22 +257,13 @@ class LocationTuple(tuple):
 
 class Feature():
     """
-    This class represents a single sequence feature, for example from a
-    GenBank feature table.
-    A feature describes a functional part of a sequence.
-    It consists of a feature type, describing the general class of the
-    feature, at least one location, describing its position on the
-    reference, and metadata, describing the feature in detail.
+    A single feature/annotation
 
-    Objects of this class are immutable.
-
-    :param str type: The name of the feature class, e.g. *gene*, *CDS* or
-        *regulatory*.
+    :param str type: The name of the feature class, e.g. *gene* or *CDS*
     :param list locs:
         A list of feature locations. In most cases this list will only
         contain one location, but multiple ones are also possible for
-        example in eukaryotic CDS (due to splicing) or in virus genomes
-        (due to frame shifts).
+        example in virus genomes (due to frame shifts).
     :param start,stop,strand:
         Instead of specifying the locations, a single location can be given
         by start and stop indices and optionally strand.
@@ -488,82 +411,9 @@ class Feature():
 class FeatureList(collections.UserList):
     def __init__(self, data=None):
         """
-        A `FeatureList` is a set of features belonging to one or several sequences.
+        A `FeatureList` is a list of features belonging to one or several sequences.
 
-        Its advantage over a simple list is the base/residue position based
-        indexing:
-        When using the `slice()` method call, a subannotation is
-        created, containing copies of all :class:`Feature` objects whose
-        start and stop base/residue are in range of the slice.
-        If the slice starts after the start base/residue or/and the slice
-        ends before the stop residue, the position out of range is set to
-        the boundaries of the slice (the `Feature` is truncated).
-        In this case the :class:`Feature` obtains the
-        `Location.Defect.MISS_LEFT` and/or
-        `Location.Defect.MISS_RIGHT` defect.
-        The third case occurs when a `Feature` starts after the slice
-        ends or a `Feature` ends before the slice starts.
-        In this case the`Feature` will not appear in the
-        subannotation.
-
-        The start or stop position in the slice indices can be omitted, then
-        the subannotation will include all features from the start or up to
-        the stop, respectively. Step values are ignored.
-        The stop values are still exclusive, i.e. the subannotation will
-        contain a not truncated :class:`Feature` only if its stop
-        base/residue is smaller than the stop value of the slice.
-
-        Multiple :class:`FeatureList` objects can be concatenated to one
-        :class:`FeatureList` object using the '+' operator.
-        If a feature is present in both :class:`FeatureList` objects, the
-        resulting :class:`FeatureList` will contain this feature twice.
-
-        Parameters
-        ----------
-        data : list
-            The features to create the :class:`FeatureList` from. if not
-            provided, an empty :class:`FeatureList` is created.
-
-        """
-        # TODO: write getitem documentation
-        """
-        Examples
-        --------
-        Creating an annotation from a feature list:
-
-        >>> feature1 = Feature("CDS", [Location(-10, 30 )], meta={"gene" : "test1"})
-        >>> feature2 = Feature("CDS", [Location(20,  50 )], meta={"gene" : "test2"})
-        >>> annotation = FeatureList([feature1, feature2])
-        >>> for f in sorted(list(annotation)):
-        ...     print(f.meta["gene"], "".join([str(loc) for loc in f.locs]))
-        test1 -10-30 >
-        test2 20-50 >
-
-        Merging two annotations and a feature:
-
-        >>> feature3 = Feature("CDS", [Location(100, 130 )], meta={"gene" : "test3"})
-        >>> feature4 = Feature("CDS", [Location(150, 250 )], meta={"gene" : "test4"})
-        >>> annotation2 = FeatureList([feature3, feature4])
-        >>> feature5 = Feature("CDS", [Location(-50, 200 )], meta={"gene" : "test5"})
-        >>> annotation = annotation + annotation2 + feature5
-        >>> for f in sorted(list(annotation)):
-        ...     print(f.meta["gene"], "".join([str(loc) for loc in f.locs]))
-        test5 -50-200 >
-        test1 -10-30 >
-        test2 20-50 >
-        test3 100-130 >
-        test4 150-250 >
-
-        Location based indexing, note the defects:
-
-        >>> annotation = annotation[40:150]
-        >>> for f in sorted(list(annotation)):
-        ...     gene = f.meta["gene"]
-        ...     loc_str = "".join([f"{loc}    {loc.defect}" for loc in f.locs])
-        ...     print(gene, loc_str)
-        test5 40-149 >    Defect.MISS_RIGHT|MISS_LEFT
-        test2 40-50 >    Defect.MISS_LEFT
-        test3 100-130 >    Defect.NONE
+        :param list data: the features
         """
         if hasattr(data, 'data'):
             data = data.data

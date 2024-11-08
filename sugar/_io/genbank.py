@@ -3,8 +3,7 @@
 `Genbank`_ reader
 """
 
-from sugar.core.seq import Attr, BioSeq, Meta, Feature, FeatureList
-from sugar._io._genbank_loc import _parse_locs
+from sugar.core.seq import Attr, BioSeq, Meta, Feature, FeatureList, Location
 from sugar._io.util import _add_fmt_doc
 
 
@@ -14,6 +13,48 @@ def is_genbank(f, **kw):
 
 
 is_fts_genbank = is_genbank
+
+
+def _parse_locs(loc: str):
+    # See https://www.insdc.org/submitting-standards/feature-table/#3.4
+    locs = []
+    if loc.startswith(('join', 'order', 'complement')):
+        from warnings import warn
+        warn('Parsing of genbank loc join, order, complement is untested')
+        # TODO: add some tests
+        locs = [_parse_locs(subloc.strip())
+                for subloc in
+                loc[loc.index('(')+1:loc.rindex(')')].split(',')]
+        if loc.startswith('complement'):
+            for loc in locs:
+                loc.strand = {'-': '+', '+': '-'}.get(loc.strand, loc.strand)
+    else:
+        locs = [_parse_single_loc(loc)]
+    return locs
+
+
+def _parse_single_loc(loc: str):
+    defect = Location.Defect.NONE
+    if loc[0] == '<':
+        defect |= Location.Defect.BEYOND_LEFT
+        loc = loc[1:]
+    if '>' in loc:
+        defect |= Location.Defect.BEYOND_RIGHT
+        loc = loc.replace('>', '')
+    if ".." in loc:
+        splitter = ".."
+    elif "." in loc:
+        splitter = "."
+        defect |= Location.Defect.UNKNOWN_SINGLE_BETWEEN
+    elif "^" in loc:
+        splitter = "^"
+        defect |= Location.Defect.BETWEEN_CONSECUTIVE
+    else:
+        # single base
+        return Location(int(loc)-1, int(loc), defect=defect)
+    # base range
+    start, stop = loc.split(splitter)
+    return Location(int(start)-1, int(stop), defect=defect)
 
 
 @_add_fmt_doc('read_fts')
