@@ -474,15 +474,6 @@ class BioSeq():
             self.data = subseq.data
         return subseq
 
-    def biotranslate(self, *args, **kw):
-        from sugar.core.translate import translate
-        import warnings
-        msg = 'BioSeq.biotranslate() is deprecated, use translate() method'
-        warnings.warn(msg, DeprecationWarning, stacklevel=2)
-        self.data = translate(self.data, *args, **kw)
-        self.type = 'aa'
-        return self
-
     def complement(self):
         """
         Complementary sequence, i.e. transcription
@@ -868,14 +859,6 @@ class BioBasket(collections.UserList):
                 seq[j] = value
         else:
             raise TypeError('Index not supported')
-
-    def biotranslate(self, *args, **kw):
-        import warnings
-        msg = 'BioBasket.biotranslate() is deprecated, use translate() method'
-        warnings.warn(msg, DeprecationWarning, stacklevel=2)
-        for seq in self:
-            seq.translate(*args, **kw)
-        return self
 
     def complement(self):
         """
