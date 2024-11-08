@@ -525,7 +525,7 @@ class FeatureList(collections.UserList):
             provided, an empty :class:`FeatureList` is created.
 
         """
-        # TODO
+        # TODO: write getitem documentation
         """
         Examples
         --------

@@ -66,7 +66,7 @@ def iter_genbank(f, exclude=()):
                 for ft in meta.fts:
                     ft.meta.seqid = meta.id
             try:
-                del meta._genbank.reference  # TODO: references should be parsed in a list, not yet done
+                del meta._genbank.reference  # references could be parsed in a list, not implemented
             except Exception:
                 pass
             if 'translation' in exclude and 'fts' in meta:

@@ -9,6 +9,8 @@ from sugar.data import submat, gcode
 def test_submat():
     sm = submat('blosum62')
     assert sm['Q']['E'] == sm['E']['Q'] == 2
+    with pytest.raises(FileNotFoundError):
+        submat('unknown_matrix')
 
 
 @pytest.mark.filterwarnings('ignore:Letter.*not found in table header')

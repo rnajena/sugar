@@ -159,12 +159,7 @@ def test_seqs_getitem():
     assert seqs2[0].meta.fts[0].loc.start == 1
     assert seqs[0][1:10].meta.fts[0].loc.start == 1
     assert seqs[:, ::-1][:, 'cds'] != seqs[:, 'cds']
-    # assert 'orig_len' not in seqs[0][1:10].meta.features[0]
-    # assert seqs[0][3:6].meta.features[0].stop == 3
-    # assert seqs[0][3:6].meta.features[0].orig_len == 4
-    # assert len(seqs[0][10:20].meta.features) == 0
 
-    ## TODO!!!
 
 def test_seqs_getitem_special():
     seq = read()[1]

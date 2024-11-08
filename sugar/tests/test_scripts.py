@@ -64,5 +64,5 @@ def test_translate():
 
 
 def test_index():
-    # TODO
+    # TODO: write test for index script
     pass

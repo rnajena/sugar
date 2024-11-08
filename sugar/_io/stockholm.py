@@ -1,6 +1,5 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 # https://en.wikipedia.org/wiki/Stockholm_format
-# TODO: convert feature GC line to FeatureList and vice versa
 """
 `Stockholm`_ IO
 """

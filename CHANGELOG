@@ -1,25 +1,36 @@
 dev:
-  * add ORF finding functions and methods
-  * BioSeq.match: rename orf option to rf, allow tuple-like arguments
-  * consequently rename BioSeq.meta.features to BioSeq.meta.fts
-  * add BioBasket.fts attribute, add add_fts method for BioSeq and BioBasket
-  * add final_stop parameter in translate
-  * refactoring, add sugar.core.cane module with seq and ft tools
-  * move all str methods to BioSeq.str and BioBasket.str namespace
+  * core:
+    - add sort, filter and groupby methods to FeatureList and BioBasket
+    - BioSeq.match: rename orf option to rf, allow tuple-like arguments
+    - consequently rename BioSeq.meta.features to BioSeq.meta.fts
+    - add BioBasket.fts attribute, add add_fts method for BioSeq and BioBasket
+    - move all str methods to BioSeq.str and BioBasket.str namespace
+    - new class LocationTuple used internally for Feature.locs
+    - introduce BioSeq.sl and BioBasket.sl methods and options for slices
+      (gap, inplace, update_fts)
+    - refactor Defect code
+  * cane:
+    - add sugar.core.cane module with seq and ft tools
+    - add ORF finding functions and methods
+    - add final_stop parameter in translate
   * io:
     - add option to store comments in most readers
     - refactor and update read support for BLAST files (outfmt 6, 7 and 10)
     - add read support for MMseqs2 files (fmtmode 0 and 4)
     - add read support for Infernal tblout files
     - stockholm: add support for multiline files
+  * more minor and major changes ;)
+
 v0.3.0:
   * io.fasta: robust parsing of seq ids from header line, ignore comment lines
   * io.stockholm: add row2fts and fts2row functions to parse, write GC and similar lines
+
 v0.2.1:
   * translate: add check_start option
 v0.2.0:
   * io: add option to write files automatically into an archive
   * io.gff: allow to store comment lines while reading
   * scripts: add translate and feature commands
+
 v0.1.0:
   * initial release
