@@ -85,9 +85,9 @@ def read_fts_gff(f, filt=None, default_ftype=None, comments=None):
             for k, v in attrs.items():
                 if fts[-1].meta._gff.get(k) != v:
                     # TODO: add proper meta attribute to Location?
-                    if not hasattr(loc, '_gff'):
-                        loc._gff = Attr()
-                    loc._gff[k] = v
+                    if not hasattr(loc.meta, '_gff'):
+                        loc.meta._gff = Attr()
+                    loc.meta._gff[k] = v
             fts[-1].locs = fts[-1].locs + (loc,)
         else:
             meta = Meta(_gff=attrs)
@@ -127,8 +127,8 @@ def write_fts_gff(fts, f, header=None):
         for gffattr, metaattr in copyattrs:
             if metaattr in meta:
                 meta._gff[gffattr] = meta[metaattr]
-        if hasattr(ft.locs[0], '_gff'):
-            meta._gff = {k: v for k, v in meta._gff.items() + ft.locs[0]._gff.items()}
+        if ft.locs[0]._meta and hasattr(ft.locs[0].meta, '_gff'):
+            meta._gff = {k: v for k, v in meta._gff.items() + ft.locs[0].meta._gff.items()}
         if len(ft.locs) > 1 and 'ID' not in meta._gff:
             # TODO warn, test
             from random import choices
@@ -145,8 +145,8 @@ def write_fts_gff(fts, f, header=None):
                 nscore = score
                 nphase = phase
             else:
-                if hasattr(loc, '_gff'):
-                    gff_meta = {k: v for k, v in loc._gff.items() if meta._gff.get(k) != v}
+                if loc._meta and hasattr(loc.meta, '_gff'):
+                    gff_meta = {k: v for k, v in loc.meta._gff.items() if meta._gff.get(k) != v}
                 else:
                     gff_meta = {}
                 gff_meta['ID'] = meta._gff.ID

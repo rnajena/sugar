@@ -104,7 +104,7 @@ class Location():
     Defect = Defect
 
     def __init__(self, start, stop, strand=Strand.FORWARD,
-                 defect=Defect.NONE):
+                 defect=Defect.NONE, meta=None):
         """
         A :class:`Location` defines at which base(s)/residue(s) a feature is
         located.
@@ -125,6 +125,8 @@ class Location():
             Always `Strand.FORWARD` for peptide features.
         defect : Defect
             A possible defect of the location.
+        meta : Meta
+            Optionally Location may hold meta data
         """
         if start >= stop:
             raise ValueError(
@@ -136,6 +138,7 @@ class Location():
         self.stop = stop
         self.strand = strand
         self.defect = defect
+        self.meta = meta
 
     def __repr__(self):
         return (f"Location({self.start}, {self.stop}, strand='{self.strand}', "
@@ -148,11 +151,24 @@ class Location():
                 and self.stop   == other.stop
                 and self.strand == other.strand
                 and self.defect == other.defect
-                and getattr(self, '_gff', None) == getattr(other, '_gff', None)
+                and self.meta == other.meta
                 )
 
     def __hash__(self):
         return hash((self.start, self.stop, self.strand, self.defect))
+
+    @property
+    def meta(self):
+        """
+        Optionally location may have metadata
+        """
+        if self._meta is None:
+            self._meta = Meta()
+        return self._meta
+
+    @meta.setter
+    def meta(self, v):
+        self._meta = None if v is None else Meta(v)
 
     @property
     def _stride(self):
@@ -160,6 +176,7 @@ class Location():
         Stride is -1 for the reverse strand, else +1
         """
         return -1 if self.strand == '-' else 1
+
 
     def __len__(self):
         return self.stop - self.start
@@ -189,10 +206,7 @@ class Location():
         elif strand == '-':
             strand = '+'
         defect = loc.defect._reverse()
-        loc2 = Location(start, stop, strand, defect)
-        if hasattr(loc, '_gff'):
-            loc2._gff = loc._gff.copy()
-        return loc2
+        return Location(start, stop, strand, defect, meta=loc.meta)
 
 
 class LocationTuple(tuple):
@@ -643,9 +657,9 @@ class FeatureList(collections.UserList):
                 ftstr = f'{t if i == 0 else "":>{wt}} {locstr}'
                 if i == 0:
                     ftstr = ftstr + f'  {metastr}'
-                elif hasattr(l, '_gff'):
+                elif l.meta is not None:
                     locmetastr = ';'.join(f'{k}={v}' for k, v in
-                                          sorted(l._gff.items(), key=_sort_meta_key)
+                                          sorted(l.meta.items(), key=_sort_meta_key)
                                           if k not in exclude_types)
                     ftstr = ftstr + f'  {locmetastr}'
 
@@ -791,7 +805,7 @@ class FeatureList(collections.UserList):
                         defect |= Location.Defect.MISS_RIGHT
                         lstop = stop - rel
                     locs_in_scope.append(Location(
-                        lstart, lstop, loc.strand, defect
+                        lstart, lstop, loc.strand, defect, meta=loc.meta
                     ))
             if len(locs_in_scope) > 0:
                 # The feature is present in the new annotation
