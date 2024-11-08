@@ -112,7 +112,7 @@ def test_locs_new():
     with pytest.raises(ValueError, match='One of'):
         LocationTuple([Location(0, 1)], start=0, stop=1)
     with pytest.raises(TypeError, match='LocationTuple'):
-        LocationTuple([(0, 1)])
+        LocationTuple([(0,)])
     with pytest.raises(ValueError, match='Found multiple'):
         LocationTuple([Location(0, 1, '+'), Location(1, 2, '-')])
     with pytest.raises(ValueError, match='.*at least one location'):

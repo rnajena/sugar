@@ -229,10 +229,13 @@ class LocationTuple(tuple):
             raise ValueError('No location specified')
         if len(locs) == 0:
             raise ValueError('LocationTuple must include at least one location')
-        for loc in locs:
+        for i, loc in enumerate(locs):
             if not isinstance(loc, Location):
-                msg = 'LocationTuple needs ot be initialized with a tuple of Locations'
-                raise TypeError(msg)
+                try:
+                    locs[i] = Location(*loc)
+                except Exception as ex:
+                    msg = 'LocationTuple needs ot be initialized with a tuple of Locations or tuples'
+                    raise TypeError(msg) from ex
         locs = tuple(locs)
         if len(locs) > 0:
             strands = set(loc.strand for loc in locs)
@@ -799,19 +802,16 @@ class FeatureList(collections.UserList):
             for loc in ft.locs:
                 # Always true for maxsize values
                 # in case no start or stop index is given
-                if loc.start <= stop and loc.stop >= start:
+                if loc.start < stop and loc.stop > start:
                     # The location is at least partly in the
                     # given location range
-                    # Handle defects
-                    lstart = loc.start - rel
-                    lstop = loc.stop - rel
                     defect = loc.defect
                     if loc.start < start:
                         defect |= Location.Defect.MISS_LEFT
-                        lstart = start - rel
                     if loc.stop > stop:
                         defect |= Location.Defect.MISS_RIGHT
-                        lstop = stop - rel
+                    lstart = max(start, loc.start) - rel
+                    lstop = min(stop, loc.stop) - rel
                     locs_in_scope.append(Location(
                         lstart, lstop, loc.strand, defect, meta=loc.meta
                     ))

@@ -398,7 +398,6 @@ class BioSeq():
         return _Sliceable_GetItem(self, **kw)
 
     def _slice_locs(self, locs, splitter=None, filler=None, gap=None, update_fts=False):
-        # TODO document
         # Merge the sequences corresponding to the ordered locations
         sub_seqs = []
         prev_loc = None
@@ -413,14 +412,15 @@ class BioSeq():
                     num = loc.start - prev_loc.stop
                 if num > 0:
                     sub_seqs.append(num * filler)
+            if splitter is not None and prev_loc is not None:
+                sub_seqs.append(splitter)
             sub_seqs.append(add_seq.data)
             prev_loc = loc
-        sub_seq = self[:0]
-        if splitter is None:
-            splitter = ''
-        sub_seq.data = splitter.join(sub_seqs)
+        sub_seq = BioSeq(''.join(sub_seqs), meta=self.meta.copy())
         if update_fts:
-            start, stop = locs.range[0]
+            if len(locs) > 1:
+                raise ValueError('update_fts is only allowed for locs wit a single Location. Sorry.')
+            start, stop = locs.range
             fts = FeatureList()
             for loc in locs:
                 fts.extend(self.fts.slice(loc.start, loc.stop, rel=start))
@@ -438,12 +438,13 @@ class BioSeq():
         If you want to use non-default options call this method directly,
         or by the `BioSeq.sl` attribute.
         """
-        # TODO: add update_fts tests
+        # TODO: doc for splitter and filler
         if not isinstance(index, (int, slice)):
             if isinstance(index, str):
-                index = self.fts.get(index)
-                if index is None:
-                    raise TypeError('Feature not found')
+                ft = self.fts.get(index)
+                if ft is None:
+                    raise ValueError(f'Feature of type {index} not found')
+                index = ft
             if isinstance(index, Location):
                 index = LocationTuple([Location])
             elif isinstance(index, Feature):
@@ -467,7 +468,7 @@ class BioSeq():
                     start, stop = index, index + 1
                 elif isinstance(index, slice):
                     start, stop = index.start, index.stop
-                    if index.step != 1:
+                    if index.step not in (None, 1):
                         raise ValueError('update_fts for slices only supported with step==1')
                 subseq.fts = self.fts.slice(start, stop, rel=start)
         if inplace:

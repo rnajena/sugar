@@ -166,6 +166,36 @@ def test_seqs_getitem():
 
     ## TODO!!!
 
+def test_seqs_getitem_special():
+    seq = read()[1]
+    seq[4:8] = '----'
+    seq2 = seq.sl(update_fts=True)[1:100]
+    seq3 = seq.sl(update_fts=True, gap='-')[1:100-4]
+    assert seq2 == seq3
+    assert len(seq2.fts) == 2
+    assert all(len(ft) == 99 for ft in seq2.fts)
+    assert all(ft.loc.defect == ft.loc.Defect.MISS_LEFT | ft.loc.Defect.MISS_RIGHT for ft in seq2.fts)
+    seq2 = seq.sl(update_fts=True)['cds']
+    assert seq2['cds'].data == seq['cds'].data
+    assert len(seq2) == len(seq2['cds'])
+    defect = seq2.fts.get('cds').loc.defect
+    assert defect == defect.NONE
+
+    seq.fts.get('cds').locs = [(0, 10), (15, 25), (30, 40)]
+    assert len(seq['cds']) == 30
+    with pytest.raises(ValueError, match='.*Sorry'):
+        seq2 = seq.sl(update_fts=True)['cds']
+    seq2 = seq['cds']
+    assert len(seq2) < 40
+    seq2 = seq.sl(filler='-')['cds']
+    assert len(seq2) == 40
+    seq3 = seq.sl(splitter='-----')['cds']
+    assert seq3 == seq2
+    seq3 = seq.sl(splitter='X', filler='-')['cds']
+    assert len(seq3) > 40
+    assert seq3.str.count('X') == 2
+    assert seq3.str.replace('X', '') == seq2
+
 
 def test_sl_slicable_inplace():
     seqs = read()
@@ -290,5 +320,10 @@ def test_str_methods():
     assert all(seqs.copy().str.lower().str.islower())
 
 
-def test_tostr():
+def test_seqs_tostr():
     assert read()[0].tostr().strip() == read().tostr(add_header=False).splitlines()[0].strip()
+
+
+def test_seqs_reverse_complement():
+    seqs = read()
+    assert seqs.copy().reverse().complement() == seqs.rc()
