@@ -1,4 +1,4 @@
-dev:
+v0.4.0:
   * core:
     - add sort, filter and groupby methods to FeatureList and BioBasket
     - BioSeq.match: rename orf option to rf, allow tuple-like arguments
