@@ -91,7 +91,7 @@ def test_filter_fts():
 
 def test_filter_seqs():
     seqs = read()
-    seqs.filter(len_gt=9500)
+    seqs.filter(len_gt=9500, inplace=True)
     assert len(seqs) == 1
     seqs = read()
     seqs2 = seqs.filter(len_gt=9500, inplace=False)

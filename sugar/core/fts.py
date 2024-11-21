@@ -13,6 +13,7 @@ import io
 import sys
 from enum import Flag, StrEnum, auto
 from sugar.core.meta import Meta
+from sugar.core.util import _add_inplace_doc
 
 
 class Defect(Flag):
@@ -565,7 +566,7 @@ class FeatureList(collections.UserList):
             if (isinstance(type_, str) and ft.type.lower() == type_.lower() or
                     isinstance(type_, tuple) and ft.type.lower() in type_):
                 fts.append(ft)
-        return FeatureList(fts)
+        return self.__class__(fts)
 
     def todict(self):
         """
@@ -574,7 +575,7 @@ class FeatureList(collections.UserList):
         d = {}
         for ft in self:
             seqid = ft.meta.get('seqid', '')
-            d.setdefault(seqid, FeatureList()).append(ft)
+            d.setdefault(seqid, self.__class__()).append(ft)
         return d
 
     def groupby(self, keys=('seqid',)):
@@ -669,8 +670,9 @@ class FeatureList(collections.UserList):
                 # scope
                 new_ft = Feature(locs=locs_in_scope, meta=ft.meta)
                 sub_annot.append(new_ft)
-        return FeatureList(sub_annot)
+        return self.__class__(sub_annot)
 
+    @_add_inplace_doc
     def rc(self, seqlen=0):
         """
         Reverse complement all features, see `Feature.rc()`
@@ -682,6 +684,7 @@ class FeatureList(collections.UserList):
             ft.rc(seqlen=seqlen)
         return self
 
+    @_add_inplace_doc
     def sort(self, keys=None, reverse=False):
         """
         Sort features in-place
@@ -704,7 +707,7 @@ class FeatureList(collections.UserList):
         self.data = _sorted(self.data, keys=keys, reverse=reverse, attr='meta')
         return self
 
-    def filter(self, inplace=True, **kw):
+    def filter(self, inplace=False, **kw):
         r"""
         Filter features
 
@@ -718,7 +721,7 @@ class FeatureList(collections.UserList):
             the *and* operator. If you need *or*, call filter twice
             and combine the results with ``|`` operator, e.g.
             ``fts.filter(...) | fts.filter(...)``
-        :param inplace: Whether to modify the original object.
+        :param inplace: Whether to modify the original object (default: False)
         :return: Filtered features
 
         .. rubric:: Example:

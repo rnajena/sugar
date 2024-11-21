@@ -37,11 +37,12 @@ copyattrs = [('Name', 'name'), ('ID', 'id'), ('score', 'score'),
 
 
 @_add_fmt_doc('read_fts')
-def read_fts_gff(f, filt=None, default_ftype=None, comments=None):
+def read_fts_gff(f, filt=None, filt_fast=None, default_ftype=None, comments=None):
     """
     Read a GFF file and return `.FeatureList`
 
     :param list filt: Return only Features of given ftypes, default: all
+    :param str filt_fast: Read only lines which include this string
     :param str default_ftype: default ftype for entries without type
     :param list comments: comment lines inside the file are stored in
         the comments list (optional)
@@ -51,6 +52,8 @@ def read_fts_gff(f, filt=None, default_ftype=None, comments=None):
     for line in f:
         if line.startswith('##FASTA'):
             break
+        if filt_fast is not None and filt_fast.lower() not in line.lower():
+            continue
         elif line.startswith('#') or line.strip() == '':
             if comments is not None:
                 comments.append(line)

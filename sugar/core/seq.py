@@ -15,6 +15,7 @@ from warnings import warn
 from sugar.data import CODES
 from sugar.core.fts import Feature, FeatureList, Location, LocationTuple
 from sugar.core.meta import Attr, Meta
+from sugar.core.util import _add_inplace_doc
 
 
 CODES_INV = {frozenset(v): k for k, v in CODES.items()}
@@ -34,7 +35,12 @@ class _Sliceable_GetItem():
 
 class _BioSeqStr():
     """
-    Helper class to hold all string methods in the `BioSeq.str` namespace
+    Helper class to hold all string methods in the `BioSeq.str` namespace.
+
+    The methods modify the data in-place, if applicable,
+    which is different from the behavior of the original string methods.
+
+    See `python:str` for documentation of the methods.
 
     :meta public:
     """
@@ -338,6 +344,7 @@ class BioSeq():
         else:
             return 0
 
+    _add_inplace_doc
     def rc(self, update_fts=False):
         """
         Reverse complement, alias for ``BioSeq.reverse().complement()``
@@ -475,6 +482,7 @@ class BioSeq():
             self.data = subseq.data
         return subseq
 
+    @_add_inplace_doc
     def complement(self):
         """
         Complementary sequence, i.e. transcription
@@ -572,6 +580,7 @@ class BioSeq():
         else:
             raise ValueError(f'Unsupported tool: {tool}')
 
+    @_add_inplace_doc
     def reverse(self):
         """
         Reverse the sequence
@@ -579,6 +588,7 @@ class BioSeq():
         self.data = self.data[::-1]
         return self
 
+    @_add_inplace_doc
     def translate(self, *args, **kw):
         """
         Translate nucleotide sequence to amino acid sequence, see `~.cane.translate()`.
@@ -752,6 +762,7 @@ class BioBasket(collections.UserList):
             warn(f'Features for seqids {missing_ids} could not be '
                  'attached to any sequence')
 
+    @_add_inplace_doc
     def rc(self, **kw):
         """
         Reverse complement, alias for ``BioBasket.reverse().complement()``
@@ -861,6 +872,7 @@ class BioBasket(collections.UserList):
         else:
             raise TypeError('Index not supported')
 
+    @_add_inplace_doc
     def complement(self):
         """
         Complementary sequences, i.e. transcription
@@ -869,6 +881,7 @@ class BioBasket(collections.UserList):
             seq.complement()
         return self
 
+    @_add_inplace_doc
     def translate(self, *args, **kw):
         """
         Translate nucleotide sequences to amino acid sequences, see `~.cane.translate()`.
@@ -879,6 +892,7 @@ class BioBasket(collections.UserList):
             seq.translate(*args, **kw)
         return self
 
+    @_add_inplace_doc
     def reverse(self, *args, **kw):
         """
         Reverse sequences
@@ -1030,6 +1044,7 @@ class BioBasket(collections.UserList):
         return reduce(lambda orfs1, orfs2: orfs1 + orfs2,
                       [seq.find_orfs(*args, **kw) for seq in self])
 
+    @_add_inplace_doc
     def sort(self, keys=('id',), reverse=False):
         """
         Sort sequences in-place
@@ -1069,7 +1084,7 @@ class BioBasket(collections.UserList):
         from sugar.core.cane import _groupby
         return _groupby(self, keys, attr='meta')
 
-    def filter(self, inplace=True, **kw):
+    def filter(self, inplace=False, **kw):
         r"""
         Filter sequences
 
