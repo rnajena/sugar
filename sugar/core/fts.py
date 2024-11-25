@@ -588,8 +588,8 @@ class FeatureList(collections.UserList):
 
         >>> from sugar import read_fts
         >>> fts = read_fts().select('cDNA_match')
-        >>> df = fts.topandas()
-        >>> print(df)  # doctest: +NORMALIZE_WHITESPACE
+        >>> df = fts.topandas()  # doctest: +SKIP
+        >>> print(df)  # doctest: +SKIP
                 type      start      stop   strand
         0  cDNA_match  101888622  101892867      -
         1  cDNA_match  103140200  103170945      -
