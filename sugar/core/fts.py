@@ -561,6 +561,24 @@ class FeatureList(collections.UserList):
             ]
 
     def topandas(self, vals='type start stop strand', **kw):
+        """
+        Return a pandas DataFrame of the features
+
+        :param vals: Parameters from the metadata or location to return,
+            might be a string or tuple, defaults to ``'type start stop strand'``
+
+        .. rubric:: Example:
+
+        >>> from sugar import read_fts
+        >>> fts = read_fts().select('cDNA_match')
+        >>> df = fts.topandas()
+        >>> print(df)  # doctest: +NORMALIZE_WHITESPACE
+                type      start      stop   strand
+        0  cDNA_match  101888622  101892867      -
+        1  cDNA_match  103140200  103170945      -
+        2  cDNA_match  103944892  103952028      -
+        3  cDNA_match  107859806  107862198      -
+        """
         import pandas
         if isinstance(vals, str):
             vals = vals.split()
