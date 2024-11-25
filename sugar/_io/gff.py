@@ -13,8 +13,8 @@ from sugar._io import read as read_seqs, write as write_seqs
 from sugar._io.util import _add_fmt_doc
 
 
-filename_extensions = ['gff']
-filename_extensions_fts = ['gff']
+filename_extensions_gff = ['gff']
+filename_extensions_fts_gff = ['gff']
 
 
 def is_gff(f, **kw):

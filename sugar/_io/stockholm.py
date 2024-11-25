@@ -10,7 +10,7 @@ from sugar.core.seq import Attr, BioSeq, BioBasket
 from sugar._io.util import _add_fmt_doc
 
 
-filename_extensions = ['stk', 'sto', 'stockholm']
+filename_extensions_stockholm = ['stk', 'sto', 'stockholm']
 
 
 def is_stockholm(f, **kw):

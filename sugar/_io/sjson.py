@@ -18,7 +18,7 @@ SUGAR = (Location, Defect, Strand, Feature, FeatureList,
          BioBasket, BioSeq
          )
 
-filename_extensions = ['sjson', 'json']
+filename_extensions_sjson = ['sjson', 'json']
 COMMENT = f'sugar JSON format written by sugar v{__version__}'
 
 

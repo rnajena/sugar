@@ -26,7 +26,7 @@ from sugar._io.util import _add_fmt_doc
 
 # optional, filename extensions for automatic detection of file format
 # when writing
-filename_extensions = ['fancy']
+filename_extensions_fancy = ['fancy']
 
 def is_fancy(f, **kw):
     """

@@ -93,8 +93,8 @@ def detect_ext(fname, what='seqs'):
         return
     for fmt in FMTS_ALL[what]:
         module = EPS[what][fmt].load()
-        if hasattr(module, 'filename_extensions' + suf):
-            if ext in getattr(module, 'filename_extensions' + suf):
+        if hasattr(module, f'filename_extensions{suf}_{fmt}'):
+            if ext in getattr(module, f'filename_extensions{suf}_{fmt}'):
                 return fmt
 
 

@@ -418,6 +418,23 @@ class FeatureList(collections.UserList):
             data = data.data
         super().__init__(data)
 
+    @classmethod
+    def frompandas(cls, df, ftype=None):
+        if ftype is not None and 'type' not in df:
+            if ftype in df:
+                df['type'] = df[ftype]
+            else:
+                df['type'] = ftype
+        fts = []
+        for rec in df.to_dict('records'):
+            loc = Location(rec.pop('start'),
+                           rec.pop('stop'),
+                           strand=rec.pop('strand', '+'),
+                           defect=rec.pop('defect', Defect.NONE))
+            ft = Feature(locs=[loc], meta=rec)
+            fts.append(ft)
+        return cls(fts)
+
     def __str__(self):
         return self.tostr()
 

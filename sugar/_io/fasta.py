@@ -8,7 +8,7 @@ from sugar import BioSeq
 from sugar._io.util import _add_fmt_doc
 
 
-filename_extensions = ['fasta', 'fa']
+filename_extensions_fasta = ['fasta', 'fa']
 
 def is_fasta(f, **kw):
     content = f.read(50)

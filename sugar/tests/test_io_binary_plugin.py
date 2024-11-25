@@ -5,7 +5,7 @@ import sugar
 ### define a simple FASTA-like binary plugin
 from sugar.core.seq import BioBasket, BioSeq
 binary_fmt = True
-filename_extensions = ['bintest']
+filename_extensions_testbin = ['bintest']
 MAGIC = b'\xfe\x8abintestformat\n'
 def is_testbin(f, **kw):
     return f.read(len(MAGIC)) == MAGIC
@@ -32,7 +32,7 @@ def write_testbin(seqs, f):
 
 ### define another fake Feature binary plugin based on gff
 binary_fmt_fts = True
-filename_extensions_fts = ['bintest']
+filename_extensions_fts_testbin = ['bintest']
 MAGIC2 = b'\xfe\x8aftsbintestformat\n'
 def is_fts_testbin(f, **kw):
     return f.read(len(MAGIC2)) == MAGIC2
