@@ -122,3 +122,11 @@ def test_locs_new():
 def test_loc_hash():
     locs = read_fts()[0].locs
     assert locs in {locs}
+
+
+def test_fts_tolist():
+    fts = read_fts().select('CDS')
+    for type_, start, stop, strand in fts.tolist():
+        assert type_ == 'CDS'
+        assert start == 61943
+        assert strand == '+'

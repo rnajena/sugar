@@ -534,6 +534,32 @@ class FeatureList(collections.UserList):
         """
         return self.write(None, fmt)
 
+    def tolist(self, vals='type start stop strand'):
+        """
+        Return a generator yielding a list for each feature
+
+        :param vals: Parameters from the metadata or location to return,
+            might be a string or tuple, defaults to ``'type start stop strand'``
+
+        .. rubric:: Example:
+
+        >>> from sugar import read_fts
+        >>> fts = read_fts().select('CDS')
+        >>> for type_, start, stop, strand in fts.tolist():
+        ...     print(type_, start, strand,)
+        CDS 61943 +
+        """
+        if isinstance(vals, str):
+            vals = vals.split()
+        for ft in self:
+            yield [
+                ft.loc.strand if v == 'strand' else
+                ft.locs.range[0] if v == 'start' else
+                ft.locs.range[1] if v == 'stop' else
+                ft.meta.get(v)
+                for v in vals
+            ]
+
     def get(self, type):
         """
         Return the first feature of specified feature type, e.g. ``'cds'``
