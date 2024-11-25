@@ -32,7 +32,10 @@ def test_detect_fts():
 
 def test_read_fts():
     for fname in FNAMES_FTS:
-        fts = read_fts(fname)
+        try:
+            fts = read_fts(fname)
+        except ImportError:  # ignore pandas ImportError for csv and tsv
+            continue
         assert isinstance(fts, sugar.FeatureList)
         assert len(fts) > 0
 
