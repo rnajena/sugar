@@ -427,9 +427,9 @@ class FeatureList(collections.UserList):
                 df['type'] = ftype
         if 'len' in df:
             df = df.copy()
-            if 'start' in df and 'stop' not in f:
+            if 'start' in df and 'stop' not in df:
                 df['stop'] = df['start'] + df['len']
-            elif 'start' not in df and 'stop' in f:
+            elif 'start' not in df and 'stop' in df:
                 df['start'] = df['stop'] - df['len']
             del df['len']
         fts = []
