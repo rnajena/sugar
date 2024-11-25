@@ -6,22 +6,22 @@ from sugar._io.util import _add_fmt_doc
 from sugar import FeatureList
 
 
-filename_extensions_fts_tsv = ['tsv']
 filename_extensions_fts_csv = ['csv']
+filename_extensions_fts_tsv = ['tsv']
 
 
-def _is_xsv(f, sep, **kw):
+def _is_fts_xsv(f, sep, **kw):
     lines = f.read(1000).splitlines()[:-1]
     line0 = lines[0].split(sep)
     return ('start' in line0) + ('stop' in line0) + ('len' in line0) >= 2 and all(len(line.split(sep)) == len(line0) for line in lines)
 
 
-def is_fts_tsv(f, sep='\t', **kw):
-    return _is_xsv(f, sep)
-
-
 def is_fts_csv(f, sep=',', **kw):
-    return _is_xsv(f, sep)
+    return _is_fts_xsv(f, sep)
+
+
+def is_fts_tsv(f, sep='\t', **kw):
+    return _is_fts_xsv(f, sep)
 
 
 @_add_fmt_doc('read_fts')
@@ -35,7 +35,7 @@ def read_fts_tsv(f, sep='\t', **kw):
     :param \*\*kw: All other kwargs are passed to :func:`pandas.read_csv()`
 
     """
-    return _read_xsv(f, sep=sep, **kw)
+    return _read_fts_xsv(f, sep=sep, **kw)
 
 
 @_add_fmt_doc('read_fts')
@@ -48,7 +48,7 @@ def read_fts_csv(f, sep=',', **kw):
         of ftype itself.
     :param \*\*kw: All other kwargs are passed to :func:`pandas.read_csv()`
     """
-    return _read_xsv(f, sep=sep, **kw)
+    return _read_fts_xsv(f, sep=sep, **kw)
 
 
 @_add_fmt_doc('write_fts')
@@ -63,7 +63,7 @@ def write_fts_tsv(fts, f, sep='\t', **kw):
     :param \*\*kw: All other kwargs are passed to :meth:`pandas.DataFrame.to_csv()`
 
     """
-    return _write_xsv(fts, f, sep=sep, **kw)
+    return _write_fts_xsv(fts, f, sep=sep, **kw)
 
 
 @_add_fmt_doc('write_fts')
@@ -77,10 +77,10 @@ def write_fts_csv(fts, f, sep=',', **kw):
         might be a string or tuple, defaults to ``'type start stop strand'``
     :param \*\*kw: All other kwargs are passed to :meth:`pandas.DataFrame.to_csv()`
     """
-    return _write_xsv(fts, f, sep=sep, **kw)
+    return _write_fts_xsv(fts, f, sep=sep, **kw)
 
 
-def _read_xsv(f, ftype=None, **kw):
+def _read_fts_xsv(f, ftype=None, **kw):
     try:
         import pandas
     except ImportError:
@@ -89,7 +89,7 @@ def _read_xsv(f, ftype=None, **kw):
     return FeatureList.frompandas(df, ftype=ftype)
 
 
-def _write_xsv(fts: FeatureList, f, vals='type start stop strand', dtype=None, index=False, **kw):
+def _write_fts_xsv(fts: FeatureList, f, vals='type start stop strand', dtype=None, index=False, **kw):
     try:
         df = fts.topandas(vals, dtype=dtype)
     except ImportError:
