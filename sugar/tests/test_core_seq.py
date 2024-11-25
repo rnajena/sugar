@@ -91,13 +91,13 @@ def test_countall():
     seqs = read()
     assert 'T' in seqs[0].countall()
     assert abs(sum(seqs[0].countall(rtype='prob').values()) - 1) < 1e-8
-    try:
-        import pandas
-    except ImportError:
-        pass
-    else:
-        df = seqs.countall(rtype='df')
-        assert abs(df['prob'].sum() - 2) < 1e-8
+
+
+def test_countall_pandas():
+    pytest.importorskip('pandas')
+    seqs = read()
+    df = seqs.countall(rtype='df')
+    assert abs(df['prob'].sum() - 2) < 1e-8
 
 
 def test_countplot():

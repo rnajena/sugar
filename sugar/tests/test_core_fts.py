@@ -130,3 +130,13 @@ def test_fts_tolist():
         assert type_ == 'CDS'
         assert start == 61943
         assert strand == '+'
+
+
+def test_fts_topandas():
+    pandas = pytest.importorskip('pandas')
+    fts = read_fts().select('CDS')
+    df = fts.topandas()
+    assert isinstance(df, pandas.DataFrame)
+    assert df['type'][0] == 'CDS'
+    assert df['start'][0] == 61943
+    assert df['strand'][0] == '+'

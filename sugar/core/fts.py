@@ -560,6 +560,14 @@ class FeatureList(collections.UserList):
                 for v in vals
             ]
 
+    def topandas(self, vals='type start stop strand', **kw):
+        import pandas
+        if isinstance(vals, str):
+            vals = vals.split()
+        kw.setdefault('columns', vals)
+        return pandas.DataFrame(self.tolist(vals=vals), **kw)
+
+
     def get(self, type):
         """
         Return the first feature of specified feature type, e.g. ``'cds'``
