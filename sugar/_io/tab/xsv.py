@@ -32,7 +32,7 @@ def read_fts_tsv(f, sep='\t', **kw):
     :param str sep: Separator of the fields, defaults to ``'\t'``
     :param str ftype: Parameter used as feature type, if parameter is not present use the value
         of ftype itself.
-    :param \*\*kw: All other kwargs are passed to `pandas.read_csv()`
+    :param \*\*kw: All other kwargs are passed to :func:`pandas.read_csv()`
 
     """
     return _read_xsv(f, sep=sep, **kw)
@@ -46,7 +46,7 @@ def read_fts_csv(f, sep=',', **kw):
     :param str sep: Separator of the fields, defaults to ``','``
     :param str ftype: Parameter used as feature type, if parameter is not present use the value
         of ftype itself.
-    :param \*\*kw: All other kwargs are passed to `pandas.read_csv()`
+    :param \*\*kw: All other kwargs are passed to :func:`pandas.read_csv()`
     """
     return _read_xsv(f, sep=sep, **kw)
 
@@ -60,7 +60,7 @@ def write_fts_tsv(fts, f, sep='\t', **kw):
     :param vals: Parameters from the metadata or location to write,
         ``'len'`` is also allowed,
         might be a string or tuple, defaults to ``'type start stop strand'``
-    :param \*\*kw: All other kwargs are passed to `pandas.DataFrame.to_csv()`
+    :param \*\*kw: All other kwargs are passed to :meth:`pandas.DataFrame.to_csv()`
 
     """
     return _write_xsv(fts, f, sep=sep, **kw)
@@ -75,7 +75,7 @@ def write_fts_csv(fts, f, sep=',', **kw):
     :param vals: Parameters from the metadata or location to write,
         ``'len'`` is also allowed,
         might be a string or tuple, defaults to ``'type start stop strand'``
-    :param \*\*kw: All other kwargs are passed to `pandas.DataFrame.to_csv()`
+    :param \*\*kw: All other kwargs are passed to :meth:`pandas.DataFrame.to_csv()`
     """
     return _write_xsv(fts, f, sep=sep, **kw)
 
@@ -95,5 +95,3 @@ def _write_xsv(fts: FeatureList, f, vals='type start stop strand', dtype=None, i
     except ImportError:
         raise ImportError('TSV/CSV writer depends on pandas module')
     return df.to_csv(f, index=index, **kw)
-
-

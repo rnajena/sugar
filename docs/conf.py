@@ -94,7 +94,8 @@ html_theme_options = {
 
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3/', None),
+    'python': ('https://docs.python.org/3', None),
+    'pandas': ('https://pandas.pydata.org/docs', None),
     # cannot download objects.inv of seaborn, see https://github.com/mwaskom/seaborn/issues/1133
     # 'seaborn': ('https://seaborn.pydata.org/objects.inv', None),
     }
