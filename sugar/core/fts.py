@@ -661,6 +661,10 @@ class FeatureList(collections.UserList):
     def todict(self):
         """
         Return a dictionary with sequence ids as keys and FeatureLists as values
+
+        Similar as ``FeatureList.groupby('seqid')``.
+        The key for features without seqids is set to the empty string ``''``,
+        in the groupyby() method this key is set to ``None``.
         """
         d = {}
         for ft in self:
