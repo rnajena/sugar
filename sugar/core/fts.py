@@ -419,6 +419,15 @@ class FeatureList(collections.UserList):
 
     @classmethod
     def frompandas(cls, df, ftype=None):
+        """
+        Convert `pandas.DataFrame` object to `FeatureList`
+
+        :param ftype: if the data frame has no type column,
+            ``ftype`` column will be used instead,
+            if it does not exist, ``ftype`` will be used as type directly.
+
+        :return: created `FeatureList` instance
+        """
         if ftype is not None and 'type' not in df:
             df = df.copy()
             if ftype in df:
@@ -592,7 +601,7 @@ class FeatureList(collections.UserList):
 
     def topandas(self, vals='type start stop strand', **kw):
         """
-        Return a pandas DataFrame of the features
+        Return a `pandas.DataFrame` of the features
 
         :param vals: Parameters from the metadata or location to return,
             ``'len'`` is also allowed,
