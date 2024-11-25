@@ -10,16 +10,18 @@ filename_extensions_fts_tsv = ['tsv']
 filename_extensions_fts_csv = ['csv']
 
 
-def is_fts_tsv(f, **kw):
-    sep = kw.pop('sep', '\t')
+def _is_xsv(f, sep, **kw):
     lines = f.read(1000).splitlines()[:-1]
-    return 'start' in lines[0] and 'stop' in lines[0] and all(sep in line for line in lines)
+    line0 = lines[0].split(sep)
+    return ('start' in line0) + ('stop' in line0) + ('len' in line0) >= 2 and all(len(line.split(sep)) == len(line0) for line in lines)
 
 
-def is_fts_csv(f, **kw):
-    sep = kw.pop('sep', ',')
-    lines = f.read(1000).splitlines()[:-1]
-    return 'start' in lines[0] and 'stop' in lines[0] and all(sep in line for line in lines)
+def is_fts_tsv(f, sep='\t', **kw):
+    return _is_xsv(f, sep)
+
+
+def is_fts_csv(f, sep=',', **kw):
+    return _is_xsv(f, sep)
 
 
 @_add_fmt_doc('read_fts')
@@ -56,6 +58,7 @@ def write_fts_tsv(fts, f, sep='\t', **kw):
 
     :param str sep: Separator of the fields, defaults to ``'\t'``
     :param vals: Parameters from the metadata or location to write,
+        ``'len'`` is also allowed,
         might be a string or tuple, defaults to ``'type start stop strand'``
     :param \*\*kw: All other kwargs are passed to `pandas.DataFrame.to_csv()`
 
@@ -70,6 +73,7 @@ def write_fts_csv(fts, f, sep=',', **kw):
 
     :param str sep: Separator of the fields, defaults to ``','``
     :param vals: Parameters from the metadata or location to write,
+        ``'len'`` is also allowed,
         might be a string or tuple, defaults to ``'type start stop strand'``
     :param \*\*kw: All other kwargs are passed to `pandas.DataFrame.to_csv()`
     """

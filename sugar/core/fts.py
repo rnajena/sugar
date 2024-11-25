@@ -11,12 +11,12 @@ from copy import deepcopy
 import collections
 import io
 import sys
-from enum import Flag, StrEnum, auto
+from enum import IntFlag, StrEnum, auto
 from sugar.core.meta import Meta
 from sugar.core.util import _add_inplace_doc
 
 
-class Defect(Flag):
+class Defect(IntFlag):
     """
     This enum type describes location defects.
 
@@ -72,6 +72,9 @@ class Strand(StrEnum):
     NONE = '.'
     #: The strandness of the feature is unknown
     UNKNOWN = '?'
+
+    def _reverse(self):
+        return Strand({'+': '-', '-': '+'}.get(self, self))
 
 
 class Location():
@@ -149,11 +152,7 @@ class Location():
     def _reverse(self, seqlen=0):
         loc = self
         start, stop = seqlen-loc.stop, seqlen-loc.start
-        strand = loc.strand
-        if strand == '+':
-            strand = '-'
-        elif strand == '-':
-            strand = '+'
+        strand = loc.strand._reverse()
         defect = loc.defect._reverse()
         return Location(start, stop, strand, defect, meta=loc.meta)
 
@@ -421,10 +420,18 @@ class FeatureList(collections.UserList):
     @classmethod
     def frompandas(cls, df, ftype=None):
         if ftype is not None and 'type' not in df:
+            df = df.copy()
             if ftype in df:
                 df['type'] = df[ftype]
             else:
                 df['type'] = ftype
+        if 'len' in df:
+            df = df.copy()
+            if 'start' in df and 'stop' not in f:
+                df['stop'] = df['start'] + df['len']
+            elif 'start' not in df and 'stop' in f:
+                df['start'] = df['stop'] - df['len']
+            del df['len']
         fts = []
         for rec in df.to_dict('records'):
             loc = Location(rec.pop('start'),
@@ -556,23 +563,29 @@ class FeatureList(collections.UserList):
         Return a generator yielding a list for each feature
 
         :param vals: Parameters from the metadata or location to return,
+            ``'len'`` is also allowed,
             might be a string or tuple, defaults to ``'type start stop strand'``
 
         .. rubric:: Example:
 
         >>> from sugar import read_fts
-        >>> fts = read_fts().select('CDS')
-        >>> for type_, start, stop, strand in fts.tolist():
-        ...     print(type_, start, strand,)
-        CDS 61943 +
+        >>> fts = read_fts().select('cDNA_match')
+        >>> for record in fts.tolist('type start strand len'):
+        ...     print(*record)
+        cDNA_match 101888622 - 4245
+        cDNA_match 103140200 - 30745
+        cDNA_match 103944892 - 7136
+        cDNA_match 107859806 - 2392
         """
         if isinstance(vals, str):
             vals = vals.split()
         for ft in self:
             yield [
                 ft.loc.strand if v == 'strand' else
+                ft.loc.defect if v == 'defect' else
                 ft.locs.range[0] if v == 'start' else
                 ft.locs.range[1] if v == 'stop' else
+                len(ft) if v == 'len' else
                 ft.meta.get(v)
                 for v in vals
             ]
@@ -582,6 +595,7 @@ class FeatureList(collections.UserList):
         Return a pandas DataFrame of the features
 
         :param vals: Parameters from the metadata or location to return,
+            ``'len'`` is also allowed,
             might be a string or tuple, defaults to ``'type start stop strand'``
 
         .. rubric:: Example:
