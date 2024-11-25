@@ -18,6 +18,7 @@ Submodules
    tab.infernal
    tab.core
    tab.mmseqs
+   tab.xsv
    util
 
 .. toctree::
