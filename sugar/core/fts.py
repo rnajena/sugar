@@ -397,11 +397,11 @@ class Feature():
         self.locs = self.locs._reverse(seqlen=seqlen)
         return self
 
-    def write(self, fname, fmt=None, **kw):
+    def write(self, fname=None, fmt=None, **kw):
         """
         Write feature to file, see `~.main.write_fts()`
         """
-        FeatureList([self]).write(fname, fmt=fmt, **kw)
+        return FeatureList([self]).write(fname=fname, fmt=fmt, **kw)
 
     # def __hash__(self):
     #     return hash((self.type, self.locs, frozenset(self.meta.items())))
@@ -532,9 +532,7 @@ class FeatureList(collections.UserList):
         """
         Write features to a string of specified format, see `~.main.write_fts()`
         """
-        out = io.StringIO()
-        self.write(out, fmt=fmt, **kw)
-        return out.getvalue()
+        return self.write(None, fmt)
 
     def get(self, type):
         """
@@ -627,12 +625,12 @@ class FeatureList(collections.UserList):
         return start, stop
 
 
-    def write(self, fname, fmt=None, **kw):
+    def write(self, fname=None, fmt=None, **kw):
         """
         Write features to file, see `~.main.write_fts()`
         """
         from sugar._io import write_fts
-        write_fts(self, fname, fmt=fmt, **kw)
+        return write_fts(self, fname=fname, fmt=fmt, **kw)
 
 
     def slice(self, start, stop, rel=0):

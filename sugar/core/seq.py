@@ -600,11 +600,11 @@ class BioSeq():
         self.type = 'aa'
         return self
 
-    def write(self, fname, fmt=None, **kw):
+    def write(self, fname=None, fmt=None, **kw):
         """
         Write sequence to file, see `~.main.write()`
         """
-        BioBasket([self]).write(fname, fmt, **kw)
+        return BioBasket([self]).write(fname=fname, fmt=fmt, **kw)
 
 
 import math
@@ -1119,9 +1119,7 @@ class BioBasket(collections.UserList):
         """
         Write sequences to a string of specified format, see `~.main.write()`
         """
-        out = io.StringIO()
-        self.write(out, fmt=fmt, **kw)
-        return out.getvalue()
+        return self.write(None, fmt)
 
     def tostr(self, h=19, w=80, wid=19, wlen=4, showgc=True,
               add_hint=False, raw=False, add_header=True):
@@ -1169,12 +1167,12 @@ class BioBasket(collections.UserList):
         else:
             raise ValueError(f'Unsupported tool: {tool}')
 
-    def write(self, fname, fmt=None, **kw):
+    def write(self, fname=None, fmt=None, **kw):
         """
         Write sequences to file, see `~.main.write()`
         """
         from sugar._io import write
-        write(self, fname, fmt=fmt, **kw)
+        return write(self, fname=fname, fmt=fmt, **kw)
 
     # def consensus(self, gap='-'):
     #     n = len(self)

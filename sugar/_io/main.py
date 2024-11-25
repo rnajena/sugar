@@ -118,6 +118,20 @@ def _resolve_archive(writer):
     return new_writer
 
 
+def _allow_to_str(writer):
+    @wraps(writer)
+    def new_writer(objs, fname=None, fmt=None, **kw):
+        if fname is None:
+            if fmt is None:
+                raise ValueError('Output format can only be detected from extension. Specify fname or fmt.')
+            out = io.StringIO()
+            writer(objs, out, fmt=fmt, **kw)
+            return out.getvalue()
+        else:
+            return writer(objs, fname=fname, fmt=fmt, **kw)
+    return new_writer
+
+
 def __get_ext(fname):
     return os.path.split(fname)[1].split('.', 1)[-1]
 
@@ -356,6 +370,7 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
 
 
 @_resolve_archive
+@_allow_to_str
 def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
     """
     Write sequences to file, use it via `.BioBasket.write()` or `.BioSeq.write()`
@@ -404,7 +419,8 @@ def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
 
 
 @_resolve_archive
-def write_fts(fts, fname, fmt=None, *, mode='w', **kw):
+@_allow_to_str
+def write_fts(fts, fname=None, fmt=None, *, mode='w', **kw):
     """
     Write features to file, use it via `.FeatureList.write()` or `.Feature.write()`
 
