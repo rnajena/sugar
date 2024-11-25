@@ -46,8 +46,8 @@ genbank = "sugar._io.genbank"
 blast = "sugar._io.tab.blast"
 mmseqs = "sugar._io.tab.mmseqs"
 infernal = "sugar._io.tab.infernal"
-tsv = "sugar._io.tab.tsv"
-csv = "sugar._io.tab.tsv"
+tsv = "sugar._io.tab.xsv"
+csv = "sugar._io.tab.xsv"
 
 [build-system]
 requires = ["setuptools>=61.0"]
