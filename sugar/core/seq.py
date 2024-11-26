@@ -735,7 +735,7 @@ class BioBasket(collections.UserList):
 
     @fts.setter
     def fts(self, value):
-        fts = FeatureList(value).todict()
+        fts = FeatureList(value).groupby('seqid')
         for seq in self:
             if seq.id in fts:
                 seq.fts = fts.pop(seq.id)
@@ -752,7 +752,7 @@ class BioBasket(collections.UserList):
 
         :param fts: features to add
         """
-        fts = FeatureList(fts).todict()
+        fts = FeatureList(fts).groupby('seqid')
         for seq in self:
             if seq.id in fts:
                 seq.fts = seq.fts + fts.pop(seq.id)

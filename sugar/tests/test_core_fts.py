@@ -38,7 +38,7 @@ def test_fts_str():
 
 def test_fts_d():
     fts = read_fts()
-    assert len(fts.d[fts[0].meta.seqid]) > 0
+    assert fts.d[fts[-1].id] == fts[-1]
 
 
 def test_fts_rc():
@@ -124,9 +124,9 @@ def test_loc_hash():
     assert locs in {locs}
 
 
-def test_fts_tolist():
+def test_fts_tolists():
     fts = read_fts().select('CDS')
-    for type_, start, stop, strand in fts.tolist():
+    for type_, start, stop, strand in fts.tolists():
         assert type_ == 'CDS'
         assert start == 61943
         assert strand == '+'

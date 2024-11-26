@@ -64,7 +64,7 @@ def test_match():
 
 
 def test_orf():
-    seqs=read()
+    seqs = read()
     orfs = seqs[0].find_orfs()
     assert len(orfs) > 0
     longest_orf = orfs.sort(len)[-1]
@@ -75,7 +75,7 @@ def test_orf():
 
     orfs = seqs.find_orfs()
     for id_ in seqs.ids:
-        assert seqs.d[id_][orfs.d[id_].sort(len)[-1]] == seqs.d[id_]['cds']
+        assert seqs.d[id_][orfs.groupby('seqid')[id_].sort(len)[-1]] == seqs.d[id_]['cds']
 
 
 def test_filter_fts():
@@ -97,7 +97,6 @@ def test_filter_seqs():
     seqs2 = seqs.filter(len_gt=9500, inplace=False)
     assert len(seqs2) == 1
     assert len(seqs2) < len(seqs)
-
 
 
 def test_groupby_fts_nested():

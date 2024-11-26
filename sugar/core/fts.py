@@ -567,7 +567,7 @@ class FeatureList(collections.UserList):
         """
         return self.write(None, fmt)
 
-    def tolist(self, vals='type start stop strand'):
+    def tolists(self, vals='type start stop strand'):
         """
         Return a generator yielding a list for each feature
 
@@ -579,7 +579,7 @@ class FeatureList(collections.UserList):
 
         >>> from sugar import read_fts
         >>> fts = read_fts().select('cDNA_match')
-        >>> for record in fts.tolist('type start strand len'):
+        >>> for record in fts.tolists('type start strand len'):
         ...     print(*record)
         cDNA_match 101888622 - 4245
         cDNA_match 103140200 - 30745
@@ -623,7 +623,7 @@ class FeatureList(collections.UserList):
         if isinstance(vals, str):
             vals = vals.split()
         kw.setdefault('columns', vals)
-        return pandas.DataFrame(self.tolist(vals=vals), **kw)
+        return pandas.DataFrame(self.tolists(vals=vals), **kw)
 
 
     def get(self, type):
@@ -660,17 +660,15 @@ class FeatureList(collections.UserList):
 
     def todict(self):
         """
-        Return a dictionary with sequence ids as keys and FeatureLists as values
+        Return a dictionary with feature ids as keys and features as values
 
-        Similar as ``FeatureList.groupby('seqid')``.
-        The key for features without seqids is set to the empty string ``''``,
-        in the groupyby() method this key is set to ``None``.
+        .. note::
+            This method is different from the `FeatureList.groupby()` method.
+            Each value of the dict returned by ``todict()`` is a feature,
+            whereas each value of the dict returned by ``groupby()`` is a
+            FeatureList.
         """
-        d = {}
-        for ft in self:
-            seqid = ft.meta.get('seqid', '')
-            d.setdefault(seqid, self.__class__()).append(ft)
-        return d
+        return {ft.id: ft for ft in self}
 
     def groupby(self, keys=('seqid',)):
         """
@@ -693,9 +691,9 @@ class FeatureList(collections.UserList):
     @property
     def d(self):
         """
-        Alias for ``FeatureList.groupby('seqid')``
+        Alias for ``FeatureList.todict()``
         """
-        return self.groupby('seqid')
+        return self.todict()
 
     @property
     def loc_range(self):
