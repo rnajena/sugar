@@ -89,9 +89,9 @@ def _read_fts_xsv(f, ftype=None, **kw):
     return FeatureList.frompandas(df, ftype=ftype)
 
 
-def _write_fts_xsv(fts: FeatureList, f, vals='type start stop strand', dtype=None, index=False, **kw):
+def _write_fts_xsv(fts: FeatureList, f, keys='type start stop strand', dtype=None, index=False, **kw):
     try:
-        df = fts.topandas(vals, dtype=dtype)
+        df = fts.topandas(keys, dtype=dtype)
     except ImportError:
         raise ImportError('TSV/CSV writer depends on pandas module')
     return df.to_csv(f, index=index, **kw)

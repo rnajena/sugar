@@ -25,10 +25,10 @@ def test_csv():
 def test_xsv_edgecases():
     pytest.importorskip('pandas')
     fts = read_fts()
-    out = fts.write(None, 'csv', sep=' ', vals='type start len strand defect')
+    out = fts.write(None, 'csv', sep=' ', keys='type start len strand defect')
     fts2 = read_fts(io.StringIO(out), sep=None, engine='python')
     fts3 = read_fts('!data/fts_example.tsv')
     assert fts2 == fts3
-    out = fts.write(None, 'csv', sep='|', vals='type stop len strand defect')
+    out = fts.write(None, 'csv', sep='|', keys='type stop len strand defect')
     fts2 = read_fts(io.StringIO(out), sep='|')
     assert fts2 == fts3

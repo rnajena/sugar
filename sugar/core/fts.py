@@ -567,11 +567,11 @@ class FeatureList(collections.UserList):
         """
         return self.write(None, fmt)
 
-    def tolists(self, vals='type start stop strand'):
+    def tolists(self, keys='type start stop strand'):
         """
         Return a generator yielding a list for each feature
 
-        :param vals: Parameters from the metadata or location to return,
+        :param keys: Parameters from the metadata or location to return,
             ``'len'`` is also allowed,
             might be a string or tuple, defaults to ``'type start stop strand'``
 
@@ -586,24 +586,24 @@ class FeatureList(collections.UserList):
         cDNA_match 103944892 - 7136
         cDNA_match 107859806 - 2392
         """
-        if isinstance(vals, str):
-            vals = vals.split()
+        if isinstance(keys, str):
+            keys = keys.split()
         for ft in self:
             yield [
-                ft.loc.strand if v == 'strand' else
-                ft.loc.defect if v == 'defect' else
-                ft.locs.range[0] if v == 'start' else
-                ft.locs.range[1] if v == 'stop' else
-                len(ft) if v == 'len' else
-                ft.meta.get(v)
-                for v in vals
+                ft.loc.strand if k == 'strand' else
+                ft.loc.defect if k == 'defect' else
+                ft.locs.range[0] if k == 'start' else
+                ft.locs.range[1] if k == 'stop' else
+                len(ft) if k == 'len' else
+                ft.meta.get(k)
+                for k in keys
             ]
 
-    def topandas(self, vals='type start stop strand', **kw):
+    def topandas(self, keys='type start stop strand', **kw):
         """
         Return a `pandas.DataFrame` of the features
 
-        :param vals: Parameters from the metadata or location to return,
+        :param keys: Parameters from the metadata or location to return,
             ``'len'`` is also allowed,
             might be a string or tuple, defaults to ``'type start stop strand'``
 
@@ -620,10 +620,10 @@ class FeatureList(collections.UserList):
         3  cDNA_match  107859806  107862198      -
         """
         import pandas
-        if isinstance(vals, str):
-            vals = vals.split()
-        kw.setdefault('columns', vals)
-        return pandas.DataFrame(self.tolists(vals=vals), **kw)
+        if isinstance(keys, str):
+            keys = keys.split()
+        kw.setdefault('columns', keys)
+        return pandas.DataFrame(self.tolists(keys=keys), **kw)
 
 
     def get(self, type):
