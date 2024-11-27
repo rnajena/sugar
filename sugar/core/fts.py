@@ -448,7 +448,7 @@ class FeatureList(collections.UserList):
         for rec in df.to_dict('records'):
             loc = Location(rec.pop('start'),
                            rec.pop('stop'),
-                           strand=rec.pop('strand', '+'),
+                           strand=rec.pop('strand', '?'),
                            defect=rec.pop('defect', Defect.NONE))
             ft = Feature(locs=[loc], meta=rec)
             fts.append(ft)
