@@ -78,16 +78,15 @@ class Strand(StrEnum):
 
 
 class Location():
-
+    """
+    Class describing the contiguous position of a feature
+    """
     def __init__(self, start, stop, strand='+', defect=0, meta=None):
-        """
-        Class describing the contiguous position of a feature
-        """
         if start >= stop:
             raise ValueError('start must be lower than stop')
-        #: start location (0 based)
+        #: start location (zero-based numbering)
         self.start = start
-        #: stop location (0 based)
+        #: stop location (zero-based numbering)
         self.stop = stop
         self.strand = strand
         self.defect = defect
@@ -159,7 +158,7 @@ class Location():
 
 class LocationTuple(tuple):
     """
-    Tuple of locations
+    Tuple of contiguous locations, describing the position of a feature
     """
     def __new__(cls, locs=None, start=None, stop=None, strand='+'):
         if start is not None or stop is not None:
@@ -196,7 +195,7 @@ class LocationTuple(tuple):
 
         :returns:
             tuple ``start, stop`` with start and stop location
-            (Python-style 0 based indexing)
+            (zero-based numbering)
         """
         start = min(loc.start for loc in self)
         stop = max(loc.stop for loc in self)
@@ -706,7 +705,7 @@ class FeatureList(collections.UserList):
 
         :returns:
             tuple ``start, stop`` with start and stop location
-            (Python-style 0 based indexing)
+            (zero-based numbering)
         """
         start = sys.maxsize
         stop = -sys.maxsize
