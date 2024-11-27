@@ -85,9 +85,9 @@ class Location():
         """
         if start >= stop:
             raise ValueError('start must be lower than stop')
-        #:
+        #: start location (0 based)
         self.start = start
-        #:
+        #: stop location (0 based)
         self.stop = stop
         self.strand = strand
         self.defect = defect
@@ -192,7 +192,11 @@ class LocationTuple(tuple):
     @property
     def range(self):
         """
-        Get the minimum start base and maximum stop base of all locations
+        Get the range of locations of this feature
+
+        :returns:
+            tuple ``start, stop`` with start and stop location
+            (Python-style 0 based indexing)
         """
         start = min(loc.start for loc in self)
         stop = max(loc.stop for loc in self)
@@ -698,15 +702,11 @@ class FeatureList(collections.UserList):
     @property
     def loc_range(self):
         """
-        Get the range of feature locations,
-        i.e. the start and exclusive stop base/residue.
+        Get the range of locations over all features
 
-        Returns
-        -------
-        int : start
-            Start location.
-        int : stop
-            Exclusive stop location.
+        :returns:
+            tuple ``start, stop`` with start and stop location
+            (Python-style 0 based indexing)
         """
         start = sys.maxsize
         stop = -sys.maxsize
