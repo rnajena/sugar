@@ -18,29 +18,29 @@ from sugar.core.util import _add_inplace_doc
 
 class Defect(IntFlag):
     """
-    This enum type describes location defects.
+    Types of location defects
 
-    A location has a defect, when the feature itself is not directly
-    located in the range of the start to the stop base.
+    A location has a defect,
+    when the feature is not exactly located between start and stop base
     """
     #: No location defect
-    NONE         = 0
+    NONE = 0
     #: Part of the feature has been truncated
     #: before the start base
     #: (e.g. by slicing with `FeatureList.slice()`)
-    MISS_LEFT    = auto()
+    MISS_LEFT = auto()
     #: Part of the feature has been truncated
-    #: after the stop base, inclusive
+    #: after or at the stop base
     #: (e.g. by slicing with `FeatureList.slice()`)
-    MISS_RIGHT   = auto()
+    MISS_RIGHT = auto()
     #: The feature starts at an unknown position
     #: before the start base
-    BEYOND_LEFT  = auto()
+    BEYOND_LEFT = auto()
     #: The feature stops at an unknown position
-    #: after the stop base, inclusive
+    #: after or at the stop base
     BEYOND_RIGHT = auto()
     #: The feature starts at an unknown position
-    UNKNOWN_LEFT  = auto()
+    UNKNOWN_LEFT = auto()
     #: The feature stops at an unknown position
     UNKNOWN_RIGHT = auto()
     #: The position is between two consecutive bases
@@ -50,6 +50,11 @@ class Defect(IntFlag):
     UNKNOWN_SINGLE_BETWEEN = auto()
 
     def _reverse(self):
+        """
+        Return reversed defect
+
+        i.e. describe the same defect from the view of the reverse strand.
+        """
         defect = Defect(self)
         if len((self.MISS_LEFT | self.MISS_RIGHT) & self) == 1:
             defect ^= self.MISS_LEFT | self.MISS_RIGHT
@@ -62,7 +67,7 @@ class Defect(IntFlag):
 
 class Strand(StrEnum):
     """
-    This enum type describes the strand of the feature location.
+    Types of strand of feature location
     """
     #: The feature is located on the forward strand
     FORWARD = '+'
@@ -74,6 +79,9 @@ class Strand(StrEnum):
     UNKNOWN = '?'
 
     def _reverse(self):
+        """
+        Return reversed strand
+        """
         return Strand({'+': '-', '-': '+'}.get(self, self))
 
 
@@ -84,9 +92,9 @@ class Location():
     def __init__(self, start, stop, strand='+', defect=0, meta=None):
         if start >= stop:
             raise ValueError('start must be lower than stop')
-        #: start location (zero-based numbering)
+        #: Start location (zero-based numbering)
         self.start = start
-        #: stop location (zero-based numbering)
+        #: Stop location (zero-based numbering)
         self.stop = stop
         self.strand = strand
         self.defect = defect
@@ -134,6 +142,7 @@ class Location():
 
     @property
     def strand(self):
+        """Strand of the location"""
         return self._strand
 
     @strand.setter
@@ -142,6 +151,7 @@ class Location():
 
     @property
     def defect(self):
+        """Defect of the location"""
         return self._defect
 
     @defect.setter
@@ -149,8 +159,14 @@ class Location():
         self._defect = Defect(v)
 
     def _reverse(self, seqlen=0):
+        """
+        Return reversed location
+
+        :param seqlen: Length of the sequence which the location belongs to,
+        the default 0 wil return negative start and stop base locations.
+        """
         loc = self
-        start, stop = seqlen-loc.stop, seqlen-loc.start
+        start, stop = seqlen - loc.stop, seqlen - loc.start
         strand = loc.strand._reverse()
         defect = loc.defect._reverse()
         return Location(start, stop, strand, defect, meta=loc.meta)
@@ -234,16 +250,17 @@ class LocationTuple(tuple):
         raise TypeError(msg)
 
     def __sub__(self, other):
+        """Return position in the middle of both ranges"""
         if isinstance(other, LocationTuple):
             lr1 = self.range
             lr2 = other.range
-            return (sum(lr1) - sum(lr2)) / 2
+            return (sum(lr1) - sum(lr2)) // 2
         msg = f"'-' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
         raise TypeError(msg)
 
     def overlaps(self, other):
         """
-        Weather the location ranges overlaps with other feature
+        Weather the location ranges overlaps with other location range
         """
         if isinstance(other, LocationTuple):
             lr1 = self.range
@@ -253,6 +270,7 @@ class LocationTuple(tuple):
         raise TypeError(msg)
 
     def _reverse(self, seqlen=0):
+        """Return reversed LocationTuple"""
         return LocationTuple([loc._reverse(seqlen=seqlen) for loc in self])
 
 
@@ -289,7 +307,7 @@ class Feature():
     @property
     def locs(self):
         """
-        List of feature locations
+        `LocationTuple` of feature locations
         """
         return self._locs
 
@@ -342,7 +360,6 @@ class Feature():
         self.meta.name = value
 
     def __repr__(self):
-        """Represent Feature as a string for debugging."""
         meta = self.meta.copy()
         meta.pop('type', None)
         return f'Feature("{self.type}", [{", ".join([loc.__repr__() for loc in self.locs])}], meta={meta!r})'
@@ -391,7 +408,7 @@ class Feature():
         """
         Reverse complement the feature.
 
-        After the operation the feature will be located on the reverse complement strand.
+        After the in-place operation the feature will be described from the reverse complement strand.
 
         :param int seqlen: The sequence length, the default 0 will result in negative
             location indices.
@@ -412,7 +429,7 @@ class Feature():
 class FeatureList(collections.UserList):
     def __init__(self, data=None):
         """
-        A `FeatureList` is a list of features belonging to one or several sequences.
+        A `FeatureList` is a list of features belonging to a single sequence or to different sequences.
 
         :param list data: the features
         """
@@ -421,13 +438,18 @@ class FeatureList(collections.UserList):
         super().__init__(data)
 
     @classmethod
-    def frompandas(cls, df, ftype=None):
+    def frompandas(cls, df, ftype=None, one_based=False):
         """
         Convert `pandas.DataFrame` object to `FeatureList`
 
+        :param df: data frame with at least start and stop columns.
+        The following columns can be used: type, start, stop, len, strand, defect.
+        Other column are saved as metadata.
         :param ftype: if the data frame has no type column,
             ``ftype`` column will be used instead,
             if it does not exist, ``ftype`` will be used as type directly.
+        :param one_based: Weather the data used one-based numbering.
+            It will be converted to zero-based numbering, which is used by sugar.
 
         :return: created `FeatureList` instance
         """
@@ -446,7 +468,7 @@ class FeatureList(collections.UserList):
             del df['len']
         fts = []
         for rec in df.to_dict('records'):
-            loc = Location(rec.pop('start'),
+            loc = Location(rec.pop('start') - one_based,
                            rec.pop('stop'),
                            strand=rec.pop('strand', '?'),
                            defect=rec.pop('defect', Defect.NONE))
@@ -707,16 +729,10 @@ class FeatureList(collections.UserList):
             tuple ``start, stop`` with start and stop location
             (zero-based numbering)
         """
-        start = sys.maxsize
-        stop = -sys.maxsize
-        for ft in self:
-            for loc in ft.locs:
-                if loc.start < start:
-                    start = loc.start
-                if loc.stop > stop:
-                    stop = loc.stop
-        return start, stop
-
+        if len(self) == 0:
+            return None
+        mins, maxs = zip(*[ft.locs.range for ft in self])
+        return min(mins), max(maxs)
 
     def write(self, fname=None, fmt=None, **kw):
         """
@@ -725,26 +741,22 @@ class FeatureList(collections.UserList):
         from sugar._io import write_fts
         return write_fts(self, fname=fname, fmt=fmt, **kw)
 
-
     def slice(self, start, stop, rel=0):
         """
-        Return a sub-annotation between start and stop
+        Return a sub-feature between start and stop
+
+        :param start,stop: start and stop location
+        :param int rel: The value ``rel`` is subtracted from all location positions
         """
         if start is None:
             start = -sys.maxsize
         if stop is None:
             stop = sys.maxsize
-        # else:
-        #     i_stop = stop - 1
         sub_annot = []
         for ft in self:
-            locs_in_scope = []
+            sublocs = []
             for loc in ft.locs:
-                # Always true for maxsize values
-                # in case no start or stop index is given
                 if loc.start < stop and loc.stop > start:
-                    # The location is at least partly in the
-                    # given location range
                     defect = loc.defect
                     if loc.start < start:
                         defect |= Defect.MISS_LEFT
@@ -752,14 +764,11 @@ class FeatureList(collections.UserList):
                         defect |= Defect.MISS_RIGHT
                     lstart = max(start, loc.start) - rel
                     lstop = min(stop, loc.stop) - rel
-                    locs_in_scope.append(Location(
+                    sublocs.append(Location(
                         lstart, lstop, loc.strand, defect, meta=loc.meta
                     ))
-            if len(locs_in_scope) > 0:
-                # The feature is present in the new annotation
-                # if any of the original locations is in the new
-                # scope
-                new_ft = Feature(locs=locs_in_scope, meta=ft.meta)
+            if len(sublocs) > 0:
+                new_ft = Feature(locs=sublocs, meta=ft.meta)
                 sub_annot.append(new_ft)
         return self.__class__(sub_annot)
 
@@ -769,7 +778,7 @@ class FeatureList(collections.UserList):
         Reverse complement all features, see `Feature.rc()`
 
         :param int seqlen: The sequence length, the default 0 will result in negative
-            location indices.
+            location positions.
         """
         for ft in self:
             ft.rc(seqlen=seqlen)

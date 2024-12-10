@@ -10,7 +10,7 @@ os.environ['SPHINX_BUILD'] = '1'
 def parse_version():
     from pathlib import Path
     import re
-    init_path = Path(__file__).parent.parent / 'sugar/__init__.py'
+    init_path = Path(__file__).parent.parent / 'src/sugar/__init__.py'
     with open(init_path) as f:
         content = f.read()
     regex = r"""__version__\s*=\s*['"]([^\s]+)['"]"""
