@@ -131,19 +131,19 @@ def test_write_archive():
 
 @pytest.mark.webtest
 def test_download():
-    url = 'https://raw.githubusercontent.com/rnajena/sugar/master/sugar/tests/data/example.gb'
+    url = 'https://raw.githubusercontent.com/rnajena/sugar/master/src/sugar/tests/data/example.gb'
     assert read(url) == read()
 
 
 @pytest.mark.webtest
 def test_download_uncompress():
-    url = 'https://raw.githubusercontent.com/rnajena/sugar/master/sugar/tests/data/io_test.gz'
+    url = 'https://raw.githubusercontent.com/rnajena/sugar/master/src/sugar/tests/data/io_test.gz'
     assert read(url) == read()
 
 
 @pytest.mark.webtest
 def test_download_zip():
-    url = 'https://raw.githubusercontent.com/rnajena/sugar/master/sugar/tests/data/io_test.zip'
+    url = 'https://raw.githubusercontent.com/rnajena/sugar/master/src/sugar/tests/data/io_test.zip'
     assert read()[0] in read(url)
 
 
