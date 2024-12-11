@@ -477,7 +477,7 @@ class BioSeq():
                     start, stop = index.start, index.stop
                     if index.step not in (None, 1):
                         raise ValueError('update_fts for slices only supported with step==1')
-                subseq.fts = self.fts.slice(start, stop, rel=start)
+                subseq.fts = self.fts.slice(start, stop, rel=start or 0)
         if inplace:
             self.data = subseq.data
         return subseq
@@ -739,6 +739,8 @@ class BioBasket(collections.UserList):
         for seq in self:
             if seq.id in fts:
                 seq.fts = fts.pop(seq.id)
+            else:
+                del seq.meta.fts
         if len(fts) > 0:
             missing_ids = ', '.join(fts.keys())
             warn(f'Features for seqids {missing_ids} could not be '

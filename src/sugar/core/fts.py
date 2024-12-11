@@ -542,7 +542,6 @@ class FeatureList(collections.UserList):
                 if str(getattr(ft, 'type', None)) in exclude_fts:
                     continue
                 for l in ft.locs:
-                    # print(getattr(ft, "type"))
                     ftstr = (f'{getattr(ft, "type", ".")} {l.start} {l.stop} {l.strand}'
                              f' {ft.meta.get("name", ".")} {ft.meta.get("id", ".")} {ft.meta.get("seqid", ".")}')
                     out.append(ftstr)
@@ -741,7 +740,7 @@ class FeatureList(collections.UserList):
         from sugar._io import write_fts
         return write_fts(self, fname=fname, fmt=fmt, **kw)
 
-    def slice(self, start, stop, rel=0):
+    def slice(self, start, stop, *, rel=0):
         """
         Return a sub-feature between start and stop
 
