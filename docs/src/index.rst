@@ -7,6 +7,7 @@ Sugar's functionality is provided through the following packages:
 
     core
     _io
+    imaging
     index
     data
     web
@@ -18,6 +19,7 @@ Sugar's functionality is provided through the following packages:
     self
     sugar.core
     sugar._io
+    sugar.imaging
     sugar.index
     sugar.data
     sugar.web
