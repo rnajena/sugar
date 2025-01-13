@@ -8,6 +8,7 @@ import collections.abc
 import copy
 from functools import reduce
 import io
+import math
 import operator
 import sys
 from warnings import warn
@@ -25,12 +26,12 @@ COMPLEMENT_TRANS = str.maketrans(COMPLEMENT_ALL)
 
 
 class _Sliceable_GetItem():
-    def __init__(self, obj, **kw):
-        self.obj = obj
+    def __init__(self, obj, method='_getitem', **kw):
         self.kw = kw
+        self.call = getattr(obj, method)
 
     def __getitem__(self, i):
-        return self.obj._getitem(i, **self.kw)
+        return self.call(i, **self.kw)
 
 
 class _BioSeqStr():
@@ -404,6 +405,10 @@ class BioSeq():
         """
         return _Sliceable_GetItem(self, **kw)
 
+
+    def slindex(self, gap=None):
+        return _Sliceable_GetItem(self, method='_getindex', gap=gap)
+
     def _slice_locs(self, locs, splitter=None, filler=None, gap=None, update_fts=False):
         # Merge the sequences corresponding to the ordered locations
         sub_seqs = []
@@ -436,6 +441,32 @@ class BioSeq():
             sub_seq.fts = fts
         return sub_seq
 
+    def _getindex(self, index, gap=None):
+        if not isinstance(index, (int, slice)):
+            if isinstance(index, str):
+                ft = self.fts.get(index)
+                if ft is None:
+                    raise ValueError(f'Feature of type {index} not found')
+                index = ft
+            if isinstance(index, Location):
+                index = LocationTuple([Location])
+            elif isinstance(index, Feature):
+                index = index.locs
+            if isinstance(index, LocationTuple):
+                start, stop = index.range
+                return self.slindex(gap=gap)[start:stop]
+            else:
+                raise TypeError('Index not supported')
+        # from bisect import bisect
+        nogaps = [i for i, nt in enumerate(self.data) if nt not in gap]
+        adj = lambda i: nogaps[i] if i is not None and i < len(nogaps) else None
+        adj_stop = lambda i: nogaps[i-1]+1 if i is not None and 0 < i < len(nogaps) else 0 if i == 0 else None
+        if isinstance(index, int):
+            index = adj(index)
+        elif isinstance(index, slice):
+            index = slice(adj(index.start), adj_stop(index.stop), index.step)
+        return index
+
     def _getitem(self, index, inplace=False, gap=None, update_fts=False, **kw):
         """
         Slice the sequence and return a subsequence
@@ -461,15 +492,10 @@ class BioSeq():
             else:
                 raise TypeError('Index not supported')
         else:
-            if gap is not None:
-                # from bisect import bisect
-                nogaps = [i for i, nt in enumerate(self.data) if nt not in gap]
-                adj = lambda i: nogaps[i] if i is not None and i < len(nogaps) else None
-                if isinstance(index, int):
-                    index = adj(index)
-                elif isinstance(index, slice):
-                    index = slice(adj(index.start), adj(index.stop), index.step)
-            subseq = self.__class__(self.data[index], meta=self.meta)
+            subseq = self.__class__(
+                self.data[index if gap is None else self._getindex(index, gap=gap)],
+                meta=self.meta
+                )
             if update_fts:
                 if isinstance(index, int):
                     start, stop = index, index + 1
@@ -589,7 +615,7 @@ class BioSeq():
         return self
 
     @_add_inplace_doc
-    def translate(self, *args, **kw):
+    def translate(self, *args, update_fts=False, **kw):
         """
         Translate nucleotide sequence to amino acid sequence, see `~.cane.translate()`.
 
@@ -598,6 +624,13 @@ class BioSeq():
         from sugar.core.cane import translate
         self.data = translate(self.data, *args, **kw)
         self.type = 'aa'
+        if update_fts:
+            fts = self.fts.slice(0, len(self) * 3)
+            for ft in fts:
+                for loc in ft.locs:
+                    loc.start = loc.start // 3
+                    loc.stop = loc.stop // 3
+            self.fts = fts
         return self
 
     def write(self, fname=None, fmt=None, **kw):
@@ -605,9 +638,6 @@ class BioSeq():
         Write sequence to file, see `~.main.write()`
         """
         return BioBasket([self]).write(fname=fname, fmt=fmt, **kw)
-
-
-import math
 
 
 def _si_format(v, l=4):
@@ -1175,6 +1205,31 @@ class BioBasket(collections.UserList):
         """
         from sugar._io import write
         return write(self, fname=fname, fmt=fmt, **kw)
+
+    def plot_alignment(self, *args, **kw):
+        """
+        Plot an alignment, see `~.imaging.alignment.plot_alignment()`
+        """
+        from sugar.imaging import plot_alignment
+        return plot_alignment(self, *args, **kw)
+
+    def merge(self, spacer='', update_fts=False, keys=('id',)):
+        data = []
+        for group in self.groupby(keys).values():
+            seq = group[0]
+            for oseq in group[1:]:
+                seq.data = seq.data + spacer + oseq.data
+                if update_fts:
+                    nfts = []
+                    for ft in oseq.fts:
+                        rel = len(seq) - len(oseq)
+                        locs = [Location(l.start + rel, l.stop + rel, l.strand, l.defect) for l in ft.locs]
+                        nfts.append(Feature(locs=locs, meta=ft.meta))
+                    seq.add_fts(nfts)
+            data.append(seq)
+        self.data = data
+        return self
+
 
     # def consensus(self, gap='-'):
     #     n = len(self)
