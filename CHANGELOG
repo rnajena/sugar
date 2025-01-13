@@ -1,6 +1,17 @@
 dev:
   * core:
+    - add tolists and topandas methods to FeaturList
+    - add BioBasket.merge method
+    - add BioBasket.plot_alignment method
+    - add BioSeq.slindex method
+    - add update_fts option to translate
     - switch default value of inplace option to False for filter methods
+  * io
+    - writers: allow to pass None as fname, in this case a string will be returned
+    - add TSV/CSV IO support for features
+    - glob expressions in file names are now evaluated in sorted order
+  * add imaging module with plot_alignment function
+
 v0.4.0:
   * core:
     - add sort, filter and groupby methods to FeatureList and BioBasket
