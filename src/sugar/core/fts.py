@@ -589,7 +589,7 @@ class FeatureList(collections.UserList):
         """
         Write features to a string of specified format, see `~.main.write_fts()`
         """
-        return self.write(None, fmt)
+        return self.write(None, fmt, **kw)
 
     def tolists(self, keys='type start stop strand'):
         """
