@@ -184,7 +184,7 @@ def _resolve_fname(example_fname='!data/example.gb'):
                         # fl = io.StringIO(r.text)  # download is just data
                         fl = io.BytesIO(r.content)  # download is just data
                 elif glob.has_magic(fname):  # it's a glob expression
-                    fnames = glob.glob(fname, recursive=True)
+                    fnames = sorted(glob.glob(fname, recursive=True))
                     if not fnames:
                         raise IOError(f'No file matching glob pattern {fname}')
                     # run function with all individual files
