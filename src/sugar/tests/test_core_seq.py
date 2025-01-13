@@ -166,9 +166,10 @@ def test_seqs_getitem_special():
     seq[4:8] = '----'
     seq2 = seq.sl(update_fts=True)[1:100]
     seq3 = seq.sl(update_fts=True, gap='-')[1:100-4]
-    assert seq2 == seq3
+    assert seq2.data == seq3.data
     assert len(seq2.fts) == 2
     assert all(len(ft) == 99 for ft in seq2.fts)
+    assert all(len(ft) == 99-4 for ft in seq3.fts)
     assert all(ft.loc.defect == ft.loc.defect.MISS_LEFT | ft.loc.defect.MISS_RIGHT for ft in seq2.fts)
     seq2 = seq.sl(update_fts=True)['cds']
     assert seq2['cds'].data == seq['cds'].data
