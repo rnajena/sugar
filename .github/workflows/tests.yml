@@ -86,9 +86,9 @@ jobs:
           pip install -v --no-deps .
       - name: run test suite
         run: |
-          sugar test --cov sugar --cov=. --cov-report=xml:$PWD/coverage.xml --cov-append ${{ env.test_options }}
+          sugar test --cov sugar --cov=. --cov-report=xml --cov-append ${{ env.test_options }}
       - name: upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # required
           fail_ci_if_error: true
