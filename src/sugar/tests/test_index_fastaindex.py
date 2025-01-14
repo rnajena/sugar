@@ -7,8 +7,10 @@ import pytest
 import tempfile
 from sugar import FastaIndex
 from sugar.scripts import cli
+import sys
 
 pytest.importorskip('binarysearchfile')
+
 try:
     import platformdirs
 except ImportError:
@@ -24,6 +26,7 @@ else:
     tqdm.std.__init__ = partialmethod(tqdm.std.__init__, disable=True)
 
 
+@pytest.mark.xfail(sys.platform == 'darwin', reason='db module not working as expected for MacOS')
 def test_fastaindex():
     fastafiles = str(files('sugar.tests.data').joinpath('example*.fasta'))
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -91,6 +94,7 @@ def test_fastaindex():
             assert len(f2) == 1
 
 
+@pytest.mark.xfail(sys.platform == 'darwin', reason='db module not working as expected for MacOS')
 def test_fastaindex_script():
     fastafiles = str(files('sugar.tests.data').joinpath('example*.fasta'))
     with tempfile.TemporaryDirectory() as tmpdir:
