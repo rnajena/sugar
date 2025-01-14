@@ -125,6 +125,7 @@ def test_write_archive():
         assert len(seqs) == len(seqs2)
         assert str(seqs[0]) == str(seqs2[0])
         seqs.write(fname + '.gff', 'GFF', archive=True)
+        seqs.write(fname + '.zip')
 
 
 @pytest.mark.webtest

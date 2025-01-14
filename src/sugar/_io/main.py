@@ -98,19 +98,28 @@ def detect_ext(fname, what='seqs'):
                 return fmt
 
 
+_ARCHIVE_EXTS = ['.zip', '.tar', '.gz.tar', '.bz.tar', '.xz.tar']
+
+
 def _resolve_archive(writer):
     @wraps(writer)
     def new_writer(objs, fname, *args, archive=None, **kw):
         if isinstance(fname, PurePath):
             fname = str(fname)
-        if archive is None:
-            return  writer(objs, fname, *args, **kw)
-        elif not isinstance(fname, str):
+        elif archive is not None and not isinstance(fname, str):
             msg = 'archive option is only allowed for file names, not file-like objects'
             raise ValueError(msg)
+        if isinstance(fname, str):
+            for ext in _ARCHIVE_EXTS:
+                if fname.endswith(ext):
+                    archive = ext.replace('.', '')
+                    fname = fname.removesuffix(ext)
+            else:
+                if archive is True:
+                    archive = shutil.get_archive_formats()[0][0]
+        if archive is None:
+            return  writer(objs, fname, *args, **kw)
         else:
-            if archive is True:
-                archive = shutil.get_archive_formats()[0][0]
             with tempfile.TemporaryDirectory() as tmpdir:
                 tmpfname = os.path.join(tmpdir, os.path.basename(fname))
                 writer(objs, tmpfname, *args, **kw)
