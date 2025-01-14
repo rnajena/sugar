@@ -3,32 +3,32 @@
 import sugar
 from sugar import read_fts
 import tempfile
-from sugar.tests.util import _clean_fts
+from sugar.tests.util import _clean_fts, tempfilename
 
 
 def test_gff():
     fts = read_fts()
-    with tempfile.NamedTemporaryFile(suffix='.gff') as f:
-        fts.write(f.name)
-        fts2 = read_fts(f.name)
+    with tempfilename(suffix='.gff') as fname:
+        fts.write(fname)
+        fts2 = read_fts(fname)
         assert isinstance(fts2, sugar.FeatureList)
         assert fts2 == fts
 
 
 def test_ft_gff():
     ft = read_fts()[0]
-    with tempfile.NamedTemporaryFile(suffix='.gff') as f:
-        ft.write(f.name)
-        ft2 = read_fts(f.name)[0]
+    with tempfilename(suffix='.gff') as fname:
+        ft.write(fname)
+        ft2 = read_fts(fname)[0]
         assert isinstance(ft2, sugar.Feature)
         assert ft2 == ft
 
 
 def test_genbank2gff():
     fts = read_fts('!data/example.gb')
-    with tempfile.NamedTemporaryFile(suffix='.gff') as f:
-        fts.write(f.name)
-        fts2 = read_fts(f.name)
+    with tempfilename(suffix='.gff') as fname:
+        fts.write(fname)
+        fts2 = read_fts(fname)
         assert isinstance(fts2, sugar.FeatureList)
         assert _clean_fts(fts2) == _clean_fts(fts)
         assert 'seqid' in fts2[0].meta
@@ -36,9 +36,9 @@ def test_genbank2gff():
 
 def test_blast2gff():
     fts = read_fts('!data/example.gb')
-    with tempfile.NamedTemporaryFile(suffix='.gff') as f:
-        fts.write(f.name)
-        fts2 = read_fts(f.name)
+    with tempfilename(suffix='.gff') as fname:
+        fts.write(fname)
+        fts2 = read_fts(fname)
         assert isinstance(fts2, sugar.FeatureList)
         assert _clean_fts(fts2) == _clean_fts(fts)
         assert 'seqid' in fts2[0].meta

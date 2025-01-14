@@ -8,10 +8,9 @@ import os
 
 
 @contextmanager
-def tempfilename(**kw):
-    with tempfile.NamedTemporaryFile(delete=False, **kw) as fp:
-        fp.close()
-        yield fp.name
+def tempfilename(suffix=''):
+    with tempfile.TemporaryDirectory(prefix='sugar_') as tmp:
+        yield os.path.join(tmp, 'tmp' + suffix)
 
 
 def normalize_content(fname, ignore=()):

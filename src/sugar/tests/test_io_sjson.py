@@ -3,16 +3,14 @@
 import tempfile
 
 from sugar import read
-from sugar.tests.util import _clean_seqs
-
+from sugar.tests.util import _clean_seqs, tempfilename
 
 
 def test_sjson():
     seqs = _clean_seqs(read())
-    with tempfile.NamedTemporaryFile(suffix='.sjson', delete=False) as f:
-        f.close()
-        seqs.write(f.name)
-        seqs2 = _clean_seqs(read(f.name))
+    with tempfilename(suffix='.sjson') as fname:
+        seqs.write(fname)
+        seqs2 = _clean_seqs(read(fname))
     assert seqs2 == seqs
     assert not hasattr(seqs, '_fmtcomment')
     assert not hasattr(seqs2, '_fmtcomment')

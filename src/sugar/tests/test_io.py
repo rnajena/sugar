@@ -10,6 +10,7 @@ import pytest
 import sugar
 from sugar import read, iter_, read_fts
 from sugar._io.main import detect, detect_ext
+from sugar.tests.util import tempfilename
 
 
 GLOBEXPR = str(files('sugar.tests.data').joinpath('example*.*'))
@@ -58,26 +59,23 @@ def test_iter():
 def test_io_file():
     seqs = read()
     for fmt in TESTIOFMTS:
-        with tempfile.NamedTemporaryFile() as f:
-            seqs.write(f.name, fmt)
+        with tempfilename() as fname:
+            seqs.write(fname, fmt)
             # test read
-            f.seek(0)
-            seqs2 = read(f.name)
+            seqs2 = read(fname)
             assert isinstance(seqs2, sugar.BioBasket)
             for seq2, seq1 in zip(seqs2, seqs):
                 assert str(seq2) == str(seq1)
             # test iter_
-            f.seek(0)
-            for seq2, seq1 in zip(iter_(f.name), seqs):
+            for seq2, seq1 in zip(iter_(fname), seqs):
                 assert str(seq2) == str(seq1)
 
 
 def test_write_fmtstr_seq():
     seqs = read()
-    with tempfile.NamedTemporaryFile() as f:
-        seqs[0].write(f.name, 'fasta')
-        f.seek(0)
-        seqs2 = read(f.name)
+    with tempfilename() as fname:
+        seqs[0].write(fname, 'fasta')
+        seqs2 = read(fname)
         assert str(seqs2[0]) == str(seqs[0])
     s = seqs[0].tofmtstr('fasta')
     seqs2 = seqs.fromfmtstr(s)
@@ -150,10 +148,9 @@ def test_download_zip():
 def test_io_tool():
     pytest.importorskip('Bio', reason='need biopython')
     seqs = read()
-    with tempfile.NamedTemporaryFile() as f:
-        seqs.write(f.name, 'fasta', tool='biopython')
-        f.seek(0)
-        seqs2 = read(f.name, tool='biopython')
+    with tempfilename() as fname:
+        seqs.write(fname, 'fasta', tool='biopython')
+        seqs2 = read(fname, tool='biopython')
         assert isinstance(seqs2, sugar.BioBasket)
         for seq2, seq1 in zip(seqs2, seqs):
             assert str(seq2) == str(seq1)
