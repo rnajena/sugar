@@ -405,7 +405,6 @@ class BioSeq():
         """
         return _Sliceable_GetItem(self, **kw)
 
-
     def slindex(self, gap=None):
         return _Sliceable_GetItem(self, method='_getindex', gap=gap)
 

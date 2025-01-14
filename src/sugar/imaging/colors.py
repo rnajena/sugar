@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 
-from importlib.resources import files
+from importlib.resources import as_file, files
 import json
 from os.path import exists
 
@@ -9,8 +9,14 @@ def _included_color_schemes():
     """
     Return a list of included color schemes
     """
-    return sorted(p.stem for p in
-                  files('sugar.imaging.color_schemes').joinpath('').glob('*.json'))
+    try:
+        with as_file(files('sugar.imaging.color_schemes')) as path:
+            return sorted(p.stem for p in path.glob('*.json'))
+    except FileNotFoundError:
+        # the above code is working for Python 3.12, but not for Python<3.12
+        # the following code is working for Python<3.12, but not for Python 3.12
+        path = files('sugar.imaging.color_schemes').joinpath('')
+        return sorted(p.stem for p in path.glob('*.json'))
 
 
 def get_color_scheme(name):
