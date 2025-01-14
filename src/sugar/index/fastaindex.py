@@ -49,12 +49,13 @@ def _iter_fasta_index(fname, seek=None, silent=False):
         pbar = None
     with open(fname, 'r+b') as file:
         with mmap.mmap(file.fileno(), 0) as f:
-            if seek:
-                f.seek(seek)
-                ps = mmap.PAGESIZE
-                f.madvise(mmap.MADV_SEQUENTIAL, seek // ps * ps)
-            else:
-                f.madvise(mmap.MADV_SEQUENTIAL)
+            if hasattr(f, 'madvise'):  # not available on Windows
+                if seek:
+                    f.seek(seek)
+                    ps = mmap.PAGESIZE
+                    f.madvise(mmap.MADV_SEQUENTIAL, seek // ps * ps)
+                else:
+                    f.madvise(mmap.MADV_SEQUENTIAL)
             start = f.find(b'>')
             while start != -1:
                 oldstart = start
