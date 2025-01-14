@@ -8,6 +8,7 @@ def test_plot_alignment():
     """
     Just test that no error occurs, you can check the image by uncommenting the last line
     """
+    pytest.importorskip('matplotlib')
     import matplotlib.pyplot as plt
     seqs = read().sl(update_fts=True)[:, :100]
     seqs[1][:10] = '-' * 10
