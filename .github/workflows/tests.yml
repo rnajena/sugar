@@ -35,21 +35,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        python: ["3.11", "3.12"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.11", "3.12", "3.13"]
         options: [""]
         include:
-          - os: macos-latest
-            python: "3.12"
           - os: ubuntu-latest
-            python: "3.12"
+            python: "3.13"
             options: full
           - os: ubuntu-latest
-            python: "3.12"
+            python: "3.13"
             options: full warnings
           - os: ubuntu-latest
-            python: "3.12"
+            python: "3.13"
             options: subset
+          - os: macos-latest
+            python: "3.13"
+            options: full
+          - os: windows-latest
+            python: "3.13"
+            options: full
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ contains(matrix.options, 'warnings') }}
     env:
