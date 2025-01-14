@@ -30,18 +30,17 @@ def _start_ipy(seqs):
     print('Bye')
 
 
-def convert(fname, fmt=None, out=None, fmtout=None,
-            tool=None, toolout=None):
+def convert(fname, fmt=None, out=None, fmtout=None):
     """Convert files to different format (sugar convert)"""
     from sugar import read
-    seqs = read(fname, fmt, tool=tool)
+    seqs = read(fname, fmt)
     if out is None:
         try:
             print(seqs.tofmtstr(fmtout or fmt or seqs[0].meta._fmt))
         except BrokenPipeError:
             pass
     else:
-        seqs.write(out, fmt=fmtout, tool=toolout)
+        seqs.write(out, fmt=fmtout)
 
 
 def convertf(fname, fmt=None, out=None, fmtout=None):
@@ -84,7 +83,7 @@ def translate(fname, fmt, out=None, fmtout=None, cds=False, **kw):
         seqs.write(out, fmt=fmtout)
 
 
-def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, tool=None, **kw):
+def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
     """Dispatch command to function"""
     if pdb:
         import traceback, pdb
@@ -96,7 +95,7 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, tool=None, *
     if command == 'print':
         from sugar import read
         try:
-            print(read(fname, fmt, tool=tool).tostr(**kw))
+            print(read(fname, fmt).tostr(**kw))
         except BrokenPipeError:
             pass
     elif command == 'printf':
@@ -107,14 +106,14 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, tool=None, *
             pass
     elif command == 'load':
         from sugar import read
-        seqs = read(fname, fmt, tool=tool, **kw)
+        seqs = read(fname, fmt, **kw)
         _start_ipy(seqs)
     elif command == 'loadf':
         from sugar import read_fts
         fts = read_fts(fname, fmt, **kw)
         _start_ipy(fts)
     elif command == 'convert':
-        convert(fname, fmt=fmt, tool=tool, **kw)
+        convert(fname, fmt=fmt, **kw)
     elif command == 'convertf':
         convertf(fname, fmt=fmt, **kw)
     elif command == 'index':
@@ -171,7 +170,6 @@ def cli(cmd_args=None):
         p.add_argument('fname', help='filenames')
         p.add_argument('-f', '--fmt', help='format supported by Sugar (default: auto-detect)')
     for p in (p_print, p_load):
-        p.add_argument('-t', '--tool', help='tool for reading')
         p.add_argument('-e', '--exclude', help='exclude contents', type=_str2tuple, default=argparse.SUPPRESS)
     p_print.add_argument('--raw', help='just print the letters, one sequence on each line', action='store_true')
     p_printf.add_argument('--raw', help='just print a table with type, start index, stop index, name', action='store_true')
@@ -186,8 +184,6 @@ def cli(cmd_args=None):
         p.add_argument('-o', '--out', help='filename out')
         p.add_argument('-f', '--fmt', help='format in')
         p.add_argument('-fo', '--fmtout', help='format out')
-    p_convert.add_argument('-t', '--tool', help='tool for reading')
-    p_convert.add_argument('-to', '--toolout', help='tool for writing')
 
     p_trans.add_argument('-tt', '--translation-table', help='number of translation table, default 1', default=1, type=int, dest='tt')
     p_trans.add_argument('-c', '--complete', help='wether to ignore stop codons', action='store_true')

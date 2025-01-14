@@ -192,17 +192,6 @@ class _BioBasketStr():
         return method
 
 
-def _detect_tool(obj):
-    try:
-        from Bio.Seq import Seq
-        from Bio.SeqRecord import SeqRecord
-    except ImportError:
-        pass
-    else:
-        if isinstance(obj, (Seq, SeqRecord)):
-            return 'biopython'
-
-
 class BioSeq():
     """
     Class holding sequence data and metadata, exposing bioinformatics methods.
@@ -541,10 +530,6 @@ class BioSeq():
         :param tool: the used tool (default: autodetect,
             allowed: ``'biopython'``)
         """
-        if tool is None:
-            tool = _detect_tool(obj)
-        if tool is None:
-            raise ValueError('Cannot determine origin of object')
         if tool == 'biopython':
             if hasattr(obj, 'seq'):  # SeqRecord
                 seq = str(obj.seq)
@@ -1008,10 +993,6 @@ class BioBasket(collections.UserList):
         :param tool: the used tool (default: autodetect,
             allowed: ``'biopython'``)
         """
-        if tool is None and len(obj)>0:
-            tool = _detect_tool(obj[0])
-        if tool is None:
-            raise ValueError('Cannot determine type of object')
         if tool == 'biopython':
             seqs = [BioSeq.fromobj(seq) for seq in obj]
             return cls(seqs)

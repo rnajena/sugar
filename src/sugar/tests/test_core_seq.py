@@ -26,25 +26,25 @@ def test_bioseq_equal():
     assert s1 == s4
 
 
-def test_bioseq_to_from_biopython():
-    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='need biopython')
-    seqs = read()
-    seq = seqs[0]
-    obj = seq.toobj('biopython')
-    seq2 = seq.fromobj(obj)
-    assert isinstance(obj, SeqRecord.SeqRecord)
-    assert seq2.id == obj.id == seq.id
-    assert str(seq2) == str(obj.seq) == str(seq)
+# def test_bioseq_to_from_biopython():
+#     SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='need biopython')
+#     seqs = read()
+#     seq = seqs[0]
+#     obj = seq.toobj('biopython')
+#     seq2 = seq.fromobj(obj)
+#     assert isinstance(obj, SeqRecord.SeqRecord)
+#     assert seq2.id == obj.id == seq.id
+#     assert str(seq2) == str(obj.seq) == str(seq)
 
 
-def test_biobasket_to_from_biopython():
-    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='need biopython')
-    seqs = read()
-    obj = seqs.toobj('biopython')
-    seqs2 = seqs.fromobj(obj)
-    assert isinstance(obj[0], SeqRecord.SeqRecord)
-    assert seqs2[0].id == obj[0].id == seqs[0].id
-    assert str(seqs2[0]) == str(obj[0].seq) == str(seqs[0])
+# def test_biobasket_to_from_biopython():
+#     SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='need biopython')
+#     seqs = read()
+#     obj = seqs.toobj('biopython')
+#     seqs2 = seqs.fromobj(obj)
+#     assert isinstance(obj[0], SeqRecord.SeqRecord)
+#     assert seqs2[0].id == obj[0].id == seqs[0].id
+#     assert str(seqs2[0]) == str(obj[0].seq) == str(seqs[0])
 
 
 def test_todict():

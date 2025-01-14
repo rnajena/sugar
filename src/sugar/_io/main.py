@@ -223,7 +223,7 @@ def _resolve_fname(example_fname='!data/example.gb'):
 
 
 @_resolve_fname()
-def iter_(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
+def iter_(fname, fmt=None, *, mode='r', encoding=None, **kw):
     """
     Iterate over a file and yield `.BioSeq` objects of each sequence
 
@@ -243,31 +243,24 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
     fmt = fmt.lower()
-    if tool == 'biopython':
-        from Bio import SeqIO
-        for seq in SeqIO.parse(fname, fmt):
-            yield BioSeq.fromobj(seq, 'biopython')
-    elif tool:
-        raise ValueError(f'Unrecognized tool: {tool}')
-    else:
-        module = EPS['seqs'][fmt].load()
-        with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
-            if hasattr(module, funcname := f'iter_{fmt}'):
-                seqs = getattr(module, funcname)(f, **kw)
-                for seq in seqs:
-                    seq.meta._fmt = fmt
-                    yield seq
-            elif hasattr(module, funcname := f'read_{fmt}'):
-                seqs = getattr(module, funcname)(f, **kw)
-            else:
-                raise RuntimeError(f'No read support for format {fmt}')
-        for seq in seqs:
-            seq.meta._fmt = fmt
-            yield seq
+    module = EPS['seqs'][fmt].load()
+    with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
+        if hasattr(module, funcname := f'iter_{fmt}'):
+            seqs = getattr(module, funcname)(f, **kw)
+            for seq in seqs:
+                seq.meta._fmt = fmt
+                yield seq
+        elif hasattr(module, funcname := f'read_{fmt}'):
+            seqs = getattr(module, funcname)(f, **kw)
+        else:
+            raise RuntimeError(f'No read support for format {fmt}')
+    for seq in seqs:
+        seq.meta._fmt = fmt
+        yield seq
 
 
 @_resolve_fname()
-def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
+def read(fname, fmt=None, *, mode='r', encoding=None, **kw):
     """
     Read a file or file-like object with sequences into `.BioBasket`
 
@@ -279,8 +272,6 @@ def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     :param mode: mode for opening the file, change this only if you know what
         you do
     :param encoding: encoding of the file
-    :param tool: use alternative tool for reading the file,
-        supported tools are: ``'biopython'``
     :param archive: Explicitly request reading an archive, type may be specified
        (default: auto-detected by file extension)
 
@@ -319,12 +310,6 @@ def read(fname, fmt=None, *, mode='r', encoding=None, tool=None, **kw):
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
     fmt = fmt.lower()
-    if tool == 'biopython':
-        from Bio import SeqIO
-        seqs = SeqIO.parse(fname, fmt, **kw)
-        return BioBasket.fromobj(seqs, 'biopython')
-    elif tool:
-        raise ValueError(f'Unrecognized tool: {tool}')
     module = EPS['seqs'][fmt].load()
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
         if hasattr(module, funcname := f'read_{fmt}'):
@@ -380,7 +365,7 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
 
 @_resolve_archive
 @_allow_to_str
-def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
+def write(seqs, fname, fmt=None, *, mode='w', encoding=None, **kw):
     """
     Write sequences to file, use it via `.BioBasket.write()` or `.BioSeq.write()`
 
@@ -391,8 +376,6 @@ def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
         you do, you may use ``mode='a'`` for appending to an existing file, but
         this will only work with compatible formats (i.e. FASTA)
     :param encoding: encoding of the file
-    :param tool: use alternative tool for writing the file,
-        supported tools are: ``'biopython'``
     :param archive: Explicitly request writing an archive, type may be specified
         (default: auto-detected by file extension)
 
@@ -408,11 +391,6 @@ def write(seqs, fname, fmt=None, *, mode='w', tool=None, encoding=None, **kw):
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
     fmt = fmt.lower()
-    if tool == 'biopython':
-        from Bio import SeqIO
-        return SeqIO.write(seqs.toobj('biopython'), fname, fmt)
-    elif tool:
-        raise ValueError(f'Unrecognized tool: {tool}')
     module = EPS['seqs'][fmt].load()
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
         if hasattr(module, funcname := f'append_{fmt}') and 'a' in mode:
