@@ -40,19 +40,19 @@ jobs:
         options: [""]
         include:
           - os: ubuntu-latest
-            python: "3.13"
+            python: "3.12"
             options: full
           - os: ubuntu-latest
-            python: "3.13"
+            python: "3.12"
             options: full warnings
           - os: ubuntu-latest
             python: "3.13"
             options: subset
           - os: macos-latest
-            python: "3.13"
+            python: "3.12"
             options: full
           - os: windows-latest
-            python: "3.13"
+            python: "3.12"
             options: full
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ contains(matrix.options, 'warnings') }}
