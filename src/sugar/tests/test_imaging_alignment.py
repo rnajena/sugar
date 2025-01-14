@@ -36,6 +36,7 @@ def test_plot_alignment():
 
 @pytest.mark.webtest
 def test_plot_alignment_examples():
+    pytest.importorskip('matplotlib')
     seqs = read('https://osf.io/download/j2wyv')
     with _changetmpdir() as tmpdir:
         tmpdir = './'
