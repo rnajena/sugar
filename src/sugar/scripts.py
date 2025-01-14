@@ -153,14 +153,14 @@ def cli(cmd_args=None):
 
     sub = parser.add_subparsers(title='commands', dest='command')
     sub.required = True
-    p_print = sub.add_parser('print', help='print contents of seq file')
-    p_printf = sub.add_parser('printf', help='print contents of fts file')
     p_convert = sub.add_parser('convert', help='convert between different seq file formats')
     p_convertf = sub.add_parser('convertf', help='convert between different fts file formats')
+    p_index = sub.add_parser('index', help='index FASTA files, query the database')
     p_load = sub.add_parser('load', help='load seq file into IPython session')
     p_loadf = sub.add_parser('loadf', help='load fts file into IPython session')
+    p_print = sub.add_parser('print', help='print contents of seq file')
+    p_printf = sub.add_parser('printf', help='print contents of fts file')
     p_trans = sub.add_parser('translate', help='translate nucleotide sequence')
-    p_index = sub.add_parser('index', help='index FASTA files, query the database')
     msg = 'run sugar test suite'
     msg2 = ('The test suite uses pytest. You can call pytest directly or use '
             'most of pytest cli arguments in the sugar test call. '
