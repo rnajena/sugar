@@ -28,7 +28,6 @@ jobs:
           pip install -v --no-deps .
       - name: check that package works
         run: |
-          mkdir empty; cd empty
           sugar -h
           python -c "from sugar import read; print(read())"
   run_tests:
@@ -87,7 +86,6 @@ jobs:
           pip install -v --no-deps .
       - name: run test suite
         run: |
-          mkdir empty; cd empty
           sugar test --cov sugar --cov=. --cov-report=xml:$PWD/coverage.xml --cov-append ${{ env.test_options }}
       - name: upload coverage
         uses: codecov/codecov-action@v4
