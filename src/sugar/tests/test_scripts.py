@@ -23,20 +23,20 @@ def test_printf():
         assert check_output(f'sugar printf {fname} --raw'.split()).startswith(b'region')
 
 
-def test_convert():
+def test_cat():
     with tempfilename() as fname:
         read().write(fname, 'fasta')
-        assert check_output(f'sugar convert {fname}'.split()).startswith(b'>')
+        assert check_output(f'sugar cat {fname}'.split()).startswith(b'>')
         with tempfilename() as fname2:
-            assert b'' == check_output(f'sugar convert {fname} -o {fname2} -fo sjson'.split())
+            assert b'' == check_output(f'sugar cat {fname} -o {fname2} -fo sjson'.split())
 
 
-def test_convertf():
+def test_catf():
     with tempfilename() as fname:
         read_fts().write(fname, 'gff')
-        assert b'region' in check_output(f'sugar convertf {fname}'.split())
+        assert b'region' in check_output(f'sugar catf {fname}'.split())
         with tempfilename() as fname2:
-            assert b'' == check_output(f'sugar convertf {fname} -o {fname2} -fo gff'.split())
+            assert b'' == check_output(f'sugar catf {fname} -o {fname2} -fo gff'.split())
 
 
 def test_load(capsys):

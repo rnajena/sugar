@@ -30,10 +30,12 @@ def _start_ipy(seqs):
     print('Bye')
 
 
-def convert(fname, fmt=None, out=None, fmtout=None):
-    """Convert files to different format (sugar convert)"""
-    from sugar import read
-    seqs = read(fname, fmt)
+def cat(fname, fmt=None, out=None, fmtout=None):
+    """Concatenate sequence files and convert to different format (sugar cat)"""
+    from sugar import BioBasket, read
+    seqs = BioBasket()
+    for fn in fname:
+        seqs += read(fn, fmt)
     if out is None:
         try:
             print(seqs.tofmtstr(fmtout or fmt or seqs[0].meta._fmt))
@@ -43,10 +45,12 @@ def convert(fname, fmt=None, out=None, fmtout=None):
         seqs.write(out, fmt=fmtout)
 
 
-def convertf(fname, fmt=None, out=None, fmtout=None):
-    """Convert files to different format (sugar convert)"""
-    from sugar import read_fts
-    fts = read_fts(fname, fmt)
+def catf(fname, fmt=None, out=None, fmtout=None):
+    """Concatenate fts files and convert to different format (sugar catf)"""
+    from sugar import FeatureList, read_fts
+    fts = FeatureList()
+    for fn in fname:
+        fts += read_fts(fn, fmt)
     if out is None:
         try:
             print(fts.tofmtstr(fmtout or fmt or fts[0].meta._fmt))
@@ -112,10 +116,10 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
         from sugar import read_fts
         fts = read_fts(fname, fmt, **kw)
         _start_ipy(fts)
-    elif command == 'convert':
-        convert(fname, fmt=fmt, **kw)
-    elif command == 'convertf':
-        convertf(fname, fmt=fmt, **kw)
+    elif command == 'cat':
+        cat(fname, fmt=fmt, **kw)
+    elif command == 'catf':
+        catf(fname, fmt=fmt, **kw)
     elif command == 'index':
         from sugar.index.fastaindex import _fastaindex_cmd
         _fastaindex_cmd(**kw)
@@ -152,8 +156,8 @@ def cli(cmd_args=None):
 
     sub = parser.add_subparsers(title='commands', dest='command')
     sub.required = True
-    p_convert = sub.add_parser('convert', help='convert between different seq file formats')
-    p_convertf = sub.add_parser('convertf', help='convert between different fts file formats')
+    p_cat = sub.add_parser('cat', help='concatenate sequence files or convert to different format')
+    p_catf = sub.add_parser('catf', help='concatenate fts files or convert to different format')
     p_index = sub.add_parser('index', help='index FASTA files, query the database')
     p_load = sub.add_parser('load', help='load seq file into IPython session')
     p_loadf = sub.add_parser('loadf', help='load fts file into IPython session')
@@ -179,8 +183,10 @@ def cli(cmd_args=None):
     p_print.add_argument('--wid', help='max id width, 0 for no restriction, default 19', default=19, type=int)
     # p_print.add_argument('--showgc', help='show GC content', default=True, action=argparse.BooleanOptionalAction)
     p_print.add_argument('--no-showgc', help='do not show GC content', action='store_false', dest='showgc')
-    for p in (p_convert, p_convertf, p_trans):
-        p.add_argument('fname', help='filename in')
+    for p in (p_cat, p_catf):
+        p.add_argument('fname', help='filename(s) in', nargs='+')
+    p_trans.add_argument('fname', help='filename in')
+    for p in (p_cat, p_catf, p_trans):
         p.add_argument('-o', '--out', help='filename out')
         p.add_argument('-f', '--fmt', help='format in')
         p.add_argument('-fo', '--fmtout', help='format out')
