@@ -1,5 +1,4 @@
 # (C) 2024, Tom Eulenfeld, MIT license
-# https://en.wikipedia.org/wiki/Stockholm_format
 """
 `Stockholm`_ IO
 """
