@@ -1,5 +1,6 @@
 þŠftsbintestformat
 ##gff-version 3
+# GFF written by sugar v0.4.1-dev
 NC_072478.1	RefSeq	region	1	108689991	.	+	.	ID=NC_072478.1%3A1..108689991;Dbxref=taxon%3A29078;Name=6;chromosome=6;collected-by=David%20Ray;collection-date=2020-07-16;country=USA%3A%20Silver%20Falls%20Park%20-%20Crosbyton%2C%20TX;dev-stage=adult;gbkey=Src;genome=chromosome;isolate=TK198812;mol_type=genomic%20DNA;sex=male;tissue-type=liver
 NC_072478.1	Gnomon	pseudogene	43130	43626	.	-	.	ID=gene-LOC103298147;Dbxref=GeneID%3A103298147;Name=LOC103298147;description=translationally-controlled%20tumor%20protein-like;gbkey=Gene;gene=LOC103298147;gene_biotype=pseudogene;pseudo=true
 NC_072478.1	Gnomon	exon	43130	43626	.	-	.	ID=id-LOC103298147;Parent=gene-LOC103298147;Dbxref=GeneID%3A103298147;gbkey=exon;gene=LOC103298147;model_evidence=Supporting%20evidence%20includes%20similarity%20to%3A%2017%20Proteins;pseudo=true
