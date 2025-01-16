@@ -1,0 +1,9 @@
+##gff-version 2
+SEQ1	EMBL	atg	103	105	.	+	0
+SEQ1	netgene	splice5	172	173	0.94	+	.
+# this is comment that will be skipped by the parser
+SEQ1	genie	sp5-10	168	177	2.1	+	.
+SEQ2	grail	ATG	17	19	2.1	-   0
+SEQ3    BLASTX    similarity    100 135 .   +   0   Target "HBA_HUMAN" ; E_value 0.0003 # this is also a comment that will be skipped by the parser
+SEQ3    BLASTX    similarity    235 260 .   +   2   Target "HBA_HUMAN" ; E_value 0.0005
+SEQ3    BLASTX    similarity    360 396 .   +   0   Target "HBA_HUMAN" ; E_value 0.001

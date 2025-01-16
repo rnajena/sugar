@@ -1,0 +1,12 @@
+##gff-version 1
+SEQ1	EMBL	atg	103	105	.	+	0
+SEQ1	EMBL	exon	103	172	.	+	0
+SEQ1	EMBL	splice5	172	173	.	+	.
+SEQ1	netgene	splice5	172	173	0.94	+	.
+# this is comment that will be skipped by the parser
+SEQ1	genie	sp5-20	163	182	2.3	+	.
+SEQ1	genie	sp5-10	168	177	2.1	+	.
+SEQ2	grail	ATG	17	19	2.1	-   0
+SEQ3    pred    exon    100 135 .   +   0   locus1 # this is also a comment that will be skipped by the parser
+SEQ3    pred    exon    235 260 .   +   2   locus1 This is an example of extra information... They discourage overuse of this feature.
+SEQ3    pred    exon    360 396 .   +   0   locus1
