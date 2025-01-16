@@ -57,9 +57,11 @@ rst_epilog = """
 .. _FASTA: https://en.wikipedia.org/wiki/FASTA_format
 .. _Genbank: https://www.insdc.org/submitting-standards/feature-table
 .. _GFF: https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
+.. _GTF: https://web.archive.org/web/20041019012647/http://genes.cse.wustl.edu/GTF2.html
 .. _Infernal: http://eddylab.org/infernal/
 .. _MMseqs2: https://github.com/soedinglab/MMseqs2
 .. _Stockholm: https://en.wikipedia.org/wiki/Stockholm_format
+.. _AGAT: https://github.com/NBISweden/AGAT
 """
 
 extensions = ['sphinx.ext.autodoc',
