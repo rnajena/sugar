@@ -16,7 +16,7 @@ def test_stockholm():
         assert seq == seqs[i]
     with tempfilename() as fn2:
         seqs.write(fn2, 'stockholm')
-        ignore=['#=GF RT']
+        ignore=['#=GF RT', '#=GF CC']
         assert normalize_content(fname) != normalize_content(fn2)
         assert normalize_content(fname, ignore=ignore) == normalize_content(fn2, ignore=ignore)
 

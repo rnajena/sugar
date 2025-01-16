@@ -119,6 +119,8 @@ def read_stockholm(f, comments=None):
         line = line.strip()
         if line == '' or line.startswith('# STOCKHOLM'):
             continue
+        elif line.startswith('#=GF CC written by sugar'):
+            continue
         elif line.startswith('#=GF'):
             _, key, val = line.split(maxsplit=2)
             gf[key] = gf[key] + ' ' + val if key in gf else val
@@ -163,11 +165,16 @@ def read_stockholm(f, comments=None):
 
 
 @_add_fmt_doc('write')
-def write_stockholm(seqs, f):
+def write_stockholm(seqs, f, header_sugar=True):
     """
     Write sequences to Stockholm file
+
+    :param bool header_sugar: Add a comment to the header with sugar version, default is True
     """
     lines = ['# STOCKHOLM 1.0']
+    if header_sugar:
+        from sugar import __version__
+        lines.append(f'#=GF CC written by sugar v{__version__}')
     try:
         gf = seqs.meta._stockholm.GF
     except AttributeError:

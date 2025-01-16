@@ -1,6 +1,12 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
 Generic feature format (`GFF`_) and Gene transfer format (`GTF`_) IO
+
+For a review of the different versions of GFF and GTF, see `here`_.
+
+The readers in this module also support older versions of the GFF and GTF format.
+
+.. _here: https://agat.readthedocs.io/en/latest/gxf.html
 """
 
 from urllib.parse import quote, unquote
@@ -247,7 +253,7 @@ def _write_fts_gxf(fts, f, header=None, header_sugar=True, flavor='gff'):
         f.write('##gff-version 3\n')
     if header_sugar:
         from sugar import __version__
-        f.write(f'# {flavor.upper()} written by rnajena-sugar v{__version__}\n')
+        f.write(f'# {flavor.upper()} written by sugar v{__version__}\n')
     mf = '_' + flavor
     if header:
         f.write(header)
