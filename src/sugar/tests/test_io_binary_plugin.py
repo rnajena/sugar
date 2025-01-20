@@ -65,10 +65,6 @@ def test_binary_seq_plugin():
     assert str(seq1) == str(seq2)
 
 
-import pytest
-import sys
-msg = 'Not sure what is going on. Please contact devs if you want to help debug this test fail on Windows.'
-@pytest.mark.xfail(sys.platform == 'win32', reason=msg)
 def test_binary_fts_plugin():
     ft1 = sugar.read_fts('!data/io_binary_plugin_fake_fts.bintest')[0]
     ft2 = sugar.read_fts()[0]
