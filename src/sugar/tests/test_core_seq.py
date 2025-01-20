@@ -57,6 +57,36 @@ def test_biobasket_to_from_biopython_msa():
     assert str(seqs2[0]) == str(obj[0].seq) == str(seqs[0])
 
 
+def test_bioseq_to_from_biotite():
+    pytest.importorskip('biotite', reason='need biotite')
+    seqs = read()
+    seq = seqs[0]
+    obj = seq.tobiotite()
+    seq2 = seq.frombiotite(obj)
+    assert str(seq2) == ''.join(obj.symbols) == str(seq)
+
+
+def test_biobasket_to_from_biotite():
+    pytest.importorskip('biotite', reason='need biotite')
+    seqs = read()
+    obj = seqs.tobiotite()
+    seqs2 = seqs.frombiotite(obj)
+    assert str(seqs2[0]) == ''.join(obj[0].symbols) == str(seqs[0])
+    seqs.str.rjust(10_000, '-')
+    with pytest.warns():
+        obj = seqs.tobiotite()
+    seqs2 = seqs.frombiotite(obj)
+    assert str(seqs2[0]) == ''.join(obj[0].symbols) == str(seqs[0].str.replace('-', ''))
+
+
+def test_biobasket_to_from_biotite_msa():
+    pytest.importorskip('biotite', reason='need biotite')
+    seqs = read().str.rjust(10_000, '-')
+    obj = seqs.tobiotite(msa=True)
+    seqs2 = seqs.frombiotite(obj)
+    assert str(seqs2[0]) == str(seqs[0])
+
+
 def test_todict():
     seqs = read()
     d = seqs.todict()

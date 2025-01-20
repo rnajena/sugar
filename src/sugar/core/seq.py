@@ -534,6 +534,23 @@ class BioSeq():
             id_ = None
         return cls(data, id=id_)
 
+    @classmethod
+    def frombiotite(cls, obj):
+        """
+        Create a `BioSeq` object from a biotite sequence object.
+
+        :param obj: The object to convert.
+        """
+        from biotite.sequence import NucleotideSequence, ProteinSequence
+        data = ''.join(obj.symbols)
+        type_ = None
+        if isinstance(obj, NucleotideSequence):
+            type_ = 'nt'
+        elif isinstance(obj, ProteinSequence):
+            type_ = 'aa'
+        return cls(data, type=type_)
+
+
     def match(self, *args, **kw):
         """
         Search regex and return match, see ``~.cane.match()``
@@ -570,11 +587,34 @@ class BioSeq():
 
     def tobiopython(self):
         """
-        Convert BioSeq to ``Bio.SeqRecord`` instance
+        Convert BioSeq to biopython ``SeqRecord`` instance
         """
         from Bio.Seq import Seq
         from Bio.SeqRecord import SeqRecord
         return SeqRecord(Seq(self.data), id=self.id)
+
+    def tobiotite(self, type=None, gap='-', warn=True):
+        """
+        Convert BioSeq to biotite ``NucleotideSequence`` or ``ProteinSequence`` instance
+
+        :param str type: ``'nt'`` creates a ``NucleotideSequence`` instance,
+            ``'aa'`` creates a ``ProteinSequence`` instance,
+            by default the class is inferred from the sequence itself.
+        """
+        from biotite.sequence import NucleotideSequence, ProteinSequence
+        data = self.data
+        if gap:
+            for g in gap:
+                if g in data:
+                    if warn:
+                        from warnings import warn
+                        warn(f'Remove gap characters {gap} for the conversion to biotite')
+                    for g in gap:
+                        data = data.replace(g, '')
+                    break
+        type = type or self.type
+        cls = {'nt': NucleotideSequence, 'aa': ProteinSequence}[type]
+        return cls(data)
 
     @_add_inplace_doc
     def reverse(self):
@@ -971,22 +1011,35 @@ class BioBasket(collections.UserList):
     @classmethod
     def frombiopython(cls, obj):
         """
-        Create a `BioBasket` object from a list of biopython ``Bio.SeqRecord`` or ``Bio.Seq`` objects.
+        Create a `BioBasket` object from a list of biopython ``SeqRecord`` or ``Seq`` objects.
 
-        :param obj: The object to convert, can also be a ``Bio.MultipleSeqAlignment`` object.
+        :param obj: The object to convert, can also be a biopython ``MultipleSeqAlignment`` object.
         """
         seqs = [BioSeq.frombiopython(seq) for seq in obj]
         return cls(seqs)
 
+    @classmethod
+    def frombiotite(cls, obj):
+        """
+        Create a `BioBasket` object from a list of biotite sequence objects.
+
+        :param obj: The object to convert, can also be a biotite ``Alignment`` object.
+        """
+        try:
+            seqs = obj.get_gapped_sequences()  # Alignment object
+        except AttributeError:
+            seqs = [BioSeq.frombiotite(seq) for seq in obj]
+        return cls(seqs)
+
     @staticmethod
-    def fromfmtstr(in_, **kw):
+    def fromfmtstr(in_, fmt=None, **kw):
         """
         Read sequences from a string
         """
         from sugar import read
         if not isinstance(in_, bytes):
             in_ = in_.encode('latin1')
-        return read(io.BytesIO(in_), **kw)
+        return read(io.BytesIO(in_), fmt=fmt, **kw)
 
     def todict(self):
         """
@@ -1145,16 +1198,32 @@ class BioBasket(collections.UserList):
             out.append('  customize output with BioBasket.tostr() method')
         return '\n'.join(out)
 
-    def tobiopython(self, msa=False):
+    def tobiopython(self, *, msa=False):
         """
-        Convert the BioBasket to a list of ``Bio.SeqRecord`` objects
+        Convert the BioBasket to a list of biopython ``SeqRecord`` objects
 
-        :param bool msa: Return a Bio.MultipleSeqAlignment object instead of a list
+        :param bool msa: Return a biopython ``MultipleSeqAlignment`` object instead of a list.
         """
         seqs = [seq.tobiopython() for seq in self]
         if msa:
             from Bio.Align import MultipleSeqAlignment
             seqs = MultipleSeqAlignment(seqs)
+        return seqs
+
+    def tobiotite(self, *, type=None, msa=False, gap='-', warn=True):
+        """
+        Convert BioSeq to a list of biotite ``NucleotideSequence`` or ``ProteinSequence`` instance
+
+        :param str type: ``'nt'`` creates a ``NucleotideSequence`` instance,
+            ``'aa'`` creates a ``ProteinSequence`` instance,
+            by default the class is inferred from the sequence itself.
+        :param bool msa: Return a biotite ``Alignment`` object instead of a list.
+        """
+        seqs = [seq.tobiotite(type=type, gap=gap, warn=not msa and warn) for seq in self]
+        if msa:
+            from biotite.sequence.align import Alignment
+            trace = Alignment.trace_from_strings([seq.data for seq in self])
+            seqs = Alignment(seqs, trace)
         return seqs
 
     def write(self, fname=None, fmt=None, **kw):
