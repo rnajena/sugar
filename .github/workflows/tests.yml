@@ -86,7 +86,7 @@ jobs:
           pip install -v --no-deps .
       - name: run test suite
         run: |
-          sugar test -r a --cov sugar --cov=. --cov-report=xml:${{ github.workspace }}/coverage.xml --cov-append ${{ env.test_options }}
+          sugar test -r a --durations=10 --cov sugar --cov=. --cov-report=xml:${{ github.workspace }}/coverage.xml --cov-append ${{ env.test_options }}
       - name: upload coverage
         uses: codecov/codecov-action@v5
         with:
