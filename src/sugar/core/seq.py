@@ -600,6 +600,8 @@ class BioSeq():
         :param str type: ``'nt'`` creates a ``NucleotideSequence`` instance,
             ``'aa'`` creates a ``ProteinSequence`` instance,
             by default the class is inferred from the sequence itself.
+        :param str gap: gap characters, which will be removed obligatorily from the sequence string
+        :param bool warn: Wether to warn if gap characters were removed, default is True
         """
         from biotite.sequence import NucleotideSequence, ProteinSequence
         data = self.data
@@ -1025,11 +1027,13 @@ class BioBasket(collections.UserList):
 
         :param obj: The object to convert, can also be a biotite ``Alignment`` object.
         """
-        try:
-            seqs = obj.get_gapped_sequences()  # Alignment object
-        except AttributeError:
+        if hasattr(obj, 'sequences'):  # Alignment object
+            types = [BioSeq.frombiotite(seq).type for seq in obj.sequences]
+            ali = [BioSeq(data, type=type_) for data, type_ in zip(obj.get_gapped_sequences(), types)]
+            return cls(ali)
+        else:
             seqs = [BioSeq.frombiotite(seq) for seq in obj]
-        return cls(seqs)
+            return cls(seqs)
 
     @staticmethod
     def fromfmtstr(in_, fmt=None, **kw):
@@ -1217,7 +1221,9 @@ class BioBasket(collections.UserList):
         :param str type: ``'nt'`` creates a ``NucleotideSequence`` instance,
             ``'aa'`` creates a ``ProteinSequence`` instance,
             by default the class is inferred from the sequence itself.
-        :param bool msa: Return a biotite ``Alignment`` object instead of a list.
+        :param bool msa: Return a biotite ``Alignment`` object instead of a list, default is False
+        :param str gap: gap characters, which will be removed obligatorily from the sequence strings
+        :param bool warn: Wether to warn if gap characters were removed, default is True
         """
         seqs = [seq.tobiotite(type=type, gap=gap, warn=not msa and warn) for seq in self]
         if msa:
