@@ -59,7 +59,7 @@ jobs:
       # set additional runtest options (--web, -W error)
       test_options: ${{ contains(matrix.options, 'full') && '--web' || '' }} ${{ contains(matrix.options, 'warnings') && '-W error' || '' }}
       # set additional dependencies for full test
-      deps: ${{ contains(matrix.options, 'full') && 'matplotlib pandas platformdirs seaborn requests biopython tqdm' || ''  }}
+      deps: ${{ contains(matrix.options, 'full') && 'matplotlib pandas platformdirs seaborn requests biopython biotite tqdm' || ''  }}
       depspip: ${{ contains(matrix.options, 'full') && 'binarysearchfile' || contains(matrix.options, 'subset') && 'binarysearchfile' || ''  }}
     defaults:
       run:
