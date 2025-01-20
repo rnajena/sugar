@@ -1,15 +1,26 @@
 dev:
   * core:
-    - add tolists and topandas methods to FeaturList
-    - add BioBasket.merge method
+    - add tolists, topandas and frompandas methods to FeaturList
+    - add tobiopython and frombiopython methods to BioSeq and BioBasket classes to convert to or convert from biopython objects
+    - add tobiotite and frombiotite methods to BioSeq and BioBasket classes to convert to or convert from biotite objects
+    - remove the toobj and fromobj methods from BioSeq and BioBasket classes instead
+    - add BioBasket.merge method to merge sequences of the same id into a single sequence
     - add BioBasket.plot_alignment method
     - add BioSeq.slindex method
     - add update_fts option to translate
     - switch default value of inplace option to False for filter methods
-  * io
+  * io:
     - writers: allow to pass None as fname, in this case a string will be returned
+    - add GTF IO support for features
     - add TSV/CSV IO support for features
+    - add the possibility to read GFF files for old format versions
+    - allow to write compressed files just by specifying the filename extension
+    - add a sugar header comment for some writers (stockholm, gff, gtf)
     - glob expressions in file names are now evaluated in sorted order
+    - remove the tool option for reading and writing, use the new to/from methods instead
+  * scripts:
+    - rename convert and convertf commands to cat and catf, respectively, also accept multiple files as input
+    - add merge command to merge sequence files
   * add imaging module with plot_alignment function
 
 v0.4.0:
