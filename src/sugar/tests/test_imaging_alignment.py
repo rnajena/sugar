@@ -13,9 +13,7 @@ def test_plot_alignment():
     seqs = read().sl(update_fts=True)[:, :100]
     seqs[1][:10] = '-' * 10
     seqs[1][:5] = ' ' * 5
-    print(seqs)
     seqs.fts = seqs.fts.slice(10, 15)[:1]
-    print(seqs.fts)
     fig, axes = plt.subplots(5, figsize=(20, 10))
     seqs.plot_alignment(ax=axes[0], xticks=False)
     seqs.plot_alignment(ax=axes[1], aspect=2, color='flower', symbols=True)
