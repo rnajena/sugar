@@ -72,7 +72,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: install dependencies
         run: |
-          conda install -y pytest pytest-cov ${{ env.deps }}
+          conda install -c conda-forge -y pytest pytest-cov ${{ env.deps }}
       - name: install pip dependencies
         if: contains(matrix.options, 'full') || contains(matrix.options, 'subset')
         run:
