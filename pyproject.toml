@@ -35,10 +35,10 @@ sugar = "sugar.scripts:cli"
 
 [project.entry-points."sugar.io"]
 fasta = "sugar._io.fasta"
-sjson = "sugar._io.sjson"
 genbank = "sugar._io.genbank"
 stockholm = "sugar._io.stockholm"
 gff = "sugar._io.gff"
+sjson = "sugar._io.sjson"
 
 [project.entry-points."sugar.io.fts"]
 gff = "sugar._io.gff"
@@ -49,6 +49,7 @@ mmseqs = "sugar._io.tab.mmseqs"
 infernal = "sugar._io.tab.infernal"
 tsv = "sugar._io.tab.xsv"
 csv = "sugar._io.tab.xsv"
+sjson = "sugar._io.sjson"
 
 [build-system]
 requires = ["setuptools>=61.0"]

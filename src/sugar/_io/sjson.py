@@ -19,7 +19,9 @@ SUGAR = (Location, Defect, Strand, Feature, FeatureList,
          )
 
 filename_extensions_sjson = ['sjson', 'json']
+filename_extensions_fts_sjson = ['sjson', 'json']
 COMMENT = f'sugar JSON format written by sugar v{__version__}'
+COMMENT_FTS = f'sugar JSON feature format written by sugar v{__version__}'
 
 
 class _SJSONEncoder(json.JSONEncoder):
@@ -27,6 +29,16 @@ class _SJSONEncoder(json.JSONEncoder):
         if isinstance(o, (Strand, Defect)):
             obj = {'_cls': type(o).__name__,
                    'value': o.value}
+            return obj
+        elif isinstance(o, Location):
+            obj = {'_cls': type(o).__name__,
+                   'start': o.start,
+                   'stop': o.stop,
+                   'strand': o.strand,
+                   'defect': o.defect
+                   }
+            if len(o.meta) > 0:
+                obj['meta'] = o.meta
             return obj
         elif isinstance(o, SUGAR):
             obj = {}
@@ -37,6 +49,8 @@ class _SJSONEncoder(json.JSONEncoder):
                 obj['locs'] = o.locs
             obj.update({k: v for k, v in o.__dict__.items()
                         if not k.startswith("_")})
+            if 'meta' in o.__dict__ and len(o.meta) == 0:
+                del obj['meta']
             return obj
         else:
             # Let the base class default method raise the TypeError
@@ -60,6 +74,11 @@ def is_sjson(f, **kw):
     return COMMENT[:17].lower() in content.lower()
 
 
+def is_fts_sjson(f, **kw):
+    content = f.read(51)
+    return COMMENT_FTS[:25].lower() in content.lower()
+
+
 @_add_fmt_doc('read')
 def read_sjson(f):
     """
@@ -68,11 +87,29 @@ def read_sjson(f):
     return json.load(f, object_hook=_json_hook)
 
 
+@_add_fmt_doc('read_fts')
+def read_fts_sjson(f):
+    """
+    Read features from SJson file
+    """
+    return json.load(f, object_hook=_json_hook)
+
+
 @_add_fmt_doc('write')
-def write_sjson(seqs, f):
+def write_sjson(seqs, f, *, indent=None):
     """
     Write sequences into SJson file
     """
     seqs._fmtcomment=COMMENT
-    json.dump(seqs, f, cls=_SJSONEncoder)
+    json.dump(seqs, f, cls=_SJSONEncoder, indent=indent)
     del seqs._fmtcomment
+
+
+@_add_fmt_doc('write_fts')
+def write_fts_sjson(fts, f, *, indent=None):
+    """
+    Write features into SJson file
+    """
+    fts._fmtcomment=COMMENT_FTS
+    json.dump(fts, f, cls=_SJSONEncoder, indent=indent)
+    del fts._fmtcomment

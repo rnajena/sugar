@@ -28,6 +28,10 @@ def _clean_fts(fts):
         for key in list(ft.meta):
             if key.startswith('_'):
                 delattr(ft.meta, key)
+        for loc in ft.locs:
+            for key in list(loc.meta):
+                if key.startswith('_'):
+                    delattr(loc.meta, key)
     return fts
 
 
