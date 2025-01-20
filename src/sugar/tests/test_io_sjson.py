@@ -8,9 +8,11 @@ from sugar.tests.util import _clean_seqs, tempfilename
 
 def test_sjson():
     seqs = _clean_seqs(read())
+    oseqs = seqs.copy()
     with tempfilename(suffix='.sjson') as fname:
         seqs.write(fname)
         seqs2 = _clean_seqs(read(fname))
+    assert seqs == oseqs
     assert seqs2 == seqs
     assert not hasattr(seqs, '_fmtcomment')
     assert not hasattr(seqs2, '_fmtcomment')

@@ -29,14 +29,15 @@ class _SJSONEncoder(json.JSONEncoder):
                    'value': o.value}
             return obj
         elif isinstance(o, SUGAR):
-            obj = {k: v for k, v in o.__dict__.items()
-                   if not k.startswith("_") or k in '_fmtcomment'}
+            obj = {}
+            if '_fmtcomment' in o.__dict__:
+                obj['_fmtcomment'] = o.__dict__['_fmtcomment']
+            obj['_cls'] = type(o).__name__
             if isinstance(o, Feature):
                 obj['locs'] = o.locs
-            obj['_cls'] = type(o).__name__
+            obj.update({k: v for k, v in o.__dict__.items()
+                        if not k.startswith("_")})
             return obj
-        # elif isinstance(o, (_BioBasketStr, _BioSeqStr)):
-        #     return '<<ignored>>'
         else:
             # Let the base class default method raise the TypeError
             return json.JSONEncoder.default(self, o)
@@ -45,7 +46,6 @@ class _SJSONEncoder(json.JSONEncoder):
 def _json_hook(d):
     if cls := d.pop('_cls', None):
         d.pop('_fmtcomment', None)
-        d.pop('str', None)  # str methods
         cls = globals()[cls]
         if isinstance(cls, (Strand, Defect)):
             return cls(d['value'])
@@ -73,7 +73,6 @@ def write_sjson(seqs, f):
     """
     Write sequences into SJson file
     """
-    seqs.__dict__ = dict(_fmtcomment=COMMENT,
-                         **seqs.__dict__)
+    seqs._fmtcomment=COMMENT
     json.dump(seqs, f, cls=_SJSONEncoder)
     del seqs._fmtcomment
