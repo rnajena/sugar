@@ -17,15 +17,6 @@ try:
 except ImportError:
     platformdirs = None
 
-# Disable tqdm output
-try:
-    import tqdm.std
-except ImportError:
-    pass
-else:
-    from functools import partialmethod
-    tqdm.std.__init__ = partialmethod(tqdm.std.__init__, disable=True)
-
 
 @pytest.mark.xfail(sys.platform == 'darwin', reason='db module not working as expected for MacOS')
 def test_fastaindex():
