@@ -520,26 +520,19 @@ class BioSeq():
         return copy.deepcopy(self)
 
     @classmethod
-    def fromobj(cls, obj, tool=None):
+    def frombiopython(cls, obj):
         """
-        Create a `BioSeq` object from a Python object created by another tool.
-
-        This method is *WIP* - work in progress.
+        Create a `BioSeq` object from a biopython ``Bio.SeqRecord`` or ``Bio.Seq`` object.
 
         :param obj: The object to convert.
-        :param tool: the used tool (default: autodetect,
-            allowed: ``'biopython'``)
         """
-        if tool == 'biopython':
-            if hasattr(obj, 'seq'):  # SeqRecord
-                seq = str(obj.seq)
-                id_ = obj.id
-            else:  # Seq
-                seq = str(obj)
-                id_ = None
-            return cls(seq, id=id_)
-        else:
-            raise ValueError(f'Unsupported tool: {tool}')
+        if hasattr(obj, 'seq'):  # SeqRecord
+            data = str(obj.seq)
+            id_ = obj.id
+        else:  # Seq
+            data = str(obj)
+            id_ = None
+        return cls(data, id=id_)
 
     def match(self, *args, **kw):
         """
@@ -575,20 +568,13 @@ class BioSeq():
         """
         return BioBasket([self]).tofmtstr(fmt, **kw)
 
-    def toobj(self, tool=None):
+    def tobiopython(self):
         """
-        Convert the object to an object of another bioinformatics Python tool.
-
-        *WIP* - work in progress.
-
-        :param tool: Only ``'biopython'`` is supported.
+        Convert BioSeq to ``Bio.SeqRecord`` instance
         """
-        if tool == 'biopython':
-            from Bio.Seq import Seq
-            from Bio.SeqRecord import SeqRecord
-            return SeqRecord(Seq(self.data), id=self.id)
-        else:
-            raise ValueError(f'Unsupported tool: {tool}')
+        from Bio.Seq import Seq
+        from Bio.SeqRecord import SeqRecord
+        return SeqRecord(Seq(self.data), id=self.id)
 
     @_add_inplace_doc
     def reverse(self):
@@ -983,21 +969,14 @@ class BioBasket(collections.UserList):
             plt.close(fig)
 
     @classmethod
-    def fromobj(cls, obj, tool=None):
+    def frombiopython(cls, obj):
         """
-        Create a `BioBasket` object from a Python object created by another tool.
+        Create a `BioBasket` object from a list of biopython ``Bio.SeqRecord`` or ``Bio.Seq`` objects.
 
-        This method is *WIP* - work in progress.
-
-        :param obj: The object to convert.
-        :param tool: the used tool (default: autodetect,
-            allowed: ``'biopython'``)
+        :param obj: The object to convert, can also be a ``Bio.MultipleSeqAlignment`` object.
         """
-        if tool == 'biopython':
-            seqs = [BioSeq.fromobj(seq) for seq in obj]
-            return cls(seqs)
-        else:
-            raise ValueError(f'Unsupported tool: {tool}')
+        seqs = [BioSeq.frombiopython(seq) for seq in obj]
+        return cls(seqs)
 
     @staticmethod
     def fromfmtstr(in_, **kw):
@@ -1166,18 +1145,17 @@ class BioBasket(collections.UserList):
             out.append('  customize output with BioBasket.tostr() method')
         return '\n'.join(out)
 
-    def toobj(self, tool=None):
+    def tobiopython(self, msa=False):
         """
-        Convert the object to an object of another bioinformatics Python tool.
+        Convert the BioBasket to a list of ``Bio.SeqRecord`` objects
 
-        *WIP* - work in progress.
-
-        :param tool: Only ``'biopython'`` is supported.
+        :param bool msa: Return a Bio.MultipleSeqAlignment object instead of a list
         """
-        if tool == 'biopython':
-            return [seq.toobj(tool) for seq in self]
-        else:
-            raise ValueError(f'Unsupported tool: {tool}')
+        seqs = [seq.tobiopython() for seq in self]
+        if msa:
+            from Bio.Align import MultipleSeqAlignment
+            seqs = MultipleSeqAlignment(seqs)
+        return seqs
 
     def write(self, fname=None, fmt=None, **kw):
         """
