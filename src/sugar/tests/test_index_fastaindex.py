@@ -1,7 +1,8 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from importlib.resources import files
+import io
 import os
 import pytest
 import tempfile
@@ -35,7 +36,7 @@ def test_fastaindex():
         f1 = FastaIndex(fname, create=True, mode='binary')
         with FastaIndex(fname2, create=True, mode='db') as f2:
             f1.add(fastafiles, silent=True)
-            f2.add(fastafiles)
+            f2.add(fastafiles, silent=True)
             assert f1.totalsize < f2.totalsize
             id_ = 'BTBSCRYR'
             assert f1.get(id_)[0].str.startswith('tgcaccaaacatgtcta'.upper())
@@ -81,16 +82,16 @@ def test_fastaindex():
                 os.remove(_fname)
         with pytest.warns(UserWarning, match='new file'):
             f1 = FastaIndex(fname, mode='binary')
-        f1.add(fastafiles, seek=10)
+        f1.add(fastafiles, seek=10, silent=True)
         assert len(f1) == 1
         with pytest.raises(ValueError, match='performance'):
             f1.add(fastafiles)
-        f1.add(fastafiles, seek=10, force=True)
+        f1.add(fastafiles, seek=10, force=True, silent=True)
         assert len(f1) == 2
         with FastaIndex(fname2, create=True, mode='db') as f2:
-            f2.add(fastafiles, seek=10)
+            f2.add(fastafiles, seek=10, silent=True)
             assert len(f2) == 1
-            f2.add(fastafiles, seek=10)
+            f2.add(fastafiles, seek=10, silent=True)
             assert len(f2) == 1
 
 
@@ -103,8 +104,8 @@ def test_fastaindex_script():
         odb = f'-d {fname}' if platformdirs is None else ''
         with redirect_stdout(None):
             cli(f'index info {odb}'.split())
-        # with redirect_stderr(None):
-        cli(f'index add {odb} {fastafiles}'.split())
+        with redirect_stderr(io.StringIO()):
+            cli(f'index add {odb} {fastafiles}'.split())
         with redirect_stdout(None):
             cli(f'index print {odb} BTBSCRYR'.split())
             cli(f'index print {odb} BTBSCRYR,1,5'.split())
