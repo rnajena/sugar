@@ -27,7 +27,7 @@ def test_bioseq_equal():
 
 
 def test_bioseq_to_from_biopython():
-    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='need biopython')
+    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='require biopython module')
     seqs = read()
     seq = seqs[0]
     obj = seq.tobiopython()
@@ -38,7 +38,7 @@ def test_bioseq_to_from_biopython():
 
 
 def test_biobasket_to_from_biopython():
-    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='need biopython')
+    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='require biopython module')
     seqs = read()
     obj = seqs.tobiopython()
     seqs2 = seqs.frombiopython(obj)
@@ -48,7 +48,7 @@ def test_biobasket_to_from_biopython():
 
 
 def test_biobasket_to_from_biopython_msa():
-    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='need biopython')
+    SeqRecord = pytest.importorskip('Bio.SeqRecord', reason='require biopython module')
     seqs = read().str.ljust(10_000, '-')
     obj = seqs.tobiopython(msa=True)
     seqs2 = seqs.frombiopython(obj)
@@ -58,7 +58,7 @@ def test_biobasket_to_from_biopython_msa():
 
 
 def test_bioseq_to_from_biotite():
-    pytest.importorskip('biotite', reason='need biotite')
+    pytest.importorskip('biotite', reason='require biotite module')
     seqs = read()
     seq = seqs[0]
     obj = seq.tobiotite()
@@ -67,7 +67,7 @@ def test_bioseq_to_from_biotite():
 
 
 def test_biobasket_to_from_biotite():
-    pytest.importorskip('biotite', reason='need biotite')
+    pytest.importorskip('biotite', reason='require biotite module')
     seqs = read()
     obj = seqs.tobiotite()
     seqs2 = seqs.frombiotite(obj)
@@ -80,7 +80,7 @@ def test_biobasket_to_from_biotite():
 
 
 def test_biobasket_to_from_biotite_msa():
-    pytest.importorskip('biotite', reason='need biotite')
+    pytest.importorskip('biotite', reason='require biotite module')
     seqs = read().str.rjust(10_000, '-')
     obj = seqs.tobiotite(msa=True)
     seqs2 = seqs.frombiotite(obj)
@@ -134,15 +134,15 @@ def test_countall():
 
 
 def test_countall_pandas():
-    pytest.importorskip('pandas')
+    pytest.importorskip('pandas', reason='require pandas module')
     seqs = read()
     df = seqs.countall(rtype='df')
     assert abs(df['prob'].sum() - 2) < 1e-8
 
 
 def test_countplot():
-    pytest.importorskip('pandas', reason='need pandas')
-    pytest.importorskip('seaborn', reason='need seaborn')
+    pytest.importorskip('pandas', reason='require pandas module')
+    pytest.importorskip('seaborn', reason='require seaborn module')
     seqs = read()
     with tempfilename() as fname:
         seqs[0].countplot(plot=fname)

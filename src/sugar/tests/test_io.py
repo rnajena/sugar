@@ -144,14 +144,3 @@ def test_download_uncompress():
 def test_download_zip():
     url = 'https://raw.githubusercontent.com/rnajena/sugar/master/src/sugar/tests/data/io_test.zip'
     assert read()[0] in read(url)
-
-
-# def test_io_tool():
-#     pytest.importorskip('Bio', reason='need biopython')
-#     seqs = read()
-#     with tempfilename() as fname:
-#         seqs.write(fname, 'fasta', tool='biopython')
-#         seqs2 = read(fname, tool='biopython')
-#         assert isinstance(seqs2, sugar.BioBasket)
-#         for seq2, seq1 in zip(seqs2, seqs):
-#             assert str(seq2) == str(seq1)

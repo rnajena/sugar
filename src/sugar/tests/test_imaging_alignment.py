@@ -8,7 +8,7 @@ def test_plot_alignment():
     """
     Just test that no error occurs, you can check the image by uncommenting the last line
     """
-    pytest.importorskip('matplotlib')
+    pytest.importorskip('matplotlib', reason='require matplotlib module')
     import matplotlib.pyplot as plt
     seqs = read().sl(update_fts=True)[:, :100]
     seqs[1][:10] = '-' * 10
@@ -34,7 +34,7 @@ def test_plot_alignment():
 
 @pytest.mark.webtest
 def test_plot_alignment_examples():
-    pytest.importorskip('matplotlib')
+    pytest.importorskip('matplotlib', reason='require matplotlib module')
     seqs = read('https://osf.io/download/j2wyv')
     with _changetmpdir() as tmpdir:
         tmpdir = './'

@@ -5,7 +5,7 @@ from sugar import read_fts
 
 
 def test_tsv():
-    pytest.importorskip('pandas')
+    pytest.importorskip('pandas', reason='require pandas module')
     fts = read_fts()
     out = fts.write(None, 'tsv')
     fts2 = read_fts(io.StringIO(out))
@@ -14,7 +14,7 @@ def test_tsv():
 
 
 def test_csv():
-    pytest.importorskip('pandas')
+    pytest.importorskip('pandas', reason='require pandas module')
     fts = read_fts()
     out = fts.write(None, 'csv')
     fts2 = read_fts(io.StringIO(out))
@@ -23,7 +23,7 @@ def test_csv():
 
 
 def test_xsv_edgecases():
-    pytest.importorskip('pandas')
+    pytest.importorskip('pandas', reason='require pandas module')
     fts = read_fts()
     out = fts.write(None, 'csv', sep=' ', keys='type start len strand defect')
     fts2 = read_fts(io.StringIO(out), sep=None, engine='python')

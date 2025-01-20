@@ -10,7 +10,7 @@ from sugar import FastaIndex
 from sugar.scripts import cli
 import sys
 
-pytest.importorskip('binarysearchfile')
+pytest.importorskip('binarysearchfile', reason='require binarysearchfile module')
 
 try:
     import platformdirs

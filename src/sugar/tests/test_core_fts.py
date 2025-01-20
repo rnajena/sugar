@@ -133,7 +133,7 @@ def test_fts_tolists():
 
 
 def test_fts_topandas():
-    pandas = pytest.importorskip('pandas')
+    pandas = pytest.importorskip('pandas', reason='require pandas module')
     fts = read_fts().select('CDS')
     df = fts.topandas()
     assert isinstance(df, pandas.DataFrame)

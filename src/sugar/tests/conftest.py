@@ -8,7 +8,7 @@ def pytest_addoption(parser):
 
 def pytest_collection_modifyitems(config, items):
     if not config.getoption('--web'):
-        skip_web = pytest.mark.skip(reason='webtest: need --web option to run')
+        skip_web = pytest.mark.skip(reason='webtest: require --web option')
         for item in items:
             if 'webtest' in item.keywords:
                 item.add_marker(skip_web)
