@@ -39,6 +39,14 @@ def test_catf():
             assert b'' == check_output(f'sugar catf {fname} -o {fname2} -fo gff'.split())
 
 
+def test_merge():
+    with tempfilename() as fname:
+        read().write(fname, 'fasta')
+        assert check_output(f'sugar merge {fname}'.split()).startswith(b'>')
+        with tempfilename() as fname2:
+            assert b'' == check_output(f'sugar merge {fname} -o {fname2} -fo sjson'.split())
+
+
 def test_load(capsys):
     sys.modules['IPython'] = unittest.mock.MagicMock()
     with tempfilename() as fname:

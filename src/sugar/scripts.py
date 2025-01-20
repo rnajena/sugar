@@ -30,12 +30,14 @@ def _start_ipy(seqs):
     print('Bye')
 
 
-def cat(fname, fmt=None, out=None, fmtout=None):
-    """Concatenate sequence files and convert to different format (sugar cat)"""
+def cat(fname, fmt=None, out=None, fmtout=None, merge=False):
+    """Concatenate sequence files, optionally merge and convert to different format (sugar cat, sugar merge)"""
     from sugar import BioBasket, read
     seqs = BioBasket()
     for fn in fname:
         seqs += read(fn, fmt)
+    if merge:
+        seqs.merge()
     if out is None:
         try:
             print(seqs.tofmtstr(fmtout or fmt or seqs[0].meta._fmt))
@@ -116,8 +118,8 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
         from sugar import read_fts
         fts = read_fts(fname, fmt, **kw)
         _start_ipy(fts)
-    elif command == 'cat':
-        cat(fname, fmt=fmt, **kw)
+    elif command in ('cat', 'merge'):
+        cat(fname, fmt=fmt, merge=(command=='merge'), **kw)
     elif command == 'catf':
         catf(fname, fmt=fmt, **kw)
     elif command == 'index':
@@ -161,6 +163,7 @@ def cli(cmd_args=None):
     p_index = sub.add_parser('index', help='index FASTA files, query the database')
     p_load = sub.add_parser('load', help='load seq file into IPython session')
     p_loadf = sub.add_parser('loadf', help='load fts file into IPython session')
+    p_merge = sub.add_parser('merge', help='merge sequences with the same id')
     p_print = sub.add_parser('print', help='print contents of seq file')
     p_printf = sub.add_parser('printf', help='print contents of fts file')
     p_trans = sub.add_parser('translate', help='translate nucleotide sequence')
@@ -183,10 +186,10 @@ def cli(cmd_args=None):
     p_print.add_argument('--wid', help='max id width, 0 for no restriction, default 19', default=19, type=int)
     # p_print.add_argument('--showgc', help='show GC content', default=True, action=argparse.BooleanOptionalAction)
     p_print.add_argument('--no-showgc', help='do not show GC content', action='store_false', dest='showgc')
-    for p in (p_cat, p_catf):
+    for p in (p_cat, p_catf, p_merge):
         p.add_argument('fname', help='filename(s) in', nargs='+')
     p_trans.add_argument('fname', help='filename in')
-    for p in (p_cat, p_catf, p_trans):
+    for p in (p_cat, p_catf, p_merge, p_trans):
         p.add_argument('-o', '--out', help='filename out')
         p.add_argument('-f', '--fmt', help='format in')
         p.add_argument('-fo', '--fmtout', help='format out')
