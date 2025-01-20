@@ -1,5 +1,9 @@
 """
-TSV, CSV and similar file formats IO
+TSV, CSV and XSV file formats IO
+
+TSV and CSV use the same functions under the hood,
+and just use a different default value for the ``sep`` option defining the separator character.
+In general, arbitrary characters can be used to separate the values (XSV).
 """
 import csv
 from sugar._io.util import _add_fmt_doc

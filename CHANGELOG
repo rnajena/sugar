@@ -13,6 +13,7 @@ dev:
     - writers: allow to pass None as fname, in this case a string will be returned
     - add GTF IO support for features
     - add TSV/CSV IO support for features
+    - add SJSON IO support for features (custom lossless file format)
     - add the possibility to read GFF files for old format versions
     - allow to write compressed files just by specifying the filename extension
     - add a sugar header comment for some writers (stockholm, gff, gtf)
