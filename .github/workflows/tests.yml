@@ -18,7 +18,7 @@ jobs:
       - name: Setup conda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.12"
+          python-version: "3.13"
       - name: print conda environment info
         run: |
           conda info -a
@@ -70,9 +70,10 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: ${{ matrix.python }}
+          channels: conda-forge,defaults
       - name: install dependencies
         run: |
-          conda install -c conda-forge -y pytest pytest-cov ${{ env.deps }}
+          conda install -y pytest pytest-cov ${{ env.deps }}
       - name: install pip dependencies
         if: contains(matrix.options, 'full') || contains(matrix.options, 'subset')
         run:
