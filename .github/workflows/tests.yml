@@ -36,30 +36,30 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python: ["3.11", "3.12", "3.13"]
-        options: [""]
+        options: ["subset"]
         include:
+          - os: ubuntu-latest
+            python: "3.13"
+            options: ""
           - os: ubuntu-latest
             python: "3.12"
             options: full
-          - os: ubuntu-latest
-            python: "3.12"
-            options: full warnings
-          - os: ubuntu-latest
-            python: "3.13"
-            options: subset
           - os: macos-latest
             python: "3.12"
             options: full
           - os: windows-latest
             python: "3.12"
             options: full
+          - os: ubuntu-latest
+            python: "3.12"
+            options: full warnings
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ contains(matrix.options, 'warnings') }}
     env:
       # set additional runtest options (--web, -W error)
       test_options: ${{ contains(matrix.options, 'full') && '--web' || '' }} ${{ contains(matrix.options, 'warnings') && '-W error' || '' }}
       # set additional dependencies for full test
-      deps: ${{ contains(matrix.options, 'full') && 'matplotlib pandas platformdirs seaborn requests biopython biotite tqdm' || ''  }}
+      deps: ${{ contains(matrix.options, 'full') && 'matplotlib pandas platformdirs seaborn requests biopython biotite tqdm' || contains(matrix.options, 'subset') && 'matplotlib' || ''  }}
       depspip: ${{ contains(matrix.options, 'full') && 'binarysearchfile' || contains(matrix.options, 'subset') && 'binarysearchfile' || ''  }}
     defaults:
       run:
