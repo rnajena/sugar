@@ -18,4 +18,7 @@ Submodules
    :glob:
    :hidden:
 
-   sugar.core.*
+   sugar.core.seq
+   sugar.core.fts
+   sugar.core.meta
+   sugar.core.cane

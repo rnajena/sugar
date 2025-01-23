@@ -8,21 +8,20 @@ Submodules
 
 .. autosummary::
 
+   main
    fasta
    genbank
-   gff
-   main
    sjson
    stockholm
    tab.blast
-   tab.infernal
    tab.core
+   tab.infernal
    tab.mmseqs
    tab.xsv
-   util
 
 .. toctree::
    :hidden:
    :glob:
 
+   sugar._io.main
    sugar._io.*
