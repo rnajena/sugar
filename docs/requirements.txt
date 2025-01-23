@@ -1,6 +1,7 @@
 # requirements to build the docs
 furo
 sphinx
+sphinx_autorun
 biopython
 biotite
 pandas
