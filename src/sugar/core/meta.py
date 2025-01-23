@@ -15,7 +15,7 @@ class Attr(collections.abc.MutableMapping):
 
     .. rubric:: Basic Usage
 
-    You may use the following syntax to change or access data in this class.
+    You can use the following syntax to modify or access data in this class.
 
     >>> attr = Attr()
     >>> attr.comment = 'bla'
@@ -96,7 +96,7 @@ class Meta(Attr):
 
     def tostr(self, w=80):
         """
-        Return string describing the metadata, is used by ``__str__()`` method.
+        Return string describing the metadata, used by ``__str__()`` method.
         """
         def _key2str():
             line = f'{k:>{lenkey}}: {self[k]}'

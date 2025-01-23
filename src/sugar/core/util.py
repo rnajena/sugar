@@ -7,7 +7,8 @@ Helper functions for _core module
 _ADD_INPLACE_DOC = """
         .. note::
             This function works in place and modifies the data.
-            If you want to keep the original data use the `copy()` method first.
+            If you want to keep the original data,
+            use the `copy()` method first.
 """
 
 def _add_inplace_doc(func):

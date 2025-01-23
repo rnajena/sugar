@@ -3,7 +3,7 @@ Handling DNA/RNA sequences
 
 The core of sugar are the sequence handling classes `.BioSeq` and `.BioBasket`.
 The `.BioSeq` class behaves like a string with useful bioinformatics methods attached.
-The `.BioBasket` class is a container for several `.BioSeq` objects and
+The `.BioBasket` class is a container for multiple `.BioSeq` objects and
 behaves like a list with useful methods attached.
 An example of such a useful method is certainly the `~.BioBasket.translate()` method.
 
@@ -11,10 +11,11 @@ To read sequences, use the powerful `~._io.main.read()` routine.
 It can handle glob expressions, web resources, archives,
 and automatically detects file formats by inspecting the file contents.
 To write sequences to files, use the `.BioBasket.write()` method.
-For writing, the format can be auto-detected from the file extension.
+When writing, the format can be automatically detected from the file extension.
 
-The following code loads two local files, in the first call the format is auto-detected.
-After that, a file with sequences from both original files is written to disc. ::
+The following code loads two local files,
+sugar automatically detects the format in the first call.
+After that, a file containing sequences from both original files is written to disk. ::
 
     >>> from sugar import read
     >>> seqs = read('example.fasta')
@@ -22,7 +23,7 @@ After that, a file with sequences from both original files is written to disc. :
     >>> combined = seqs + more_seqs
     >>> combined.write('combined.fasta')
 
-Calling `.read()` without any arguments returns example sequences.
+Calling `.read()` without any arguments returns sample sequences.
 
 .. runblock:: pycon
 
@@ -60,22 +61,24 @@ In the following we explore the `.BioSeq` and `.BioBasket` objects.
     >>> print('Metadata can be accessed with keys or as attributes:',
     ...       seq1.meta.id, seq1.meta['id'])
 
-As you can observe the ``seqs`` object is an instance of the `.BioBasket` class,
+As you can see, the ``seqs`` object is an instance of the `.BioBasket` class,
 which is basically a list of `.BioSeq` objects,
-each holding a single sequence and the corresponding metadata.
-Here, the sequences were loaded from a GenBank file,
-which can be deducted from the value of the ``meta._fmt`` attribute.
-Each format plugin will upon reading save format specific data to the private attribute of its name,
-here ``_genbank``. This attribute can also be used by the corresponding format plugin for writing format specific data.
+each containing a single sequence and its metadata.
+Here, the sequences have been loaded from a GenBank file,
+which can be inferred from the value of the ``meta._fmt`` attribute.
+Each format plugin stores format-specific data
+in the private attribute of its name when reading, here ``_genbank``.
+This attribute can also be used by the corresponding format plugin to write format specific data.
 
-Attached to the `.BioBasket` and `.BioSeq` classes are useful methods,
-like `~.BioBasket.rc()`, `~.BioBasket.translate()`, `~.BioBasket.match()`, or `~.BioBasket.find_orfs()`.
-Also, a lot of string methods are accessible via the ``str`` attribute,
+The `.BioBasket` and `.BioSeq` classes have useful methods attached to them,
+such as `~.BioBasket.rc()`, `~.BioBasket.translate()`, `~.BioBasket.match()`, or `~.BioBasket.find_orfs()`.
+Also, many string methods are accessible via the ``str`` attribute,
 e.g. `str.find()<._BioSeqStr.find()>` or `str.replace()<._BioSeqStr.replace()>`.
-Note, that different from the original string methods,
-the methods attached to the ``str`` attribute work in-place if applicable.
+Note, that unlike the original string methods,
+the methods attached to the ``str`` attribute work in-place, if applicable.
 
-The general architecture of the `.BioBasket` and `.BioSeq` classes is represented in the following graph:
+The general architecture of the `.BioBasket` and `.BioSeq` classes
+is shown in the following diagram:
 
 .. figure:: _static/datamodel_seq.svg
    :align: center
@@ -87,24 +90,25 @@ The general architecture of the `.BioBasket` and `.BioSeq` classes is represente
    :figclass: only-dark
    :width: 90%
 
-Attributes marked with a star are directly accessible from the sequence object.
+Attributes marked with an asterisk are directly accessible from the sequence object.
 
 
 .. rubric:: Slicing ``BioBasket`` and ``BioSeq`` objects
 
 Slicing is heavily overloaded for the `.BioBasket` and `.BioSeq` classes.
 
-The `.BioSeq` class can take the following slice arguments:
-   * A normal slice notation, in this case a BioSeq object with sliced data is returned.
-   * A `.Feature`, `.LocationTuple` or `.Location` object, in this case, the sequence is sliced
-      according to the given location.
-   * A string, in this case the first Feature attached to the sequence with this type is used.
+The `.BioSeq` class can take the following slicing arguments:
+   * A normal slice notation, in which case a BioSeq object with sliced data is returned.
+   * A `.Feature`, `.LocationTuple`, or `.Location` object,
+     in which case the sequence will be sliced according to the given location.
+   * A string, in which case the first Feature attached to the sequence of that type is used.
 
-The `.BioBasket` class can take the following slice arguments:
-   * A normal slice notation, in this case the underlying list is sliced.
-   * For strings, locations and features, each sequence is sliced separately with the argument.
-   * For 2d slices, the first item selects the sequences and the second item slices the sequences
-     according to the above rules.
+The `.BioBasket` class can take the following slicing arguments:
+   * A normal slice notation, in which case the underlying list is sliced.
+   * For strings, locations, and features, each sequence is sliced separately with the argument.
+   * For len-2 slices, the first item selects the sequences,
+     and the second item slices the sequences
+     according to the rules above.
 
 Some examples:
 
@@ -151,39 +155,36 @@ The code is explained below.
 
 Let us break up the code:
 
-1. We `.read` an archive with a GFF file including a FASTA directive from an online resource.
-   Sugar automatically downloads and extracts the archive (detected from file extension)
-   and reads the file with the corresponding plugin (detected from content).
-2. The content of seqs is printed, to print more than 20 lines, use e.g.
+1. We `.read` an archive containing a GFF file with FASTA directive from an online resource.
+   Sugar automatically downloads and extracts the archive (detected by file extension)
+   and reads the file with the appropriate plugin (detected by content).
+2. The content of ``seqs`` is printed, to print more than 20 lines, use e.g.
    ``print(seqs.tostr(h=100))`` to print 100 lines, use ``h=0`` to print all lines.
 3. Features are attached to the object,
-   we can print features of the first sequence with ``print(seqs[0].fts)``.
-   Here, the first 5 features of all sequences are printed, obviously,
-   these mark the coding sequences.
+   we can print the features of the first sequence with ``print(seqs[0].fts)``.
+   In the example, the first 5 features of all sequences are printed.
+   Obviously, these mark the coding sequences.
 4. We try to find the start codon using the ``str.find()`` method,
-   but the first ATG string is found before the beginning of the CDS.
+   but the first ATG string is found before the start of the CDS.
 5. We use the more dedicated `~.BioSeq.matchall()` method to find possible start codons.
-   Indeed, one of the matches ``span=(385, 388) rf=1`` marks the beginning of the CDS according to the annotation data.
+   In fact, one of the matches ``span=(385, 388) rf=1`` marks the start of the CDS according to the annotation data.
 6. We use the `~.BioBasket.find_orfs()` method to find open reading frames.
-   The first 5 found ORFs are printed, a CDS is not one of these. We could `~.FeatureList.sort` the ORFs
-   by length, but we chose to `~.FeatureList.filter` all ORFs which are longer than 500 nucleotides.
+   The first 5 ORFs found are printed, a CDS is not one of them.
+   We could `~.FeatureList.sort` the ORFs by length,
+   but we decided to `~.FeatureList.filter` all ORFs which are longer than 500 nucleotides.
    Again, we print the first 5 ORFs longer than 500 nucleotides which coincide with the CDS
    of the first 5 sequences.
-7. Finally, we translate the CDS of the sequences to proteins. Because the translation is an
-   in-place operation, we create a copy to retain the original sequences in the ``seqs`` variable.
-   Sugar methods generally return the calling object if applicable, therefore we were able to
-   use method chaining.
-   Note, that we could also have used the found ORFs instead of the CDS annotation for slicing::
+7. Finally, we translate the CDS of the sequences to proteins. Since the translation is an
+   in-place operation, we create a copy to keep the original sequences in the ``seqs`` variable.
+   Sugar methods generally return the calling object if applicable,
+   so we were able to use method chaining.
+   Note that instead of using the CDS annotation for slicing,
+   we could have used the found ORFs::
 
       >>> seqs.fts = long_orfs
       >>> proteins = seqs['orf'].copy().translate()
 
 8. We write the protein strings to a new FASTA file.
-   The format is auto-detected from the file extension,
-   if you want to be verbose, you may specify the format with ``proteins.write('pesti_proteins.fasta', 'fasta')``.
-
-
-
-
-
-
+   The format is automatically detected from the file extension,
+   if you want to be verbose, you can specify the format with
+   ``proteins.write('pesti_proteins.fasta', 'fasta')``.

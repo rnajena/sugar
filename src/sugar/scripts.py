@@ -195,7 +195,7 @@ def cli(cmd_args=None):
         p.add_argument('-fo', '--fmtout', help='format out')
 
     p_trans.add_argument('-tt', '--translation-table', help='number of translation table, default 1', default=1, type=int, dest='tt')
-    p_trans.add_argument('-c', '--complete', help='wether to ignore stop codons', action='store_true')
+    p_trans.add_argument('-c', '--complete', help='whether to ignore stop codons', action='store_true')
     p_trans.add_argument('--cds', help='cut out CDS feature before translation', action='store_true')
 
     sub_index = p_index.add_subparsers(title='commands', dest='idxcommand')

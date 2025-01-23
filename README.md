@@ -12,7 +12,8 @@ The sugar project aims to provide a lightweight framework to facilitate rapid ap
 
 ### Documentation
 
-* The documentation including a tutorial is available [here](https://rnajena-sugar.readthedocs.io)* Developer-centric documentation can be found in the [wiki](https://github.com/rnajena/sugar/wiki)
+* Documentation including a tutorial is available [here](https://rnajena-sugar.readthedocs.io)
+* Developer-oriented documentation can be found in the [wiki](https://github.com/rnajena/sugar/wiki)
 
 ### Installation
 
@@ -24,8 +25,8 @@ pip install rnajena-sugar
 
 Run tests with `sugar test`.
 
-Other options are detailed in the documentation.
+Other options are described in the documentation.
 
 ### Contributions
 
-Contributions are welcome! -- e.g. report or fix bugs, discuss or add features, enhance the documentation.
+Contributions are welcome! -- e.g. report or fix bugs, discuss or add features, improve the documentation.

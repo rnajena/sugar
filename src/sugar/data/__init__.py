@@ -3,6 +3,8 @@ sugar.data -- Use genetic code and substitution matrices
 
 For reference the IUPAC nucleotide code:
 
+.. code-block:: text
+
     IUPAC nucleotide code 	Base
     A 	Adenine
     C 	Cytosine
@@ -22,6 +24,8 @@ For reference the IUPAC nucleotide code:
     . or - 	gap
 
 And the amino acid codes:
+
+.. code-block:: text
 
     IUPAC amino acid code 	Three letter code 	Amino acid
     A 	Ala 	Alanine

@@ -19,15 +19,15 @@ class Entrez():
 
     :param path: The path for persistence of downloaded files, default: no persistence,
         alternatively the path can be set with the ``ENTREZ_PAH`` environment variable.
-    :param api_key: Optionally, you can use an API key, which allows you to perform
-        more requests than without API key,
-        alternatively the API key can be set with the ``ENTREZ_API_KEY`` environment variable.
+    :param api_key: Optionally, you can use an API key that allows you to make
+        more requests than without an API key,
+        alternatively, the API key can be set with the ``ENTREZ_API_KEY`` environment variable.
 
-    Without an API, key 3 requests can be performed per second,
-    with API key 10 requests can be performed per second.
-    The client takes care that you do not exhaust this quota.
+    Without an API key you can make 3 requests per second,
+    with an API key you can make 10 requests per second.
+    The client will make sure that you do not use up this quota.
     By setting the path (environment) variable,
-    repeated requests for the same id do not count against the quota.
+    repeated requests for the same id will not count against the quota.
 
     .. rubric:: Example:
 
@@ -72,13 +72,13 @@ class Entrez():
         :param str path: An alternative path for persistence,
             which might be different from the initialized path.
         :param bool overwrite: If True, redownload the sequence,
-            event if it already exists in the path
+            even if it already exists in the path
         :param str ext: The file extension, defaults to rettype parameter.
         :param \*\*kw: Other kwargs are used to construct the request url,
             values other than the defaults are untested.
 
-        :return: The filename with the downloaded content.
-            If path is not set, the content is return as ``StringIO`` instance.
+        :return: The filename of the downloaded content.
+            If path is not set, the content is returned as ``StringIO`` instance.
         """
         import requests
 
@@ -122,7 +122,7 @@ class Entrez():
         Fetch a sequence and return it
 
         :param seqid: Id of the sequence to be fetched
-        :param dict read_kw: Dictionary of reading options passed to `.read()`
+        :param dict read_kw: Dictionary of read options passed to `.read()`
         :param \*\*kw: All other kwargs are passed to `fetch_seq()`
         :return: Fetched `.BioSeq` object
         """

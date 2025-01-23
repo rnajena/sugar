@@ -120,7 +120,7 @@ class Location():
     @property
     def meta(self):
         """
-        Optionally location may have metadata
+        Location can optionally have metadata
         """
         if self._meta is None:
             self._meta = Meta()
@@ -260,7 +260,7 @@ class LocationTuple(tuple):
 
     def overlaps(self, other):
         """
-        Weather the location ranges overlaps with other location range
+        Whether the location ranges overlap with the other location range
         """
         if isinstance(other, LocationTuple):
             lr1 = self.range
@@ -280,9 +280,10 @@ class Feature():
 
     :param str type: The name of the feature class, e.g. *gene* or *CDS*
     :param list locs:
-        A list of feature locations. In most cases this list will only
-        contain one location, but multiple ones are also possible for
-        example in virus genomes (due to frame shifts).
+        A list of feature locations. In most cases this list will
+        contain only one location
+        but multiple locations are possible,
+        for example in virus genomes (due to frame shifts).
     :param start,stop,strand:
         Instead of specifying the locations, a single location can be given
         by start and stop indices and optionally strand.
@@ -290,9 +291,9 @@ class Feature():
         The metadata describing the feature.
 
     .. note::
-        The following metadata attributes can be accessed directly as an
-        attribute of Feature: *type*, *name*, *id* and *seqid*.
-        For example the feature id can be obtained by both `Feature.id`
+        The following metadata attributes are directly accessible as
+        attributes of Feature: *type*, *name*, *id* and *seqid*.
+        For example, the feature id can be obtained by both `Feature.id`
         and ``Feature.meta.id``.
     """
 
@@ -395,7 +396,7 @@ class Feature():
 
     def overlaps(self, other):
         """
-        Weather the location ranges overlaps with other feature
+        Whether the location ranges overlap with the other feature
         """
         if isinstance(other, Feature):
             return self.locs.overlaps(other.locs)
@@ -408,9 +409,9 @@ class Feature():
         """
         Reverse complement the feature.
 
-        After the in-place operation the feature will be described from the reverse complement strand.
+        After the in-place operation, the feature will be described by the reverse complement strand.
 
-        :param int seqlen: The sequence length, the default 0 will result in negative
+        :param int seqlen: The sequence length, the default of 0 will result in negative
             location indices.
         """
         self.locs = self.locs._reverse(seqlen=seqlen)
@@ -442,14 +443,14 @@ class FeatureList(collections.UserList):
         """
         Convert `pandas.DataFrame` object to `FeatureList`
 
-        :param df: data frame with at least start and stop columns.
+        :param df: Dataframe with at least start and stop columns.
             The following columns can be used: type, start, stop, len, strand, defect.
-            Other column are saved as metadata.
-        :param ftype: if the data frame has no type column,
-            ``ftype`` column will be used instead,
-            if it does not exist, ``ftype`` will be used as type directly.
-        :param one_based: Weather the data used one-based numbering.
-            It will be converted to zero-based numbering, which is used by sugar.
+            Other columns are stored as metadata.
+        :param ftype: If the dataframe has no type column,
+            the ``ftype`` column is used instead,
+            if it does not exist, ``ftype`` is used directly as type.
+        :param one_based: Whether the data uses one-based numbering.
+            It will be converted to the zero-based numbering used by sugar.
 
         :return: created `FeatureList` instance
         """
@@ -587,7 +588,7 @@ class FeatureList(collections.UserList):
 
     def tofmtstr(self, fmt, **kw):
         """
-        Write features to a string of specified format, see `~.main.write_fts()`
+        Write features to a string of the given format, see `~.main.write_fts()`
         """
         return self.write(None, fmt, **kw)
 
@@ -597,7 +598,7 @@ class FeatureList(collections.UserList):
 
         :param keys: Parameters from the metadata or location to return,
             ``'len'`` is also allowed,
-            might be a string or tuple, defaults to ``'type start stop strand'``
+            can be a string or tuple, defaults to ``'type start stop strand'``
 
         .. rubric:: Example:
 
@@ -629,7 +630,7 @@ class FeatureList(collections.UserList):
 
         :param keys: Parameters from the metadata or location to return,
             ``'len'`` is also allowed,
-            might be a string or tuple, defaults to ``'type start stop strand'``
+            can be a string or tuple, defaults to ``'type start stop strand'``.
 
         .. rubric:: Example:
 
@@ -652,7 +653,7 @@ class FeatureList(collections.UserList):
 
     def get(self, type):
         """
-        Return the first feature of specified feature type, e.g. ``'cds'``
+        Return the first feature of given feature type, e.g. ``'cds'``
 
         :param type: String or list of multiple strings
         """
@@ -666,7 +667,7 @@ class FeatureList(collections.UserList):
 
     def select(self, type):
         """
-        Return features of specified feature type, e.g. ``'cds'``
+        Return features of given feature type, e.g. ``'cds'``
 
         For a more powerful selection method, use `filter()`.
 
@@ -689,7 +690,7 @@ class FeatureList(collections.UserList):
         .. note::
             This method is different from the `FeatureList.groupby()` method.
             Each value of the dict returned by ``todict()`` is a feature,
-            whereas each value of the dict returned by ``groupby()`` is a
+            while each value of the dict returned by ``groupby()`` is a
             FeatureList.
         """
         return {ft.id: ft for ft in self}
@@ -699,8 +700,8 @@ class FeatureList(collections.UserList):
         Group features
 
         :param keys: Tuple of meta keys or functions to use for grouping.
-            May also be a single string or callable.
-            By default the method groups by only seqid.
+            Can also be a single string or a callable.
+            By default, the method groups by seqid only.
         :return: Nested dict structure
 
         .. rubric:: Example:
@@ -725,7 +726,7 @@ class FeatureList(collections.UserList):
         Get the range of locations over all features
 
         :returns:
-            tuple ``start, stop`` with start and stop location
+            tuple ``start, stop`` with start and stop locations
             (zero-based numbering)
         """
         if len(self) == 0:
@@ -744,8 +745,8 @@ class FeatureList(collections.UserList):
         """
         Return a sub-feature between start and stop
 
-        :param start,stop: start and stop location
-        :param int rel: The value ``rel`` is subtracted from all location positions
+        :param start,stop: start and stop locations
+        :param int rel: Subtracts the value ``rel`` from each location position.
         """
         if start is None:
             start = -sys.maxsize
@@ -791,8 +792,8 @@ class FeatureList(collections.UserList):
         :param keys: Tuple of meta keys or functions to use for sorting.
             None can be used as a single value or in the tuple
             to apply the default sorting by position.
-            May also be a single string or callable.
-        :param reverse: Use reversed order (default: False)
+            Can also be a single string or a callable.
+        :param reverse: Use reverse order (default: False)
 
         :return: Sorted features
 
@@ -810,7 +811,7 @@ class FeatureList(collections.UserList):
         r"""
         Filter features
 
-        :param \*\*kw: All kwargs need to be of the form
+        :param \*\*kw: All kwargs must be of the form
             ``key_op=value``, where op is one of
             the operators from the `python:operator` module.
             Additionally, the operators ``'in'`` (membership),

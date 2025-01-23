@@ -168,7 +168,7 @@ class _BioBasketStr():
     Helper class to move all string methods into the `BioBasket.str` namespace
 
     It calls the corresponding `BioSeq.str` method under the hood and returns
-    either the altered `BioBasket` object or a list of results.
+    either the modified `BioBasket` object or a list of results.
 
     :meta public:
     """
@@ -196,7 +196,7 @@ class BioSeq():
     """
     Class holding sequence data and metadata, exposing bioinformatics methods.
 
-    Most methods operate by default in-place, but return the BioSeq object again.
+    Most methods work in-place by default, but return the BioSeq object again.
     Therefore, method chaining can be used.
     """
 
@@ -315,7 +315,7 @@ class BioSeq():
         """
         Add some features to the feature list.
 
-        If you want set all features use the `BioSeq.fts` attribute.
+        If you want to set all features, use the `BioSeq.fts` attribute.
 
         :param fts: features to add
         """
@@ -349,33 +349,35 @@ class BioSeq():
 
     def sl(self, **kw):
         """
-        Method allowing to slice the `BioSeq` object with non-default options.
+        Method that allows you to slice the `BioSeq` object with non-default options.
 
         If you want to use the default options, you can slice the BioSeq object directly.
         For non-default options, slice the sliceable object returned by this method.
 
         :param bool inplace:
-            The subsequence is not only returned, but the original
-            sequence is modified in-place (default: False)
+            Not only will the subsequence be returned,
+            but the original sequence will be modified in-place
+            (default: False).
         :param str gap:
-            gaps of the given characters will be accounted for when
-            slicing the sequence (default: gaps will not be accounted for)
+            Gaps of the given characters are taken into account
+            when slicing the sequence
+            (default: gaps are not taken into account)
 
         .. rubric:: Slicing options:
 
-        The slice specifies which part of the sequence is returned and
+        The slice specifies which part of the sequence is returned, and
         is defined inside the square brackets ``[]``
         The following types are supported.
 
         int,slice
-            location is specified by int or slice
+            The location is specified by int or slice
         `.Location`
             specified by location
         `.Feature`
             specified by feature
         str
-            position of first feature of given type, e.g. ``'cds'``
-            will return sequence with first coding sequence
+            Position of the first feature of the given type, e.g. ``'cds'``
+            will return the sequence with the first coding sequence.
 
         .. rubric:: Example:
 
@@ -389,7 +391,7 @@ class BioSeq():
         ATG
         >>> print(seq.sl(inplace=True, gap='-')[:5:2])  # non-default options
         ACG
-        >>> print(seq)  # was modified in-place
+        >>> print(seq)  # has been modified in-place
         ACG
         """
         return _Sliceable_GetItem(self, **kw)
@@ -574,14 +576,14 @@ class BioSeq():
 
     def tostr(self, **kw):
         """
-        Return nice string, see `BioBasket.tostr()`
+        Return a nice string, see `BioBasket.tostr()`
         """
         kw.setdefault('add_header', False)
         return BioBasket([self]).tostr(**kw)
 
     def tofmtstr(self, fmt, **kw):
         """
-        Write object to a string of specified format, see `~.main.write()`
+        Write object to a string of given format, see `~.main.write()`
         """
         return BioBasket([self]).tofmtstr(fmt, **kw)
 
@@ -600,8 +602,8 @@ class BioSeq():
         :param str type: ``'nt'`` creates a ``NucleotideSequence`` instance,
             ``'aa'`` creates a ``ProteinSequence`` instance,
             by default the class is inferred from the sequence itself.
-        :param str gap: gap characters, which will be removed obligatorily from the sequence string
-        :param bool warn: Wether to warn if gap characters were removed, default is True
+        :param str gap: Gap characters that must be removed from the sequence string.
+        :param bool warn: Whether to warn if gap characters have been removed, default is True.
         """
         from biotite.sequence import NucleotideSequence, ProteinSequence
         data = self.data
@@ -673,10 +675,10 @@ class BioBasket(collections.UserList):
     Class holding a list of `BioSeq` objects
 
     The BioBasket object can be used like a list.
-    It has useful bioinformatics methods attached.
+    It has useful bioinformatics methods attached to it.
 
     The list itself is stored in the ``data`` property.
-    The BioBasket object may also have an metadata
+    The BioBasket object may also have a metadata
     attribute.
     """
     def __init__(self, data=None, meta=None):
@@ -747,9 +749,9 @@ class BioBasket(collections.UserList):
         Namespace holding all available string methods.
 
         The `BioBasket.str` methods call the corresponding `BioSeq.str` methods under the hood
-        and return either the altered `BioBasket` object or a list with results.
+        and return either the modified `BioBasket` object or a list of results.
         See `_BioSeqStr` for available methods
-        and `python:str` for documentation of the methods.
+        and `python:str` for method documentation.
 
         .. rubric:: Example:
 
@@ -790,9 +792,9 @@ class BioBasket(collections.UserList):
 
     def add_fts(self, fts):
         """
-        Add some features to the feature list of corresponding sequences.
+        Add some features to the feature list of the corresponding sequences.
 
-        If you want set all features use the `BioBasket.fts` attribute.
+        If you want to set all features, use the `BioBasket.fts` attribute.
 
         :param fts: features to add
         """
@@ -833,7 +835,7 @@ class BioBasket(collections.UserList):
 
     def sl(self, **kw):
         r"""
-        Method allowing to slice the `BioBasket` object with non-default options.
+        Method that allows you to slice the `BioBasket` object with non-default options.
 
         If you want to use the default options, you can slice the BioBasket object directly.
         For non-default options, slice the sliceable object returned by this method.
@@ -955,7 +957,7 @@ class BioBasket(collections.UserList):
         """
         Count letters in sequences
 
-        This method might undergo disrupting changes or it might be removed in a later version.
+        This method may undergo disrupting changes or it may be removed in a later release.
 
         :param rtype:
           * ``'counter'`` Return `~collections.Counter` object
@@ -984,10 +986,10 @@ class BioBasket(collections.UserList):
         """
         Create a plot of letter counts
 
-        This method might undergo disrupting changes or it might be removed in a later version.
+        This method may undergo disruptive changes, or it may be removed in a later release.
 
-        Under the hood this method uses pandas and seaborn libraries.
-        For a help on most arguments, see
+        Under the hood this method uses the pandas and seaborn libraries.
+        For a help on most of the arguments, see
         `seaborn.barplot() <https://seaborn.pydata.org/generated/seaborn.barplot.html#seaborn.barplot>`_.
         """
         import matplotlib.pyplot as plt
@@ -1052,7 +1054,7 @@ class BioBasket(collections.UserList):
         .. note::
             This method is different from the `BioBasket.groupby()` method.
             Each value of the dict returned by ``todict()`` is a sequence,
-            whereas each value of the dict returned by ``groupby()`` is a
+            while each value of the dict returned by ``groupby()`` is a
             BioBasket.
         """
         return {seq.id: seq for seq in self}
@@ -1098,9 +1100,9 @@ class BioBasket(collections.UserList):
         Sort sequences in-place
 
         :param keys: Tuple of meta keys or functions to use for sorting.
-            May also be a single string or callable.
+            Can also be a single string or a callable.
             Defaults to sorting by id.
-        :param reverse: Use reversed order (default: False)
+        :param reverse: Use reverse order (default: False)
 
         :return: Sorted sequences
 
@@ -1119,8 +1121,8 @@ class BioBasket(collections.UserList):
         Group sequences
 
         :param keys: Tuple of meta keys or functions to use for grouping.
-            May also be a single string or callable.
-            By default the method groups by only id.
+            Can also be a single string or a callable.
+            By default, the method groups only by id.
         :return: Nested dict structure
 
         .. rubric:: Example:
@@ -1136,7 +1138,7 @@ class BioBasket(collections.UserList):
         r"""
         Filter sequences
 
-        :param \*\*kw: All kwargs need to be of the form
+        :param \*\*kw: All kwargs must be of the form
             ``key_op=value``, where op is one of
             the operators from the `python:operator` module.
             Additionally, the operators ``'in'`` (membership),
@@ -1144,7 +1146,7 @@ class BioBasket(collections.UserList):
             ``'min'`` (alias for ge) are supported.
             The different filter conditions are combined with
             the *and* operator. If you need *or*, call filter twice
-            and combine the results with ``|`` operator, e.g.
+            and combine the results with the ``|`` operator, e.g.
             ``seqs.filter(...) | seqs.filter(...)``
         :param inplace: Whether to modify the original object.
         :return: Filtered sequences
@@ -1165,7 +1167,7 @@ class BioBasket(collections.UserList):
 
     def tofmtstr(self, fmt, **kw):
         """
-        Write sequences to a string of specified format, see `~.main.write()`
+        Write sequences to a string of the specified format, see `~.main.write()`
         """
         return self.write(None, fmt)
 
@@ -1222,9 +1224,9 @@ class BioBasket(collections.UserList):
             ``'aa'`` creates a ``ProteinSequence`` instance,
             by default the class is inferred from the sequence itself.
         :param bool msa: Return a biotite ``Alignment`` object instead of a list, default is False
-        :param str gap: gap characters, which will be removed obligatorily from the sequence strings
-        :param bool warn: Wether to warn if gap characters were removed, default is True,
-            not used for ``msa=True``
+        :param str gap: Gap characters that must be removed from the sequence strings.
+        :param bool warn: Wether to warn if gap characters have been removed, default is True,
+            not used with ``msa=True``
         """
         seqs = [seq.tobiotite(type=type, gap=gap, warn=not msa and warn) for seq in self]
         if msa:

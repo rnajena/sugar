@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
-Several core helper classes and functions, like `~.cane.translate()`, `~.cane.match()` and `~.cane.find_orfs()`
+Several core helper classes and functions, such as `~.cane.translate()`, `~.cane.match()`, and `~.cane.find_orfs()`
 """
 
 import collections
@@ -109,9 +109,9 @@ class BioMatch(object):
     """
     The BioMatch object is returned by `~.cane.match()` and the different match methods.
 
-    It is designed to behave as the original `python:re.Match` object.
+    It is designed to behave like the original `python:re.Match` object.
     See there for available methods.
-    Additionally, it has the `BioMatch.rf` attribute which holds the
+    It also has the `BioMatch.rf` attribute, which holds the
     reading frame (between -3 and 2, inclusive) of the match.
 
     .. rubric:: Example:
@@ -150,8 +150,8 @@ class BioMatchList(collections.UserList):
         Group matches
 
         :param keys: Tuple of meta keys or functions to use for grouping.
-            May also be a single string or callable.
-            By default the method groups by only seqid.
+            Can also be a single string or a callable.
+            By default the method groups by seqid only.
         :return: Nested dict structure
         """
         return _groupby(self, keys)
@@ -177,21 +177,21 @@ class BioMatchList(collections.UserList):
 def match(seq, sub, *, rf='fwd',
           start=0, gap='-', matchall=False):
     """
-    Return `BioMatch` object for first found occurrence of regex sub, None if not found
+    Return `BioMatch` object for first found match of regex sub, None if not found.
 
     Args:
         sub (str): regex or ``'start'`` or ``'stop'`` to find start/stop codon,
             please specify different codons like
-        rf (int): May be set to an integer between -3 and 2
+        rf (int): Can be set to an integer between -3 and 2
             inclusive to respect the corresponding reading frame.
             Rfs 0 to 2 are on the forward strand,
             rfs -3 to -1 are on the backward strand,
-            You may also specify a set or tuple of reading frames.
+            You can also specify a set or tuple of reading frames.
             Additionally you can use one of ('fwd', 'bwd', 'both') to select
             all reading frames on the specified strands.
             Defaults to ``'fwd'`` -- all three reading frames on the forward strand.
             You may set rf to ``None`` to ignore reading frames (i.e. for aa seqs)
-        start (int): Index of nucleobase to start matching. Defaults to 0.
+        start (int): Index of the nucleobase to start matching. Defaults to 0.
         gap (str): Consider gaps of given character, Defaults to '-'. The
             character is inserted between each two letters of the regex.
             Be careful, this approach does not work for arbitrary regexes.
@@ -292,7 +292,7 @@ def _inds2orf(i1, i2, rf, lensec, ftype='ORF', seqid=None):
 
 def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', need_stop=True, gap='-', minlen=0, ftype='ORF'):
     """
-    Find open reading frames (ORFS)
+    Find open reading frames (ORFs)
 
     :param seq: `.BioSeq` sequence
     :param rf: reading frame, possible values: int, string or tuple. See also
@@ -302,17 +302,17 @@ def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', ne
         in default translation table
     :param need_start: One of ``('always', 'once', 'never')``.
         Always: Ech ORF starts with a start codon.
-        Once: Only the first ORF in each RF start with a start codon.
+        Once: Only the first ORF in each RF starts with a start codon.
         Never: ORFs can start at each codon.
-    :param need_stop: Weather the last ORF in each RF needs to end with a stop codon.
-    :param gap: gap character inserted into the start and top codon regexes,
+    :param need_stop: Whether the last ORF in each RF must end with a stop codon.
+    :param gap: Gap character inserted into the start and stop codon regexes,
         default is ``'-'``.
     :param minlin: Minimum length of ORFs
-    :param ftype: Feature type for found ORFS, default is ``'ORF'``
+    :param ftype: Feature type for found ORFs, default is ``'ORF'``
 
-    :returns: Returns a `~ORFList` of all found orfs.
+    :returns: Returns a `~ORFList` of all found ORFs.
         You can attach these features to sequences using `.BioSeq.add_fts()` or `.BioBasket.add_fts()`.
-        Use the `.BioSeq.fts` and `.BioBasket.fts` properties to overwrite all features with the found ORFs.
+        Use the `.BioSeq.fts` and `.BioBasket.fts` properties to overwrite features with the found ORFs.
     """
     # rf  0, 1, 2, -1, -2, -3, 'fwd', 'bwd', 'both'
     assert need_start in ('never', 'always', 'once')
@@ -355,7 +355,7 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
     """
     Translate a string or `.BioSeq` object into an amino acid string
 
-    :param bool complete: If set to ``True`` ignores stop codons,
+    :param bool complete: If set to ``True`` ignore stop codons,
         otherwise the translation is stopped at the first stop codon
     :param bool check_start: Check that the first codon is a start codon,
         default is True for ``complete=False`` otherwise False
@@ -368,11 +368,11 @@ def translate(seq, *, complete=False, check_start=None, check_stop=False,
         warn if the sequence does not end with a stop codon,
         default is False
     :param str astop: Symbol for ambiguous stop codons
-    :param str gap: gap character, default ``'-'``, set to ``None``
-       to raise an error for non nucleotide characters
-    :param int gap_after: A single gap in the amino acids string is
+    :param str gap: Gap character, default ``'-'``, set to ``None``
+       to raise an error for non-nucleotide characters
+    :param int gap_after: A single gap in the amino acid string is
         written after the first ``gap_after`` gaps in the
-        nucleotide sequence and afterwards after each third gap,
+        nucleotide sequence and after every third gap thereafter,
         default is 2
     :param int tt: the number of the translation table, default is 1
 

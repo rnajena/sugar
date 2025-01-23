@@ -3,7 +3,7 @@ What else
 
 .. rubric:: Adaptors
 
-Sugar provides adaptors to convert to the corresponding sequence objects
+Sugar provides adaptors to convert sequence objects to the corresponding sequence objects
 in the Biopython and Biotite libraries, and vice versa.
 
 .. runblock:: pycon
@@ -25,13 +25,14 @@ in the Biopython and Biotite libraries, and vice versa.
 
 .. rubric:: Indexing of FASTA files
 
-sugar provides an indexing tool to quickly retrieve
+sugar provides an indexing tool for quickly retrieving
 sequences or subsequences from large FASTA files.
-Use it via the `.FastaIndex` class or the ``sugar index`` command.
+It is used via the `.FastaIndex` class or the ``sugar index`` command.
 
-The following example uses the ``sugar index create`` and ``add`` commands to create
-the index and queries the index in python. Both tasks can be performed
-either on the command line or with Python code. ::
+The following example uses the ``sugar index create`` and ``add`` commands
+to create the index and query the index in Python.
+Both tasks can be done
+either from the command line or from Python code. ::
 
     sugar index create index.db
     sugar index add *.fasta
@@ -43,9 +44,9 @@ either on the command line or with Python code. ::
     >>> print(index)  # display information about index
     >>> seq = index.get_seq('NC_081844.1')
 
-The Fasta index either uses a binary search file or
-a data base via Pythons ``dbm`` module.
-Depending on the use case, one or the other option might be preferred,
+The Fasta index uses either a binary search file or
+a database via Python's ``dbm`` module.
+Depending on the use case, one or the other option may be preferred,
 usually you want the binary search file.
 
 .. rubric:: Downloading sequences from NCBI
@@ -64,7 +65,7 @@ from the NCBI online database::
 
 Use the ``ENTREZ_PATH`` environment variable or
 the ``path`` option of `.Entrez` or its methods
-for a caching of sequence files on the disk.
+to cache sequence files on the disk.
 An Entrez API key can be used via the ``ENTREZ_API_KEY`` environment variable
 or the ``api_key`` option of `.Entrez`.
 
@@ -82,10 +83,10 @@ Find open reading frames
     see the advanced example in the :doc:`Sequences Tutorial <tutorial_seqs>`.
 Attributes behave like dictionaries
     Metadata and attributes in sugar are instances of `.Attr`,
-    therefore attributes can be used as dictionary keys,
+    so attributes can be used as dictionary keys,
     e.g. ``seq.meta.id`` and ``seq.meta['id']`` have the same effect.
 Shortcuts are convenient
-    Using the shortcuts ``seq.fts``, ``seq.id``, ``ft.seqid``, e.t.c., has the advantage,
+    Using the shortcuts ``seq.fts``, ``seq.id``, ``ft.seqid``, etc. has the advantage
     that additional checks are performed,
     e.g. assigning ``seq.fts = my_fts`` automatically converts ``my_fts`` to a `.FeatureList`,
     accessing ``seq.id`` returns an emtpy string if no ``id`` attribute is present in the metadata.
@@ -93,5 +94,5 @@ Shortcuts are convenient
 Overloading of operators
     Adding two sequences ``seq1 + seq2``, concatenates the data.
     Adding two sequence lists ``seqs1 + seqs2``, concatenates the two lists.
-    To concatenate sequences inside a list use the `~.BioBasket.merge()` method.
+    To concatenate sequences within a list, use the `~.BioBasket.merge()` method.
     Adding two feature lists ``fts1 + fts2`` also works as expected.
