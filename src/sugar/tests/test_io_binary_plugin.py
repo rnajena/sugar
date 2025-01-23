@@ -1,6 +1,8 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 
 import sugar
+from sugar.tests.util import tempfilename
+
 
 ### define a simple FASTA-like binary plugin
 from sugar.core.seq import BioBasket, BioSeq
@@ -46,16 +48,18 @@ def write_fts_testbin(fts, f):
 
 
 def test_create_binary_seq_test_file():
-    from importlib.resources import files
-    fname = str(files('sugar.tests.data').joinpath('io_binary_plugin_atg.bintest'))
+    # from importlib.resources import files
+    # fname = str(files('sugar.tests.data').joinpath('io_binary_plugin_atg.bintest'))
     seqs = sugar.read()
-    seqs.write(fname)
+    with tempfilename(suffix='.bintest') as fname:
+        seqs.write(fname)
 
 def test_create_binary_fts_test_file():
-    from importlib.resources import files
-    fname = str(files('sugar.tests.data').joinpath('io_binary_plugin_fake_fts.bintest'))
+    # from importlib.resources import files
+    # fname = str(files('sugar.tests.data').joinpath('io_binary_plugin_fake_fts.bintest'))
     fts = sugar.read_fts()
-    fts.write(fname)
+    with tempfilename(suffix='.bintest') as fname:
+        fts.write(fname)
 
 
 def test_binary_seq_plugin():

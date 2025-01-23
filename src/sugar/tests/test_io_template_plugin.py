@@ -1,6 +1,7 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 
 import sugar
+from sugar.tests.util import tempfilename
 
 
 ### The following lines are copied from the sugar wiki
@@ -81,10 +82,11 @@ def write_fancy(seqs, f, **kw):
 
 
 def test_create_template_seq_test_file():
-    from importlib.resources import files
-    fname = str(files('sugar.tests.data').joinpath('io_template_plugin.fancy'))
+    # from importlib.resources import files
+    # fname = str(files('sugar.tests.data').joinpath('io_template_plugin.fancy'))
     seqs = sugar.read()
-    seqs.write(fname)
+    with tempfilename(suffix='.fancy') as fname:
+        seqs.write(fname)
 
 
 def test_template_seq_plugin():
