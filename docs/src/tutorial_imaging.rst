@@ -4,6 +4,8 @@ Plotting alignments
 Alignments can be plotted using the `.BioBasket.plot_alignment()` method.
 Some code examples follow:
 
+.. These figures are built manually with the test suite
+
 >>> from sugar import read
 >>> seqs = read('https://osf.io/download/j2wyv')
 >>> seqs.plot_alignment(show=True, figsize=(10, 4))
