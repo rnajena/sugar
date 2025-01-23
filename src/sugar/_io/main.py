@@ -229,8 +229,7 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, **kw):
 
     See `read()` function.
 
-    Example
-    -------
+    .. rubric:: Example:
 
     >>> from sugar import iter_
     >>> for seq in iter_():  # use the example file
@@ -264,16 +263,16 @@ def read(fname, fmt=None, *, mode='r', encoding=None, **kw):
     """
     Read a file or file-like object with sequences into `.BioBasket`
 
-    :param fname: Filename, can also be a glob expression,
+    :param fname: filename, can also be a glob expression,
         a web resource,
         an archive, gzipped file,
         or a file-like object (e.g. `~io.BytesIO`, `~io.StringIO`)
-    :param fmt: format of the file (default: auto-detect)
+    :param fmt: format of the file (default: auto-detect from content)
     :param mode: mode for opening the file, change this only if you know what
         you do
     :param encoding: encoding of the file
     :param archive: Explicitly request reading an archive, type may be specified
-       (default: auto-detected by file extension)
+       (default: auto-detect from file extension)
 
     All other kwargs are passed to the underlying reader routine.
 
@@ -282,11 +281,10 @@ def read(fname, fmt=None, *, mode='r', encoding=None, **kw):
 
     {format_table}
 
-    Example
-    -------
+    .. rubric:: Example:
 
     >>> from sugar import read
-    >>> seqs = read('crazy_virus.fasta')  # read a local file  # doctest: +SKIP
+    >>> seqs = read('crazy_virus.fasta', 'fasta')  # read a local file, the fmt is optionally  # doctest: +SKIP
     >>> seqs = read()  # load example file
     >>> print(seqs)  # doctest: +SKIP
     2 seqs in basket
@@ -333,12 +331,12 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
         a web resource,
         an archive, gzipped file,
         or a file-like object (e.g. `~io.BytesIO`, `~io.StringIO`)
-    :param fmt: format of the file (default: auto-detect)
+    :param fmt: format of the file (default: auto-detect from content)
     :param mode: mode for opening the file, change this only if you know what
         you do
     :param encoding: encoding of the file
     :param archive: Explicitly request reading an archive, type may be specified
-       (default: auto-detected by file extension)
+       (default: auto-detect from file extension)
 
     All other kwargs are passed to the underlying reader routine.
 
@@ -371,13 +369,13 @@ def write(seqs, fname, fmt=None, *, mode='w', encoding=None, **kw):
 
     :param seqs: BioBasket object
     :param fname: filename or file-like object
-    :param fmt: format of the file (default: auto-detect with file extension)
+    :param fmt: format of the file (default: auto-detect from file extension)
     :param mode: mode for opening the file, change this only if you know what
         you do, you may use ``mode='a'`` for appending to an existing file, but
         this will only work with compatible formats (i.e. FASTA)
     :param encoding: encoding of the file
     :param archive: Explicitly request writing an archive, type may be specified
-        (default: auto-detected by file extension)
+        (default: auto-detect from file extension)
 
     All other kwargs are passed to the underlying writer routine.
 
@@ -413,12 +411,12 @@ def write_fts(fts, fname=None, fmt=None, *, mode='w', **kw):
 
     :param fts: FeatureList object
     :param fname: filename or file-like object
-    :param fmt: format of the file (default: auto-detect with file extension)
+    :param fmt: format of the file (default: auto-detect from file extension)
     :param mode: mode for opening the file, change this only if you know what
         you do
     :param encoding: encoding of the file
     :param archive: Explicitly request writing an archive, type may be specified
-        (default: auto-detected by file extension)
+        (default: auto-detect from file extension)
 
     All other kwargs are passed to the underlying writer routine.
 

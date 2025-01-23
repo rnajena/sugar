@@ -25,7 +25,7 @@ def test_plot_alignment():
 
     fig, ax = plt.subplots(1, figsize=(20, 5))
     seqs.plot_alignment(ax=ax, extent=[0, 100, 0, 10])
-    seqs.plot_alignment(ax=ax, extent=[0, 100, -20, -2], aspect=2, rasterized=True, color='flower', symbols=True)
+    seqs.plot_alignment(ax=ax, extent=[0, 100, -20, -2], rasterized=True, color='flower', symbols=True)
     seqs.plot_alignment(ax=ax, extent=[0, 100, -40, -22], color='0.8', symbols=True, fts=True, fts_alpha=0.5)
     seqs.plot_alignment(ax=ax, extent=[0, 50, -60, -42], fts=True, fts_display='box', aspect=2, color='0.8', symbols=True, fts_color='blue', fts_alpha=0.5)
     # plt.savefig('test_plot_alignment2.pdf')
@@ -40,10 +40,10 @@ def test_plot_alignment_examples():
         tmpdir = './'
         seqs.plot_alignment(tmpdir + 'ali1.png', figsize=(10, 2))
         seqs[10:20, 70:120].plot_alignment(tmpdir + 'ali2.png', color=None, figsize=(10,4),
-                                    symbols=True, aspect=2, alpha=0.5, xticks=False)
+                                    symbols=True, aspect=2, alpha=0.5, xticks=False, bbox_inches='tight')
         seqs2 = seqs[:5, :150].copy()
         seqs2.translate(complete=True).plot_alignment(
-            tmpdir + 'ali3.png', color='flower', figsize=(10,4), symbols=True, aspect=2, alpha=0.5, xticks=False)
+            tmpdir + 'ali3.png', color='flower', figsize=(10,4), symbols=True, aspect=2, alpha=0.5, xticks=False, edgecolors='w')
 
 
 

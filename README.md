@@ -12,9 +12,7 @@ The sugar project aims to provide a lightweight framework to facilitate rapid ap
 
 ### Documentation
 
-* [API documentation](https://rnajena-sugar.readthedocs.io) including a short introduction
-* Short tutorial: [notebook](https://nbviewer.jupyter.org/github/rnajena/sugar/blob/master/docs/notebooks/sugar_tutorial.ipynb)
-* Consult and contribute to [wiki](https://github.com/rnajena/sugar/wiki)
+* The documentation including a tutorial is available [here](https://rnajena-sugar.readthedocs.io)* Developer-centric documentation can be found in the [wiki](https://github.com/rnajena/sugar/wiki)
 
 ### Installation
 
@@ -24,5 +22,10 @@ Use pip, e.g.
 pip install rnajena-sugar
 ```
 
-All dependencies are optional. To get a minimal install use the `--no-deps` flag of pip.
-Run tests with `sugar test` (needs pytest).
+Run tests with `sugar test`.
+
+Other options are detailed in the documentation.
+
+### Contributions
+
+Contributions are welcome! -- e.g. report or fix bugs, discuss or add features, enhance the documentation.

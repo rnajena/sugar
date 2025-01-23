@@ -1,55 +1,5 @@
 """
-Welcome
-=======
-
-Welcome to sugar's API documentation!
-
-The sugar project aims to provide a lightweight framework
-to facilitate rapid application development for bioinformatics.
-
-It thus provides classes and functions to deal with DNA and RNA sequences and
-related annotations and it provides parsers for common file formats using a
-plugin interface.
-
-The core of sugar are the sequence handling classes `.BioSeq` and `.BioBasket`.
-The `.BioSeq` class behaves like a string with useful bioinformatics methods attached.
-The `.BioBasket` class is a container for several `.BioSeq` objects and
-behaves like a list with useful methods attached.
-An example of such a useful method is certainly the `~.BioBasket.translate()` method.
-
-To read sequences, use the powerful `~._io.main.read()` routine.
-It can handle glob expressions, web resources, archives,
-and automatically detects file formats by inspecting the file contents.
-To write sequences to files, use the `.BioBasket.write()` method.
-
-Since sugar uses a plugin system, it is easy to add support for new file formats on the fly.
-The following sequence file formats are supported out of the box:
-
-{format_table_seqs}
-
-The table links to the used modules and function.
-
-Sequence features, respective annotations,
-can be handled with the `.Feature` and `.FeatureList` classes.
-To read features use the `~._io.main.read_fts()` routine and
-to write features use the `.FeatureList.write()` method.
-The following feature formats are supported out of the box:
-
-{format_table_fts}
-
-sugar provides an indexing tool to quickly retrieve
-sequences or subsequences from large FASTA files.
-Use it via the `.FastaIndex` class or the ``sugar index`` command.
-
-The `.Entrez` class can be used to fetch sequences
-from the NCBI online database.
-
-sugar also provides access to codon translation tables and substitution
-matrices (i.e. BLOSUM62) with the `sugar.data` package.
-
-The command line interface of sugar can be used for common tasks.
-Call ``sugar -h`` for an overview of available commands.
-The test suite can be run with ``sugar test``.
+Sugar -- A Python framework for bioinformatics
 """
 
 __version__ = '0.4.1-dev'

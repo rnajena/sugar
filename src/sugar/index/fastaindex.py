@@ -177,7 +177,7 @@ class FastaIndex():
 
     :param str dbname: Name of index file, default: last used index file
     :param str create: Create a new index file
-    :param str path: Common path for FSTA file names, default ``'{dbpath}'``, i.e.
+    :param str path: Common path for FASTA file names, default ``'{dbpath}'``, i.e.
         filenames are relative to path of index file, only needed for new index file
     :param str mode: ``'binary'`` uses a binary search file,
         ``'db'`` uses a database via Python's `dbm` module,
@@ -289,6 +289,10 @@ class FastaIndex():
     def iter(self, seqids):
         """
         Yield `.BioSeq` sequences from given sequence ids
+
+        :param seqids: List of sequence ids, might also be a single seqid,
+           a 3-len tuple with start and stop indices ``(seqid, start, stop)``
+           (start or stop can be None), or a list with 3-len tuples
         """
         from sugar import BioBasket
         for seqdata in self._search(seqids):
@@ -297,6 +301,8 @@ class FastaIndex():
     def iter_fasta(self, seqids):
         """
         Yield FASTA strings from given sequence ids
+
+        See `iter()` for documentation of seqids argument.
         """
         for seqdata in self._search(seqids):
             yield seqdata
@@ -304,13 +310,25 @@ class FastaIndex():
     def iter_fastaheader(self, seqids):
         """
         Yield FASTA headers from given sequence ids
+
+        See `iter()` for documentation of seqids argument.
         """
         for seqdata in self._search(seqids, onlyheader=True):
             yield seqdata
 
-    def get(self, seqids):
+    def get_seq(self, seqid):
         """
-        Return `.BioBasket` with all correspondiong sequences
+        Return a `.BioSeq` given its id
+
+        See `iter()` for documentation of seqid argument.
+        """
+        return list(self.iter([seqid]))[0]
+
+    def get_basket(self, seqids):
+        """
+        Return `.BioBasket` with all corresponding sequences
+
+        See `iter()` for documentation of seqids argument.
         """
         from sugar import BioBasket
         return BioBasket(list(self.iter(seqids)))
@@ -318,12 +336,16 @@ class FastaIndex():
     def get_fasta(self, seqids):
         """
         Return FASTA string with all sequences
+
+        See `iter()` for documentation of seqid argument.
         """
         return ''.join(self.iter_fasta(seqids))
 
     def get_fastaheader(self, seqids):
         """
         Return FASTA header from all sequences
+
+        See `iter()` for documentation of seqid argument.
         """
         return ''.join(self.iter_fastaheader(seqids))
 
@@ -409,11 +431,11 @@ def _fastaindex_cmd(idxcommand, dbname, mode=None, path=None, seqids=None,
             index.add(fnames, force=force)
         case 'print':
             index = FastaIndex(dbname)
-            print(index.get(_parse_cmd_seqids(seqids)))
+            print(index.get_basket(_parse_cmd_seqids(seqids)))
         case 'load':
             from sugar.scripts import _start_ipy
             index = FastaIndex(dbname)
-            seqs = index.get(_parse_cmd_seqids(seqids))
+            seqs = index.get_basket(_parse_cmd_seqids(seqids))
             _start_ipy(seqs)
         case 'fetch':
             index = FastaIndex(dbname)

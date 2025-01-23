@@ -1,4 +1,4 @@
-dev:
+v0.5.0:
   * core:
     - add tolists, topandas and frompandas methods to FeaturList
     - add tobiopython and frombiopython methods to BioSeq and BioBasket classes to convert to or convert from biopython objects
@@ -13,7 +13,7 @@ dev:
     - writers: allow to pass None as fname, in this case a string will be returned
     - add GTF IO support for features
     - add TSV/CSV IO support for features
-    - add SJSON IO support for features (custom lossless file format)
+    - add SJSON IO support for features (custom lossless file format), add private option to write private metadata
     - add the possibility to read GFF files for old format versions
     - allow to write compressed files just by specifying the filename extension
     - add a sugar header comment for some writers (stockholm, gff, gtf)
@@ -22,7 +22,9 @@ dev:
   * scripts:
     - rename convert and convertf commands to cat and catf, respectively, also accept multiple files as input
     - add merge command to merge sequence files
+  * index: rename get method to get_basket, add get_seq method
   * add imaging module with plot_alignment function
+  * substantially improve the documentation
 
 v0.4.0:
   * core:

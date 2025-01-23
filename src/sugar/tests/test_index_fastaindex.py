@@ -30,10 +30,11 @@ def test_fastaindex():
             f2.add(fastafiles, silent=True)
             assert f1.totalsize < f2.totalsize
             id_ = 'BTBSCRYR'
-            assert f1.get(id_)[0].str.startswith('tgcaccaaacatgtcta'.upper())
+            assert f1.get_basket(id_)[0].str.startswith('tgcaccaaacatgtcta'.upper())
+            assert f1.get_basket(id_)[0] == f1.get_seq(id_)
             assert id_ in f1.get_fasta(id_)
             assert id_ in f1.get_fastaheader(id_)
-            assert f1.get(id_) == f2.get(id_)
+            assert f1.get_basket(id_) == f2.get_basket(id_)
             assert f1.get_fasta(id_) == f2.get_fasta(id_)
             assert f1.get_fastaheader(id_) == f2.get_fastaheader(id_)
             assert('dbname' in str(f1))
@@ -52,14 +53,14 @@ def test_fastaindex():
         f1 = FastaIndex(fname)
         with FastaIndex(fname2) as f2:
             id1, id2 = 'BTBSCRYR', 'MCHU'
-            assert f1.get((id1, None, 10)) == f1.get(id1)[:, :10]
-            assert f1.get([(id1, None, 10), (id2, None, 10)]) == f1.get([id1, id2])[:, :10]
-            assert f1.get([(id1, 5, 9), (id2, 5, 9)]) == f1.get([id1, id2])[:, 5:9]
-            assert f1.get([(id1, None, None), (id2, None, None)]) == f1.get([id1, id2])
+            assert f1.get_basket((id1, None, 10)) == f1.get_basket(id1)[:, :10]
+            assert f1.get_basket([(id1, None, 10), (id2, None, 10)]) == f1.get_basket([id1, id2])[:, :10]
+            assert f1.get_basket([(id1, 5, 9), (id2, 5, 9)]) == f1.get_basket([id1, id2])[:, 5:9]
+            assert f1.get_basket([(id1, None, None), (id2, None, None)]) == f1.get_basket([id1, id2])
             with pytest.warns(UserWarning, match='Start index'):
-                assert f1.get([(id1, -10, None), (id2, -10, None)]) == f1.get([id1, id2])
+                assert f1.get_basket([(id1, -10, None), (id2, -10, None)]) == f1.get_basket([id1, id2])
             with pytest.warns(UserWarning, match='End index'):
-                assert f1.get([(id1, None, 1000), (id2,  None, 1000)]) == f1.get([id1, id2])
+                assert f1.get_basket([(id1, None, 1000), (id2,  None, 1000)]) == f1.get_basket([id1, id2])
 
         # recreate files
         # check readding stuff

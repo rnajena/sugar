@@ -1,6 +1,6 @@
 # (C) 2023, Tom Eulenfeld, MIT license
 """
-`Genbank`_ reader
+`GenBank`_ reader
 """
 
 from sugar.core.fts import Defect, Feature, FeatureList, Location
@@ -26,6 +26,7 @@ def _parse_locs(loc: str):
         locs = [_parse_locs(subloc.strip())
                 for subloc in
                 loc[loc.index('(')+1:loc.rindex(')')].split(',')]
+        locs = [l for ll in locs for l in ll]
         if loc.startswith('complement'):
             for loc in locs:
                 loc.strand = {'-': '+', '+': '-'}.get(loc.strand, loc.strand)
@@ -35,6 +36,10 @@ def _parse_locs(loc: str):
 
 
 def _parse_single_loc(loc: str):
+    if ':' in loc:
+        from warnings import warn
+        warn('Parsing of seqids inside genbank loc fields is not yet supported, ignore the seqid')
+        _, loc = loc.split(':')
     defect = Defect.NONE
     if loc[0] == '<':
         defect |= Defect.BEYOND_LEFT
@@ -61,7 +66,7 @@ def _parse_single_loc(loc: str):
 @_add_fmt_doc('read_fts')
 def read_fts_genbank(f, exclude=()):
     """
-    Read Genbank feature records from file into `.FeatureList`
+    Read GenBank feature records from file into `.FeatureList`
 
     :param tuple exclude: Tuple of feature names to exclude,
         possible options are ``'translation', 'fts'``,
@@ -76,7 +81,7 @@ def read_fts_genbank(f, exclude=()):
 @_add_fmt_doc('read')
 def iter_genbank(f, exclude=()):
     """
-    Read Genbank records and sequences from file into `.BioBasket`
+    Read GenBank records and sequences from file into `.BioBasket`
 
     :param tuple exclude: Tuple of feature names to exclude,
         possible options are ``'seq', 'translation', 'fts'``.
@@ -100,13 +105,20 @@ def iter_genbank(f, exclude=()):
         if line.strip() == '':
             continue
         elif line.strip() == '//':
+            if fttype is not None:
+                ft = Feature(type=fttype, locs=_parse_locs(locs),
+                                meta=Meta(_genbank=ftmeta))
+                fts.append(ft)
+                fttype = None
+                meta.fts = FeatureList(fts)
             assert len(misc) == 0
             assert fttype is None
             meta._genbank = attrs
             if 'accession' in meta._genbank:
                 meta.id = meta._genbank.accession.split()[0]
-                for ft in meta.fts:
-                    ft.meta.seqid = meta.id
+                if 'fts' in meta:
+                    for ft in meta.fts:
+                        ft.meta.seqid = meta.id
             try:
                 del meta._genbank.reference  # references could be parsed in a list, not implemented
             except Exception:

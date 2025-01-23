@@ -104,7 +104,7 @@ def plot_alignment(
         fts_box_kw=None,
         show_spines=False, spine_offset=None,
         xticks=True,
-        dpi=None, transparent=None, show=False,
+        dpi=None, transparent=None, bbox_inches=None, show=False,
         **kw
         ):
     r"""
@@ -153,35 +153,37 @@ def plot_alignment(
        define the groups, defaults to ``'type'``
     :param fts_box_lw: linewidth of the the boxes, default: 5
     :param fts_box_kw: Dictionary of additional parameters passed to matplotlib's `~matplotlib.patches.Rectangle` to create the feature boxes
-    :param show_spines: Wether to show the spines, default True
-
-       ,despine_offset: Parameters passed to seaborn's despine function,
-        the default ``despine=True`` removes axes spines
-    :param xticks: ``True`` leaves the xticks (default), False turns them off, can also be a list of xticks
-    :param dpi,transparent: Parameters passed to savefig if the figure is saved
-    :param show: True shows the figure
+    :param show_spines,despine_offset: Parameters passed to seaborn's despine function,
+        the default ``show_spines=False`` removes axes spines
+    :param xticks: True leaves the xticks (default), False turns them off, can also be a list of xticks
+    :param dpi,transparent,bbox_inches: Parameters passed to savefig if the figure is saved
+    :param show: True shows the figure, default: False
     :param \*\*kw: Other kwargs are passed to matplotlib's :meth:`~matplotlib.axes.Axes.pcolormesh`
 
     :return: Axes object if ``fname=None``, otherwise the figure is saved and closed
 
-    ..rubric Example::
+    .. rubric:: Example
 
     >>> from sugar import read
     >>> seqs = read('https://osf.io/download/j2wyv')
     >>> seqs.plot_alignment(show=True, figsize=(10, 4))
 
-    .. image:: _static/alignment1.png
-       :width: 30%
+    .. image:: _static/ali1.png
+       :width: 60%
 
     >>> seqs[:, 70:120].plot_alignment(show=True, color=None, figsize=(10,8),
     ...                                symbols=True, aspect=2, alpha=0.5)
 
+    .. image:: _static/ali2.png
+       :width: 40%
+
     >>> seqs2 = seqs[:5, :150].copy()
     >>> seqs2.translate(complete=True).plot_alignment(
-    ...     show=True, color='flower', figsize=(10,8), symbols=True, aspect=2, alpha=0.5)
+    ...     show=True, color='flower', figsize=(10,8),  symbols=True,
+    ...     aspect=2, alpha=0.5, edgecolors='w')
 
-
-
+    .. image:: _static/ali3.png
+       :width: 40%
     """
     if gap is None:
         gap = ''
@@ -241,7 +243,7 @@ def plot_alignment(
                                    lw=fts_box_lw, **fts_box_kw))
     if aspect is not None:
         aspect = abs(aspect * len(data) / n / (y[-1] - y[0]) * (x[-1] - x[0]))
-        ax.set_aspect(aspect, adjustable='datalim')
+        ax.set_aspect(aspect)
     if symbols:
         if symbol_kw is None:
             symbol_kw = {}
@@ -267,7 +269,7 @@ def plot_alignment(
             xticks = []
         ax.set_xticks(xticks)
     if fname is not None:
-        fig.savefig(fname, dpi=dpi, transparent=transparent)
+        fig.savefig(fname, dpi=dpi, transparent=transparent, bbox_inches=bbox_inches)
         if show:
             plt.show()
         plt.close(fig)

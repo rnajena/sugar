@@ -24,37 +24,43 @@ COMMENT = f'sugar JSON format written by sugar v{__version__}'
 COMMENT_FTS = f'sugar JSON feature format written by sugar v{__version__}'
 
 
-class _SJSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, (Strand, Defect)):
-            obj = {'_cls': type(o).__name__,
-                   'value': o.value}
-            return obj
-        elif isinstance(o, Location):
-            obj = {'_cls': type(o).__name__,
-                   'start': o.start,
-                   'stop': o.stop,
-                   'strand': o.strand,
-                   'defect': o.defect
-                   }
-            if len(o.meta) > 0:
-                obj['meta'] = o.meta
-            return obj
-        elif isinstance(o, SUGAR):
-            obj = {}
-            if '_fmtcomment' in o.__dict__:
-                obj['_fmtcomment'] = o.__dict__['_fmtcomment']
-            obj['_cls'] = type(o).__name__
-            if isinstance(o, Feature):
-                obj['locs'] = o.locs
-            obj.update({k: v for k, v in o.__dict__.items()
-                        if not k.startswith("_")})
-            if 'meta' in o.__dict__ and len(o.meta) == 0:
-                del obj['meta']
-            return obj
-        else:
-            # Let the base class default method raise the TypeError
-            return json.JSONEncoder.default(self, o)
+def _SJSONEncoder_factory(private=False):
+    class _SJSONEncoder(json.JSONEncoder):
+        _private = private
+        def default(self, o):
+            if isinstance(o, (Strand, Defect)):
+                obj = {'_cls': type(o).__name__,
+                    'value': o.value}
+                return obj
+            elif isinstance(o, Location):
+                obj = {'_cls': type(o).__name__,
+                    'start': o.start,
+                    'stop': o.stop,
+                    'strand': o.strand,
+                    'defect': o.defect
+                    }
+                if len(o.meta) > 0:
+                    obj['meta'] = o.meta
+                return obj
+            elif isinstance(o, SUGAR):
+                obj = {}
+                if '_fmtcomment' in o.__dict__:
+                    obj['_fmtcomment'] = o.__dict__['_fmtcomment']
+                obj['_cls'] = type(o).__name__
+                if isinstance(o, Feature):
+                    obj['locs'] = o.locs
+                obj.update({
+                    k: v for k, v in o.__dict__.items()
+                    if not k.startswith('_') or
+                    self._private and not k.startswith('__') and isinstance(o, Meta)
+                    })
+                if 'meta' in obj and len(obj['meta']) == 0:
+                    del obj['meta']
+                return obj
+            else:
+                # Let the base class default method raise the TypeError
+                return json.JSONEncoder.default(self, o)
+    return _SJSONEncoder
 
 
 def _json_hook(d):
@@ -83,6 +89,11 @@ def is_fts_sjson(f, **kw):
 def read_sjson(f):
     """
     Read SJson file
+
+    .. note::
+        You can use this function directly to load arbitrary
+        objects containing sugar objects.
+        Just ignore the warning and use a file descriptor ;)
     """
     return json.load(f, object_hook=_json_hook)
 
@@ -96,20 +107,47 @@ def read_fts_sjson(f):
 
 
 @_add_fmt_doc('write')
-def write_sjson(seqs, f, *, indent=None):
+def write_sjson(seqs, f, *, private=False, indent=None):
     """
     Write sequences into SJson file
+
+    :param bool private: Also write private metadata (mostly format-related, default False)
+    :param int indent: Indent in JSON file.
+
+    .. note::
+        You can use this function directly to write arbitrary
+        objects containing sugar objects.
+        Just ignore the warning and use a file descriptor ;)
+
+        The following example writes an object to JSON and reads it again. ::
+
+            from sugar import read
+            from sugar._io.sjson import read_sjson, write_sjson
+            seqs = read()
+            with open('test.json', 'w') as f:
+                write_sjson([1, seqs], f)
+            with open('test.json') as f:
+                obj2 = read_sjson(f)
     """
-    seqs._fmtcomment=COMMENT
-    json.dump(seqs, f, cls=_SJSONEncoder, indent=indent)
-    del seqs._fmtcomment
+    try:
+        seqs._fmtcomment = COMMENT
+    except AttributeError:
+        pass
+    json.dump(seqs, f, cls=_SJSONEncoder_factory(private=private), indent=indent)
+    try:
+        del seqs._fmtcomment
+    except AttributeError:
+        pass
 
 
 @_add_fmt_doc('write_fts')
-def write_fts_sjson(fts, f, *, indent=None):
+def write_fts_sjson(fts, f, *, private=False, indent=None):
     """
     Write features into SJson file
+
+    :param bool private: Also write private metadata (mostly format-related, default False)
+    :param int indent: Indent in JSON file.
     """
-    fts._fmtcomment=COMMENT_FTS
-    json.dump(fts, f, cls=_SJSONEncoder, indent=indent)
+    fts._fmtcomment = COMMENT_FTS
+    json.dump(fts, f, cls=_SJSONEncoder_factory(private=private), indent=indent)
     del fts._fmtcomment

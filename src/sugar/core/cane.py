@@ -114,7 +114,7 @@ class BioMatch(object):
     Additionally, it has the `BioMatch.rf` attribute which holds the
     reading frame (between -3 and 2, inclusive) of the match.
 
-    .. rubric:: Example::
+    .. rubric:: Example:
 
     >>> match = read()[0].match('AT.')
     >>> match
@@ -133,7 +133,7 @@ class BioMatch(object):
     def __getattr__(self, attr):
         return getattr(self._match, attr)
     def __repr__(self):
-        return f'<sugar.BioMatch object; seqid={self.seqid}; rf={self.rf}; span={self.span()}; match={self.group()}>'
+        return f'<sugar.BioMatch object; match={self.group()}; span={self.span()}; rf={self.rf}; seqid={self.seqid}>'
     def span(self):
         start, stop = self._match.span()
         if self.rf is not None and self.rf < 0:
@@ -162,6 +162,16 @@ class BioMatchList(collections.UserList):
         Group matches by seqid, alias for ``BioMatchList.groupby('seqid')``
         """
         return self.groupby('seqid')
+
+    def tostr(self):
+        lines = [f'{len(self)} BioMatches']
+        for m in self:
+            lines.append(f'match={m.group()} span={m.span()} rf={m.rf} seqid={m.seqid}')
+        return '\n'.join(lines)
+
+    def __str__(self):
+        return self.tostr()
+
 
 
 def match(seq, sub, *, rf='fwd',

@@ -1,25 +1,21 @@
-.. automodule:: sugar
+sugar documentation
+===================
 
-Sugar's functionality is provided through the following packages:
+Welcome to sugar's documentation!
 
+The sugar project aims to provide a lightweight framework
+to facilitate rapid application development for bioinformatics.
 
-.. autosummary::
+It thus provides classes and functions to deal with DNA and RNA sequences as well as
+related annotations, and it provides parsers and writers for various file formats using a
+plugin interface.
 
-    core
-    _io
-    imaging
-    index
-    data
-    web
-
+| :doc:`Tutorial <tutorial_install>` → Start here
+| :doc:`API documentation <api>` → Use the source, Luke
 
 .. toctree::
     :hidden:
 
-    self
-    sugar.core
-    sugar._io
-    sugar.imaging
-    sugar.index
-    sugar.data
-    sugar.web
+    Home <self>
+    Tutorial <tutorial_install>
+    API <api>

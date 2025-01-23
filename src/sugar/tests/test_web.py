@@ -37,8 +37,8 @@ def test_entrez_time_constraint():
     seqid = 'AB047639'
     client = Entrez(path=None)
     client._requests = 1
-    client._seconds = 3
+    client._sleep = 1
     time0 = perf_counter()
     client.fetch_seq(seqid)
     client.fetch_seq(seqid)
-    assert perf_counter() - time0 > 3
+    assert perf_counter() - time0 > 1

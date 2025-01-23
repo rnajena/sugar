@@ -34,3 +34,28 @@ def test_fts_sjson():
     assert not hasattr(fts2, '_fmtcomment')
     fts_out = fts.tofmtstr('sjson', indent=2)
     assert '"_cls": "Feature"' in fts_out
+
+
+def test_sjson_private():
+    seqs = read()
+    for seq in seqs:
+        del seq.meta._fmt
+    # we still have the _genbank metadata
+    oseqs = seqs.copy()
+    with tempfilename(suffix='.sjson') as fname:
+        seqs.write(fname, private=True)
+        seqs2 = read(fname)
+    for seq in seqs2:
+        del seq.meta._fmt
+    assert seqs == oseqs
+    assert seqs2 == seqs
+
+def test_sjson_write_arbritrary_object():
+    from sugar._io.sjson import read_sjson, write_sjson
+    seqs = _clean_seqs(read())
+    with tempfilename(suffix='.sjson') as fname:
+        with open(fname, 'w') as f:
+            write_sjson([1, seqs], f)
+        with open(fname) as f:
+            obj = read_sjson(f)
+    assert obj == [1, seqs]

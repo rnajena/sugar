@@ -4,7 +4,7 @@ Generic feature format (`GFF`_) and Gene transfer format (`GTF`_) IO
 
 For a review of the different versions of GFF and GTF, see `here`_.
 
-The readers in this module also support older versions of the GFF and GTF format.
+The readers in this module also support older versions of the GFF format.
 
 .. _here: https://agat.readthedocs.io/en/latest/gxf.html
 """
@@ -46,12 +46,15 @@ is_fts_gff = is_gff
 
 
 def is_fts_gtf(f, **kw):
-    content = f.read(100)
+    content = f.read(500)
     if not content.strip().startswith('##gff-version'):
-        start, stop, _, strand, phase = content.split('\t', maxsplit=9)[3:8]
-        int(start)
-        int(stop)
-        return strand in '+-.' and phase in '.012'
+        for line in content.splitlines():
+            if line.startswith('#'):
+                continue
+            start, stop, _, strand, phase = line.split('\t', maxsplit=9)[3:8]
+            int(start)
+            int(stop)
+            return strand in '+-.' and phase in '.012'
 
 
 copyattrs = {
@@ -78,7 +81,7 @@ def read_fts_gff(f, **kw):
     :param list filt: Return only Features of given ftypes, default: all
     :param str filt_fast: Read only lines which include this string
     :param str default_ftype: default ftype for entries without type
-    :param list comments: comment lines inside the file are stored in
+    :param list comments: comments inside the file are stored in
         the comments list (optional)
     :param str gff_version: The GFF version of the file,
         one of ``'1'``, ``'2'``, ``'3'``, by default it is auto-detected
@@ -95,11 +98,11 @@ def read_fts_gtf(f, **kw):
     :param list filt: Return only Features of given ftypes, default: all
     :param str filt_fast: Read only lines which include this string
     :param str default_ftype: default ftype for entries without type
-    :param list comments: comment lines inside the file are stored in
+    :param list comments: comments inside the file are stored in
         the comments list (optional)
 
     .. note::
-        The sugars GTF reader is experimental. Alternatively, convert your file
+        The GTF reader is experimental. Alternatively, convert your file
         to GFF using `AGAT`_ and read that instead.
     """
     return _read_fts_gxf(f, flavor='gtf', **kw)
@@ -213,8 +216,10 @@ def _read_fts_gxf(f, filt=None, filt_fast=None, default_ftype=None, comments=Non
 
 @_add_fmt_doc('read')
 def read_gff(f, **kw):
-    """
+    r"""
     Read sequences and their features from GFF file
+
+    :param \*\*kw: All kwargs are passed to `read_fts_gff()`
     """
     fts = read_fts_gff(f, **kw)
     seqs = read_seqs(f, fmt='fasta')
@@ -242,7 +247,7 @@ def write_fts_gtf(fts, f, **kw):
     :param str header: Optionally write additional header at the top of file
 
     .. note::
-        The sugars GTF writer is experimental. For complicated files use GFF and convert with `AGAT`_.
+        The GTF writer is experimental. For complicated files use the GFF format and convert with `AGAT`_.
     """
     _write_fts_gxf(fts, f, flavor='gtf', **kw)
 
@@ -312,7 +317,7 @@ def write_gff(seqs, f, **kw):
     r"""
     Write sequences and their features to GFF file using a FASTA directive
 
-    :\*\*kw: All kwargs are passed to `write_fts_gff()`
+    :param \*\*kw: All kwargs are passed to `write_fts_gff()`
     """
     write_fts_gff(seqs.fts, f, **kw)
     f.write('##FASTA\n')

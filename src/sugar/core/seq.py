@@ -472,7 +472,7 @@ class BioSeq():
                     raise ValueError(f'Feature of type {index} not found')
                 index = ft
             if isinstance(index, Location):
-                index = LocationTuple([Location])
+                index = LocationTuple([index])
             elif isinstance(index, Feature):
                 index = index.locs
             if isinstance(index, LocationTuple):
@@ -886,7 +886,7 @@ class BioBasket(collections.UserList):
             return self.data[i]
         elif isinstance(i, slice):
             seqs = self.__class__(self.data[i], meta=self.meta)
-        elif isinstance(i, (str, Feature, Location)):
+        elif isinstance(i, (str, Feature, LocationTuple, Location)):
             seqs = self.__class__(self.data, meta=self.meta)
             seqs.data = [seq._getitem(i, **kw) for seq in seqs.data]
         elif len(i) == 2:
@@ -1223,7 +1223,8 @@ class BioBasket(collections.UserList):
             by default the class is inferred from the sequence itself.
         :param bool msa: Return a biotite ``Alignment`` object instead of a list, default is False
         :param str gap: gap characters, which will be removed obligatorily from the sequence strings
-        :param bool warn: Wether to warn if gap characters were removed, default is True
+        :param bool warn: Wether to warn if gap characters were removed, default is True,
+            not used for ``msa=True``
         """
         seqs = [seq.tobiotite(type=type, gap=gap, warn=not msa and warn) for seq in self]
         if msa:
