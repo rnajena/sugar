@@ -443,8 +443,8 @@ class FeatureList(collections.UserList):
         Convert `pandas.DataFrame` object to `FeatureList`
 
         :param df: data frame with at least start and stop columns.
-        The following columns can be used: type, start, stop, len, strand, defect.
-        Other column are saved as metadata.
+            The following columns can be used: type, start, stop, len, strand, defect.
+            Other column are saved as metadata.
         :param ftype: if the data frame has no type column,
             ``ftype`` column will be used instead,
             if it does not exist, ``ftype`` will be used as type directly.
