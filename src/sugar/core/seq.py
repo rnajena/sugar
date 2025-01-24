@@ -17,6 +17,7 @@ from sugar.data import CODES
 from sugar.core.fts import Feature, FeatureList, Location, LocationTuple
 from sugar.core.meta import Attr, Meta
 from sugar.core.util import _add_inplace_doc
+from sugar.core.util import deprecated
 
 
 CODES_INV = {frozenset(v): k for k, v in CODES.items()}
@@ -1134,36 +1135,41 @@ class BioBasket(collections.UserList):
         from sugar.core.cane import _groupby
         return _groupby(self, keys, attr='meta')
 
-    def filter(self, inplace=False, **kw):
-        r"""
+    @deprecated('The filter method is deprecated, use `select()` instead')
+    def filter(self, **kw):
+        """
         Filter sequences
+        """
+        return self.select(**kw)
+
+    def select(self, inplace=False, **kw):
+        r"""
+        Select sequences
 
         :param \*\*kw: All kwargs must be of the form
             ``key_op=value``, where op is one of
             the operators from the `python:operator` module.
-            Additionally, the operators ``'in'`` (membership),
-            ``'max'`` (alias for le)
-            ``'min'`` (alias for ge) are supported.
-            The different filter conditions are combined with
-            the *and* operator. If you need *or*, call filter twice
+            Additionally, the operator ``'in'`` (membership) is supported.
+            The different select conditions are combined with
+            the *and* operator. If you need *or*, call select twice
             and combine the results with the ``|`` operator, e.g.
-            ``seqs.filter(...) | seqs.filter(...)``
-        :param inplace: Whether to modify the original object.
-        :return: Filtered sequences
+            ``seqs.select(...) | seqs.select(...)``
+        :param inplace: Whether to modify the original object (default: False)
+        :return: Selected sequences
 
         .. rubric:: Example:
 
         >>> from sugar import read
         >>> seqs = read()
-        >>> seqs.filter(len_gt=9500)  # doctest: +SKIP
+        >>> seqs2 = seqs.select(len_gt=9500)  # Select sequences with length > 9500
         """
-        from sugar.core.cane import _filter
-        filtered = _filter(self.data, **kw)
+        from sugar.core.cane import _select
+        selected = _select(self.data, **kw)
         if inplace:
-            self.data = filtered
+            self.data = selected
             return self
         else:
-            return self.__class__(filtered)
+            return self.__class__(selected)
 
     def tofmtstr(self, fmt, **kw):
         """

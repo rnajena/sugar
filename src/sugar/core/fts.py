@@ -14,6 +14,7 @@ import sys
 from enum import IntFlag, StrEnum, auto
 from sugar.core.meta import Meta
 from sugar.core.util import _add_inplace_doc
+from sugar.core.util import deprecated
 
 
 class Defect(IntFlag):
@@ -650,7 +651,6 @@ class FeatureList(collections.UserList):
         kw.setdefault('columns', keys)
         return pandas.DataFrame(self.tolists(keys=keys), **kw)
 
-
     def get(self, type):
         """
         Return the first feature of given feature type, e.g. ``'cds'``
@@ -665,23 +665,59 @@ class FeatureList(collections.UserList):
                     isinstance(type_, tuple) and ft.type.lower() in type_):
                 return ft
 
-    def select(self, type):
+    @deprecated('The filter method is deprecated, use `select()` instead')
+    def filter(self, **kw):
         """
-        Return features of given feature type, e.g. ``'cds'``
+        Filter features
+        """
+        return self.select(**kw)
 
-        For a more powerful selection method, use `filter()`.
+    def select(self, type=None, *, inplace=False, **kw):
+        r"""
+        Select features
+
+        Two different operating modi can be used, or both.
+        Use the ``type`` argument to select features of one type (use a string)
+        or of different types (use a list).
+
+        All other kwargs must be of the form
+        ``key_op=value``, where op is one of
+        the operators from the `python:operator` module.
+        Additionally, the operator ``'in'`` (membership) is supported.
+        The different selection criteria are combined with
+        the *and* operator. If you need *or*, call select twice
+        and combine the results with ``|`` operator, e.g.
+        ``fts.select(...) | fts.select(...)``
 
         :param type: String or list of multiple strings
+        :param inplace: Whether to modify the original object (default: False)
+        :param \*\*kw: Selection criteria
+        :return: Selected features
+
+        .. rubric:: Example:
+
+        >>> from sugar import read_fts
+        >>> fts = read_fts()
+        >>> fts2 = fts.select('CDS')  # select all CDS fts
+        >>> fts3 = fts.select(len_gt=100_000)  # select all fts with length > 100 kB
         """
-        type_ = type
-        if not isinstance(type_, str):
-            type_ = tuple(t.lower() for t in type_)
-        fts = []
-        for ft in self.data:
-            if (isinstance(type_, str) and ft.type.lower() == type_.lower() or
-                    isinstance(type_, tuple) and ft.type.lower() in type_):
-                fts.append(ft)
-        return self.__class__(fts)
+        from sugar.core.cane import _select
+        if type is None:
+            selected = self.data
+        else:
+            if not isinstance(type, str):
+                type = tuple(t.lower() for t in type)
+            selected = []
+            for ft in self.data:
+                if (isinstance(type, str) and ft.type.lower() == type.lower() or
+                        isinstance(type, tuple) and ft.type.lower() in type):
+                    selected.append(ft)
+        selected = _select(selected, **kw)
+        if inplace:
+            self.data = selected
+            return self
+        else:
+            return self.__class__(selected)
 
     def todict(self):
         """
@@ -806,37 +842,6 @@ class FeatureList(collections.UserList):
         from sugar.core.cane import _sorted
         self.data = _sorted(self.data, keys=keys, reverse=reverse, attr='meta')
         return self
-
-    def filter(self, inplace=False, **kw):
-        r"""
-        Filter features
-
-        :param \*\*kw: All kwargs must be of the form
-            ``key_op=value``, where op is one of
-            the operators from the `python:operator` module.
-            Additionally, the operators ``'in'`` (membership),
-            ``'max'`` (alias for le)
-            ``'min'`` (alias for ge) are supported.
-            The different filter conditions are combined with
-            the *and* operator. If you need *or*, call filter twice
-            and combine the results with ``|`` operator, e.g.
-            ``fts.filter(...) | fts.filter(...)``
-        :param inplace: Whether to modify the original object (default: False)
-        :return: Filtered features
-
-        .. rubric:: Example:
-
-        >>> from sugar import read_fts
-        >>> fts = read_fts()
-        >>> fts.filter(len_gt=100_000)  # doctest: +SKIP
-        """
-        from sugar.core.cane import _filter
-        filtered = _filter(self.data, **kw)
-        if inplace:
-            self.data = filtered
-            return self
-        else:
-            return self.__class__(filtered)
 
     def copy(self):
         """

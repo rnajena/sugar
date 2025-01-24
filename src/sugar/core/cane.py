@@ -64,9 +64,9 @@ def _sorted(objs, keys=None, reverse=False, attr=None):
     return objs
 
 
-def _filter(objs2, attr='meta', **kwargs):
+def _select(objs2, attr='meta', **kwargs):
     r"""
-    Filter objects, used by several objects in sugar.core
+    Select objects, used by several objects in sugar.core
 
     :param attr: Attribute where to look for keys
     :param \*\*kw: All kwargs need to be of the form
@@ -79,9 +79,9 @@ def _filter(objs2, attr='meta', **kwargs):
         ``'max'`` (alias for le),
         ``'min'`` (alias for ge)
         are supported.
-        The different filter conditions are combined with
+        The different selection criteria are combined with
         the *and* operator.
-    :return: Filtered objects
+    :return: Selected objects
     """
     import operator
     ops = {'max': operator.le,

@@ -78,23 +78,23 @@ def test_orf():
         assert seqs.d[id_][orfs.groupby('seqid')[id_].sort(len)[-1]] == seqs.d[id_]['cds']
 
 
-def test_filter_fts():
+def test_select_fts_second_modus():
     fts = read_fts()
-    fts2 = fts.copy().filter(len_gt=30_000)
+    fts2 = fts.copy().select(len_gt=30_000)
     assert len(fts2) == 5
-    fts2 = fts.copy().filter(len_le=3000, type_eq='cDNA_match')
+    fts2 = fts.copy().select(len_le=3000, type_eq='cDNA_match')
     assert len(fts2) == 1
-    fts2 = fts.filter(len_min=1000, type_in=('CDS', 'exon'), inplace=False)
+    fts2 = fts.select(len_min=1000, type_in=('CDS', 'exon'), inplace=False)
     assert len(fts2) == 2
     assert len(fts) > len(fts2)
 
 
-def test_filter_seqs():
+def test_select_seqs():
     seqs = read()
-    seqs.filter(len_gt=9500, inplace=True)
+    seqs.select(len_gt=9500, inplace=True)
     assert len(seqs) == 1
     seqs = read()
-    seqs2 = seqs.filter(len_gt=9500, inplace=False)
+    seqs2 = seqs.select(len_gt=9500, inplace=False)
     assert len(seqs2) == 1
     assert len(seqs2) < len(seqs)
 
