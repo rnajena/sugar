@@ -27,7 +27,7 @@ Calling `.read()` without any arguments returns sample sequences.
 
 .. runblock:: pycon
 
-    >>> from sugar import read
+    >>> from sugar import read  # ignore
     >>> seqs = read()
     >>> print(seqs)
 
@@ -125,11 +125,30 @@ Some examples:
 
 .. runblock:: pycon
 
-    >>> from sugar import read
-    >>> seqs = read()
+    >>> from sugar import read  # ignore
+    >>> seqs = read()  # ignore
     >>> print(seqs[0, :10])
     >>> print(seqs[:, :10])
     >>> print(seqs['cds'])
+
+It is possible to specify options for these slicing operations.
+This is done using the `.BioBasket` and `.BioSeq.sl()` methods.
+The syntax is as follows: ``seq.sl(**kw)[slice]``.
+The ``gap`` option can be used to account for gaps.
+Use it when slices or features are specified relative to the sequences without gaps.
+This is best demonstrated with an example:
+
+.. runblock:: pycon
+
+    >>> from sugar import read  # ignore
+    >>> seqs = read()  # ignore
+    >>> seqs[:1, :5] = '-----'  # replace 5 chars with gaps for first seq
+    >>> print(seqs[:, :10])
+    >>> print(seqs.sl(gap='-')[:, :10])
+
+Some methods, including ``.sl()``, come with an ``update_fts`` option,
+which updates the features to match the new manipulated sequences.
+
 
 .. rubric:: An advanced example
 
