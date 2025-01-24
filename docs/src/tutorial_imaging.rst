@@ -10,13 +10,13 @@ Some code examples follow:
 >>> seqs = read('https://osf.io/download/j2wyv')
 >>> seqs.plot_alignment(show=True, figsize=(10, 4))
 
-.. image:: _static/ali1.png
+.. image:: ../_static/ali1.png
     :width: 60%
 
 >>> seqs[:, 70:120].plot_alignment(fname='ali.pdf', color=None, figsize=(10,8),
 ...                                symbols=True, aspect=2, alpha=0.5)
 
-.. image:: _static/ali2.png
+.. image:: ../_static/ali2.png
     :width: 40%
 
 >>> seqs2 = seqs[:5, :150].copy()
@@ -24,7 +24,7 @@ Some code examples follow:
 ...     show=True, color='flower', figsize=(10,8),  symbols=True,
 ...     aspect=2, alpha=0.5, edgecolors='w')
 
-.. image:: _static/ali3.png
+.. image:: ../_static/ali3.png
     :width: 40%
 
 The plotting function has many options,

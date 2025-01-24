@@ -57,13 +57,13 @@ See also the advanced example in the :doc:`Sequences Tutorial <tutorial_seqs>`.
 
 .. rubric:: Data model of the ``FeatureList`` and ``Feature`` classes
 
-.. figure:: _static/datamodel_fts.svg
+.. figure:: ../_static/datamodel_fts.svg
    :align: center
    :figclass: only-light
    :width: 90%
 
 
-.. figure:: _static/datamodel_fts_dark.svg
+.. figure:: ../_static/datamodel_fts_dark.svg
    :align: center
    :figclass: only-dark
    :width: 90%

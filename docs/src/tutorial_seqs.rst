@@ -80,12 +80,12 @@ the methods attached to the ``str`` attribute work in-place, if applicable.
 The general architecture of the `.BioBasket` and `.BioSeq` classes
 is shown in the following diagram:
 
-.. figure:: _static/datamodel_seq.svg
+.. figure:: ../_static/datamodel_seq.svg
    :align: center
    :figclass: only-light
    :width: 90%
 
-.. figure:: _static/datamodel_seq_dark.svg
+.. figure:: ../_static/datamodel_seq_dark.svg
    :align: center
    :figclass: only-dark
    :width: 90%
