@@ -103,8 +103,8 @@ html_logo = '_static/' + download_logo()
 html_show_sphinx  = True
 html_theme_options = {
     'footer_icons' : [],
-    "source_edit_link": " https://github.com/rnajena/sugar/edit/master/docs/src/{filename}",
-    "source_view_link": "_sources/{filename}.txt",
+    "source_edit_link": "https://github.com/rnajena/sugar/edit/master/docs/{filename}",
+    #"source_view_link": "_sources/src/{filename}.txt",
 }
 
 
