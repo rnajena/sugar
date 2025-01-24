@@ -1,5 +1,5 @@
-What else
-=========
+More bits and pieces
+====================
 
 .. rubric:: Adaptors
 
@@ -17,8 +17,8 @@ in the Biopython and Biotite libraries, and vice versa.
 
 .. runblock:: pycon
 
-    >>> from sugar import BioBasket, read
-    >>> seqs = read()
+    >>> from sugar import BioBasket, read  # ignore
+    >>> seqs = read()  # ignore
     >>> tites = seqs.tobiotite()
     >>> print(repr(tites[0])[:80])
     >>> print(BioBasket.frombiotite(tites))  # Biotite does not use ids
@@ -42,7 +42,7 @@ either from the command line or from Python code. ::
     >>> from sugar import FastaIndex
     >>> index = FastaIndex('index.db')
     >>> print(index)  # display information about index
-    >>> seq = index.get_seq('NC_081844.1')
+    >>> seq = index.get_seq('NC_081844.1')  # Alternatively, use the .get_basket() method
 
 The Fasta index uses either a binary search file or
 a database via Python's ``dbm`` module.

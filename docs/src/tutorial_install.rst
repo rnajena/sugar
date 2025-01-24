@@ -8,7 +8,7 @@ Installation
     Sequences <tutorial_seqs>
     Features <tutorial_fts>
     Plotting <tutorial_imaging>
-    tutorial_misc
+    More bits <tutorial_misc>
 
 Sugar is hosted on PyPi and can be installed with ``pip``::
 
