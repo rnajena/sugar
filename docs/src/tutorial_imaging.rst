@@ -32,7 +32,7 @@ The available color schemes are listed in `.get_color_scheme()`.
 ...     aspect=2, alpha=0.5, edgecolors='w')
 
 .. image:: ../_static/ali3.png
-    :width: 40%
+    :width: 60%
 
 The plotting function has many options,
 including marking of plotting feature regions with different colors.
