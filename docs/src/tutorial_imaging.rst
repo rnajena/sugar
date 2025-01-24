@@ -19,6 +19,13 @@ Some code examples follow:
 .. image:: ../_static/ali2.png
     :width: 40%
 
+The following example shows an alignment of amino acids
+using the ``'flower'`` color scheme, a color scheme that
+displays amino acids with a high BLOSSUM62 score in similar colors.
+Color schemes originate from Biotite (Gecos), Jalview and ClustalX,
+see `here`_ for an overview.
+The available color schemes are listed in `.get_color_scheme()`.
+
 >>> seqs2 = seqs[:5, :150].copy()
 >>> seqs2.translate(complete=True).plot_alignment(
 ...     show=True, color='flower', figsize=(10,8),  symbols=True,
@@ -34,3 +41,5 @@ If you need these, consider converting the sequences to a biotite ``Alignment`` 
 `seqs.tobiotite(msa=True) <.BioBasket.tobiotite>`
 and using
 `Biotite's plotting capabilities <https://www.biotite-python.org/latest/examples/gallery/sequence>`_.
+
+.. _here: https://www.biotite-python.org/latest/examples/gallery/sequence/misc/color_schemes_protein.html

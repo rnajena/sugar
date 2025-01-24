@@ -31,7 +31,7 @@ def get_color_scheme(name):
         A ``colors`` entry with a letter->color mapping in the JSON file is sufficient.
     :return: Dictionary with letter->color mapping
 
-    .. _here: https://www.biotite-python.org/latest/examples/gallery/sequence/misc/color_schemes_protein.html#sphx-glr-examples-gallery-sequence-misc-color-schemes-protein-py
+    .. _here: https://www.biotite-python.org/latest/examples/gallery/sequence/misc/color_schemes_protein.html
     .. _Gecos: https://gecos.biotite-python.org
     """
     if exists(name):
