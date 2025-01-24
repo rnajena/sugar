@@ -14,6 +14,8 @@ Sugar is hosted on PyPi and can be installed with ``pip``::
 
     pip install rnajena-sugar
 
+To upgrade an existing installation, use the ``-U`` flag, e.g. ``pip install rnajena-sugar -U``.
+
 Note, that the package name is different from the import name ``sugar``.
 
 
