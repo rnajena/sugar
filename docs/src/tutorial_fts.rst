@@ -16,29 +16,79 @@ The following example loads a BLAST file and writes the hit locations to a GFF f
     >>> fts = read_fts('hits.blastn')
     >>> fts.write('blast_hits.gff')
 
-.. rubric:: A longer example
-
-Another longer example is presented using the sample GFF file included in the package.
 Printing a FeatureList shows lines like this::
 
     {type} {start}{strand} {len} {meta}
 
-.. note::
-    Location positions are Python-like 0-based numbers.
+This example prints the the first 5 features of a sample GFF file included in the package:
 
 .. runblock:: pycon
 
     >>> from sugar import read_fts
     >>> fts = read_fts()
-    >>> print(fts)
+    >>> print(fts[:5])
+
+.. note::
+    Location positions are Python-like 0-based numbers.
+
+
+.. rubric:: Selecting features
+
+Features can be selected in several ways.
+
+1. Selecting from the `.FeatureList` by slicing:
+
+.. runblock:: pycon
+
+    >>> from sugar import read_fts
+    >>> fts = read_fts()
     >>> print(fts[:2])  # Select the first two features
-    >>> print(fts.select('exon'))  # Select the exon type features
-    >>> print(fts.filter(type_in=('mRNA', 'CDS')))  # Select the features of type mRNA and CDS
-    >>> print(fts.sort(len)[:5])  # Sort by length (in-place operation)
-    >>> slfts = fts.slice(50_000, 80_000)  # Slice the features
-    >>> print(slfts)                       # features may have defects afterwards
-    >>> print(slfts.select('region')[0].loc)  # Show the first location of the region feature
-    >>> slfts.select('region')[0].loc.defect
+
+2. Use `~.FeatureList.select()` to select features of a particular type::
+
+.. runblock:: pycon
+
+    >>> from sugar import read_fts; fts = read_fts()  # ignore
+    >>> print(fts.select('mRNA'))  # Select the mRNA type features
+    >>> print(fts.select(['gene', 'region']))  # Select the features of type gene and region
+
+3. Use `~.FeatureList.select()` to select features with other criteria::
+
+.. runblock:: pycon
+
+    >>> from sugar import read_fts; fts = read_fts()  # ignore
+    >>> print(fts.select('exon', len_gt=1000))  # Select exons longer than 200 nucleotides
+    >>> print(fts.select(name_eq='LOC103298147'))  # Selection based on name
+    >>> print(fts.select(id_in=['exon-XM_054717066.1-6',
+    ...                         'exon-XM_054717066.1-7']))  # Selection based on ids
+
+4. Use `~.FeatureList.slice()` to select and slice by position::
+
+.. runblock:: pycon
+
+    >>> from sugar import read_fts; fts = read_fts()  # ignore
+    >>> slfts = fts.slice(70_000, 80_000)
+    >>> print(slfts)
+
+Selecting by slice may result in features with defects,
+i.e. the feature locations do not span the entire feature:
+
+.. runblock:: pycon
+
+    >>> from sugar import read_fts; fts = read_fts()  # ignore
+    >>> slfts = fts.slice(70_000, 80_000)  # ignore
+    >>> print(slfts[0].loc)  # Show the first location of the first feature
+    >>> slfts[0].loc.defect
+
+
+.. rubric:: Other useful methods
+
+To sort features, use the `.FeatureList.sort()` method:
+
+.. runblock:: pycon
+
+    >>> from sugar import read_fts; fts = read_fts()  # ignore
+    >>> print(fts.sort(len)[:3])  # Sort in-place by length
 
 The `.FeatureList.tolists()`, `~.FeatureList.topandas()` and `~.FeatureList.frompandas()` methods
 can be handy in some cases:

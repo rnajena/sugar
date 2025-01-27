@@ -166,7 +166,7 @@ The code is explained below.
     >>> print(seqs[0].matchall('start')[:8])  # 5
     >>> orfs = seqs.find_orfs()  # 6
     >>> print(orfs[:5])
-    >>> long_orfs = orfs.filter(len_gt=500)
+    >>> long_orfs = orfs.select(len_gt=500)
     >>> print(long_orfs[:5])
     >>> proteins = seqs['cds'].copy().translate()  # 7
     >>> print(proteins)
@@ -190,7 +190,7 @@ Let us break up the code:
 6. We use the `~.BioBasket.find_orfs()` method to find open reading frames.
    The first 5 ORFs found are printed, a CDS is not one of them.
    We could `~.FeatureList.sort` the ORFs by length,
-   but we decided to `~.FeatureList.filter` all ORFs which are longer than 500 nucleotides.
+   but we decided to `~.FeatureList.select` all ORFs which are longer than 500 nucleotides.
    Again, we print the first 5 ORFs longer than 500 nucleotides which coincide with the CDS
    of the first 5 sequences.
 7. Finally, we translate the CDS of the sequences to proteins. Since the translation is an
