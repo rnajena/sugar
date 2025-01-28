@@ -83,12 +83,14 @@ i.e. the feature locations do not span the entire feature:
 
 .. rubric:: Other useful methods
 
-To sort features, use the `.FeatureList.sort()` method:
+To sort features, use the `.FeatureList.sort()` method, e.g. to sort by id of the
+corresponding sequence, use ``fts.sort('seqid')``.
+The following example sorts by length:
 
 .. runblock:: pycon
 
     >>> from sugar import read_fts; fts = read_fts()  # ignore
-    >>> print(fts.sort(len)[:3])  # Sort in-place by length
+    >>> print(fts.sort(len)[:3])  # Sort is in-place by default
 
 The `.FeatureList.tolists()`, `~.FeatureList.topandas()` and `~.FeatureList.frompandas()` methods
 can be handy in some cases:
