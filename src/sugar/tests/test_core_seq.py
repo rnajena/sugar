@@ -66,6 +66,14 @@ def test_bioseq_to_from_biotite():
     assert str(seq2) == ''.join(obj.symbols) == str(seq)
 
 
+def test_bioseq_todnafeaturesviewer():
+    featview = pytest.importorskip('dna_features_viewer', reason='require dna_features_viewer module')
+    seqs = read()
+    seq = seqs[0]
+    obj = seq.todnafeaturesviewer()
+    assert isinstance(obj, featview.GraphicRecord)
+
+
 def test_biobasket_to_from_biotite():
     pytest.importorskip('biotite', reason='require biotite module')
     seqs = read()

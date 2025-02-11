@@ -140,3 +140,12 @@ def test_fts_topandas():
     assert df['type'][0] == 'CDS'
     assert df['start'][0] == 61943
     assert df['strand'][0] == '+'
+
+
+def test_fts_todnafeaturesviewer():
+    featview = pytest.importorskip('dna_features_viewer', reason='require dna_features_viewer module')
+    fts = read_fts().select('CDS')
+    obj = fts.todnafeaturesviewer()
+    assert isinstance(obj, featview.GraphicRecord)
+    obj2 = fts.todnafeaturesviewer(circular=True)
+    assert isinstance(obj, featview.GraphicRecord)
