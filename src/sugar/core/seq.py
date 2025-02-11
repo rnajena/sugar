@@ -9,7 +9,6 @@ import copy
 from functools import reduce
 import io
 import math
-import operator
 import sys
 from warnings import warn
 
@@ -510,11 +509,11 @@ class BioSeq():
             self.str.translate(COMPLEMENT_TRANS)
         return self
 
-    def countall(self, **kw):
-        return BioBasket([self]).countall(**kw)
+    def countall(self, *args, **kw):
+        return BioBasket([self]).countall(*args, **kw)
 
-    def countplot(self, hue=None, **kw):
-        return BioBasket([self]).countplot(hue=hue, **kw)
+    def countplot(self, *args, hue=None, **kw):
+        return BioBasket([self]).countplot(*args, hue=hue, **kw)
 
     def copy(self):
         """
@@ -954,7 +953,7 @@ class BioBasket(collections.UserList):
         """
         return copy.deepcopy(self)
 
-    def countall(self, rtype='counter'):
+    def countall(self, rtype='counter', k=1):
         """
         Count letters in sequences
 
@@ -965,24 +964,32 @@ class BioBasket(collections.UserList):
           * ``'prob'`` Return dictionary with normalized counts
           * ``'df'`` Return pandas DataFrame object with count, prob and tprob (total prob) fields
         """
+        from operator import add
         if rtype == 'df':
             import pandas as pd
-            records = [{'id': seq.id, 'letter': letter, 'count': count}
-                       for seq in self for letter, count in collections.Counter(seq.data).items()]
+            records = [{'id': seq.id, 'word': word, 'count': count}
+                       for seq in self for word, count in collections.Counter(
+                           seq.data if k == 1 else
+                           [reduce(add, kmer) for kmer in zip(*[seq.data[i:] for i in range(k)])]
+                           ).items()]
             df = pd.DataFrame.from_records(records)
             df['prob'] =  df.groupby('id', group_keys=False)['count'].apply(lambda c: c/c.sum())
             df['tprob']= df['count'] / df['count'].sum()
             return df
         else:
-            counters = [collections.Counter(seq.data) for seq in self]
-            counter = reduce(operator.add, counters)
+            counters = [
+                collections.Counter(
+                    seq.data if k == 1 else
+                    [reduce(add, kmer) for kmer in zip(*[seq.data[i:] for i in range(k)])]
+                    ) for seq in self]
+            counter = reduce(add, counters)
             if rtype == 'counter':
                 return counter
             elif rtype == 'prob':
                 s = counter.total()
                 return {k: v / s for k, v in counter.items()}
 
-    def countplot(self, y='letter', x='count', hue='id', order=None, plot='show',
+    def countplot(self, y='word', x='count', hue='id', order=None, plot='show',
                   figsize=None, ax=None, savefigkw={}, **kw):
         """
         Create a plot of letter counts
