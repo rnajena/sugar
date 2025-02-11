@@ -60,7 +60,7 @@ jobs:
       test_options: ${{ contains(matrix.options, 'full') && '--web' || '' }} ${{ contains(matrix.options, 'warnings') && '-W error' || '' }}
       # set additional dependencies for full test
       deps: ${{ contains(matrix.options, 'full') && 'matplotlib pandas platformdirs seaborn requests biopython biotite tqdm' || contains(matrix.options, 'subset') && 'matplotlib' || ''  }}
-      depspip: ${{ contains(matrix.options, 'full') && 'binarysearchfile' || contains(matrix.options, 'subset') && 'binarysearchfile' || ''  }}
+      depspip: ${{ contains(matrix.options, 'full') && 'dna_features_viewer binarysearchfile' || contains(matrix.options, 'subset') && 'binarysearchfile' || ''  }}
     defaults:
       run:
         shell: bash -l {0}
