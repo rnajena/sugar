@@ -72,6 +72,9 @@ rst_epilog = """
 .. _MMseqs2: https://github.com/soedinglab/MMseqs2
 .. _Stockholm: https://en.wikipedia.org/wiki/Stockholm_format
 .. _AGAT: https://github.com/NBISweden/AGAT
+.. _biopython: https://biopython.org
+.. _biotite: https://www.biotite-python.org
+.. _DNAFeaturesViewer: https://edinburgh-genome-foundry.github.io/DnaFeaturesViewer
 """
 
 extensions = ['sphinx.ext.autodoc',

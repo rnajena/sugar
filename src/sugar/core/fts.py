@@ -427,6 +427,31 @@ class Feature():
     # def __hash__(self):
     #     return hash((self.type, self.locs, frozenset(self.meta.items())))
 
+    def todnafeaturesviewer(self, *, label=None, **kw):
+        r"""
+        Convert feature to DNAFeaturesViewer_ ``GraphicFeature``
+
+        :param label: The label of the feature,
+            may be a str key of the meta dictionary,
+            or a function taking the feature and returning the label,
+            or the str label itself,
+            defaults to ``'name'`` and if that is not present in the metadata, ``'type'``.
+        :param \*\*kw: All other kwargs are passed to ``GraphicFeature``
+        """
+        from dna_features_viewer import GraphicFeature
+        start, stop = self.locs.range
+        if label is None:
+            label = self.meta.get('name') or self.type
+        elif isinstance(label, str):
+            label = self.meta.get(label, label)
+        else:
+            label = label(self)
+        return GraphicFeature(
+            start=start, end=stop, strand=self.loc._stride,
+            open_left=Defect.MISS_LEFT in self.loc.defect,
+            open_right=Defect.MISS_RIGHT in self.locs[-1].defect,
+            label=label, **kw)
+
 
 class FeatureList(collections.UserList):
     def __init__(self, data=None):
@@ -730,6 +755,54 @@ class FeatureList(collections.UserList):
             FeatureList.
         """
         return {ft.id: ft for ft in self}
+
+    def todnafeaturesviewer(self, *, colorby='type', color=None,
+                            circular=False,
+                            seqlen=None, seq=None,
+                            **kw):
+        r"""
+        Convert features to DNAFeaturesViewer_ ``GraphicRecord``
+
+        :param label: The label of the feature,
+            may be a str key of the meta dictionary,
+            or a function taking the feature and returning the label,
+            or the str label itself,
+            defaults to ``'name'`` and if that is not present in the metadata, ``'type'``.
+        :param colorby: How to define the color of the features, might be any key in the metadata,
+            defaults to ``'type'``, but can also be a function taking a Feature and returning an identifier
+        :param color: The color of the features,
+            this might be a constant color,
+            a list of colors, or
+            None for the default matplotlib color cycle (the default), or
+            a dictionary mapping the feature identifiers to colors.
+        :param circular: If True return an instance of ``CircularGraphicRecord`` instead
+        :param seq: sequence or sequence data
+        :param seqlen: length of sequence, defaults to the length of ``seq`` or the stop location of the last feature.
+        :param \*\*kw: All other kwargs are passed to ``GraphicFeature`` or ``GraphicRecord`` or ``CircularGraphicRecord``, respectively
+        """
+        from sugar.imaging.alignment import _get_fts_colordict
+        if circular:
+            from dna_features_viewer import CircularGraphicRecord as GR
+        else:
+            from dna_features_viewer import GraphicRecord as GR
+        rec_kw = [
+            'feature_level_height',
+            'first_index',
+            'plots_indexing',
+            'labels_spacing',
+            'ticks_resolution',
+            'top_position',
+            'annotation_height',
+        ]
+        kw2 = {k: kw.pop(k) for k in rec_kw if k in kw}
+        color, colorby = _get_fts_colordict(self, color, colorby)
+        gfts = [ft.todnafeaturesviewer(color=color[colorby(ft)], **kw) for ft in self]
+        if seqlen is None:
+            try:
+                seqlen = len(seq)
+            except TypeError:
+                seqlen = self.loc_range[1]
+        return GR(sequence_length=seqlen, sequence=str(seq), features=gfts, **kw2)
 
     def groupby(self, keys=('seqid',)):
         """

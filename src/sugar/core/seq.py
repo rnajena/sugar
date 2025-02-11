@@ -524,7 +524,7 @@ class BioSeq():
     @classmethod
     def frombiopython(cls, obj):
         """
-        Create a `BioSeq` object from a biopython ``Bio.SeqRecord`` or ``Bio.Seq`` object.
+        Create a `BioSeq` object from a biopython_ ``Bio.SeqRecord`` or ``Bio.Seq`` object.
 
         :param obj: The object to convert.
         """
@@ -539,7 +539,7 @@ class BioSeq():
     @classmethod
     def frombiotite(cls, obj):
         """
-        Create a `BioSeq` object from a biotite sequence object.
+        Create a `BioSeq` object from a biotite_ sequence object.
 
         :param obj: The object to convert.
         """
@@ -589,7 +589,7 @@ class BioSeq():
 
     def tobiopython(self):
         """
-        Convert BioSeq to biopython ``SeqRecord`` instance
+        Convert BioSeq to biopython_ ``SeqRecord`` instance
         """
         from Bio.Seq import Seq
         from Bio.SeqRecord import SeqRecord
@@ -597,7 +597,7 @@ class BioSeq():
 
     def tobiotite(self, type=None, gap='-', warn=True):
         """
-        Convert BioSeq to biotite ``NucleotideSequence`` or ``ProteinSequence`` instance
+        Convert BioSeq to biotite_ ``NucleotideSequence`` or ``ProteinSequence`` instance
 
         :param str type: ``'nt'`` creates a ``NucleotideSequence`` instance,
             ``'aa'`` creates a ``ProteinSequence`` instance,
@@ -619,6 +619,14 @@ class BioSeq():
         type = type or self.type
         cls = {'nt': NucleotideSequence, 'aa': ProteinSequence}[type]
         return cls(data)
+
+    def todnafeaturesviewer(self, **kw):
+        r"""
+        Convert features of this sequence to DNAFeaturesViewer_ ``GraphicRecord``
+
+        See `.FeatureList.todnafeaturesviewer`.
+        """
+        return self.fts.todnafeaturesviewer(seq=self, **kw)
 
     @_add_inplace_doc
     def reverse(self):
@@ -1023,7 +1031,7 @@ class BioBasket(collections.UserList):
     @classmethod
     def frombiopython(cls, obj):
         """
-        Create a `BioBasket` object from a list of biopython ``SeqRecord`` or ``Seq`` objects.
+        Create a `BioBasket` object from a list of biopython_ ``SeqRecord`` or ``Seq`` objects.
 
         :param obj: The object to convert, can also be a biopython ``MultipleSeqAlignment`` object.
         """
@@ -1033,7 +1041,7 @@ class BioBasket(collections.UserList):
     @classmethod
     def frombiotite(cls, obj):
         """
-        Create a `BioBasket` object from a list of biotite sequence objects.
+        Create a `BioBasket` object from a list of biotite_ sequence objects.
 
         :param obj: The object to convert, can also be a biotite ``Alignment`` object.
         """
@@ -1219,7 +1227,7 @@ class BioBasket(collections.UserList):
 
     def tobiopython(self, *, msa=False):
         """
-        Convert the BioBasket to a list of biopython ``SeqRecord`` objects
+        Convert the BioBasket to a list of biopython_ ``SeqRecord`` objects
 
         :param bool msa: Return a biopython ``MultipleSeqAlignment`` object instead of a list.
         """
@@ -1231,7 +1239,7 @@ class BioBasket(collections.UserList):
 
     def tobiotite(self, *, type=None, msa=False, gap='-', warn=True):
         """
-        Convert BioSeq to a list of biotite ``NucleotideSequence`` or ``ProteinSequence`` instance
+        Convert BioSeq to a list of biotite_ ``NucleotideSequence`` or ``ProteinSequence`` instance
 
         :param str type: ``'nt'`` creates a ``NucleotideSequence`` instance,
             ``'aa'`` creates a ``ProteinSequence`` instance,
