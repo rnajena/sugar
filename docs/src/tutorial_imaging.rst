@@ -43,3 +43,37 @@ and using
 `Biotite's plotting capabilities <https://www.biotite-python.org/latest/examples/gallery/sequence>`_.
 
 .. _here: https://www.biotite-python.org/latest/examples/gallery/sequence/misc/color_schemes_protein.html
+
+
+Plotting features
+-----------------
+
+Sugar does not provide any capabilities to plot features,
+but an adapter is provided to convert `.FeatureList`, `.Feature`, or `.BioSeq` objects
+to DNAFeaturesViewer_ objects through the `~.FeatureList.toftsviewer()` method.
+
+Plot the features of the example sequence:
+
+.. These figures are generated manually with the test suite
+
+>>> from sugar import read
+>>> seqs = read()
+>>> record = seqs[1].toftsviewer()
+>>> record.plot()
+
+.. image:: ../_static/fts1.png
+    :width: 60%
+
+Another example plotting the CDS features of an Ebolavirus RNA:
+
+>>> from sugar.web import Entrez
+>>> client = Entrez()
+>>> seq = client.get_seq('AF086833')
+>>> fts = seq.fts.select('cds')
+>>> for ft in fts:
+...    ft.meta.name = ft.meta._genbank.gene
+>>> record = fts.toftsviewer(colorby='name', seqlen=len(seq))
+>>> record.plot()
+
+.. image:: ../_static/fts2.png
+    :width: 60%

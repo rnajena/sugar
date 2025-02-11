@@ -46,11 +46,14 @@ def _clean_seqs(seqs):
 
 
 @contextmanager
-def _changetmpdir():
-    origin = Path().resolve()
-    with tempfile.TemporaryDirectory() as tmpdir:
-        try:
-            os.chdir(tmpdir)
-            yield Path(tmpdir)
-        finally:
-            os.chdir(origin)
+def _changetmpdir(path=None):
+    if path is None:
+        origin = Path().resolve()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            try:
+                os.chdir(tmpdir)
+                yield Path(tmpdir)
+            finally:
+                os.chdir(origin)
+    else:
+        yield Path(path)
