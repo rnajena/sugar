@@ -201,7 +201,7 @@ def plot_alignment(
     n = max(lens)
     if len(set(lens)) > 1:
         warn('fill up short sequences with empty space')
-        seqs = seqs.copy().str.rjust(n)
+        seqs = seqs.copy().str.ljust(n)
 
     data = [[color[l] for l in seq.data] for seq in seqs]
     if fts and fts_display == 'facecolor':

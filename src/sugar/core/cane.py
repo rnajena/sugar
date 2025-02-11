@@ -87,6 +87,7 @@ def _select(objs2, attr='meta', **kwargs):
     ops = {'max': operator.le,
            'min': operator.ge,
            'in': lambda a, b: a in b,
+           'notin': lambda a, b: a not in b,
            'lowerin': lambda a, b: a.lower() in b,
            'lowereq': lambda a, b: a.lower() == b,
            }
