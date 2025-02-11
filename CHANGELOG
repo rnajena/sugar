@@ -1,6 +1,6 @@
 dev:
   * core:
-    - add todnafeaturesviewer methods to FeatureList, Feature and BioSeq classes
+    - add toftsviewer methods to FeatureList, Feature and BioSeq classes
     - BioBasket.countall can also count kmers
 v0.6.0:
   * core: deprecate filter methods, use select instead

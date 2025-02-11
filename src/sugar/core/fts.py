@@ -427,7 +427,7 @@ class Feature():
     # def __hash__(self):
     #     return hash((self.type, self.locs, frozenset(self.meta.items())))
 
-    def todnafeaturesviewer(self, *, label=None, **kw):
+    def toftsviewer(self, *, label=None, **kw):
         r"""
         Convert feature to DNAFeaturesViewer_ ``GraphicFeature``
 
@@ -756,7 +756,7 @@ class FeatureList(collections.UserList):
         """
         return {ft.id: ft for ft in self}
 
-    def todnafeaturesviewer(self, *, colorby='type', color=None,
+    def toftsviewer(self, *, colorby='type', color=None,
                             circular=False,
                             seqlen=None, seq=None,
                             **kw):
@@ -796,7 +796,7 @@ class FeatureList(collections.UserList):
         ]
         kw2 = {k: kw.pop(k) for k in rec_kw if k in kw}
         color, colorby = _get_fts_colordict(self, color, colorby)
-        gfts = [ft.todnafeaturesviewer(color=color[colorby(ft)], **kw) for ft in self]
+        gfts = [ft.toftsviewer(color=color[colorby(ft)], **kw) for ft in self]
         if seqlen is None:
             try:
                 seqlen = len(seq)

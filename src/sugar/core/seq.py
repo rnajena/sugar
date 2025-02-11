@@ -620,13 +620,13 @@ class BioSeq():
         cls = {'nt': NucleotideSequence, 'aa': ProteinSequence}[type]
         return cls(data)
 
-    def todnafeaturesviewer(self, **kw):
+    def toftsviewer(self, **kw):
         r"""
         Convert features of this sequence to DNAFeaturesViewer_ ``GraphicRecord``
 
-        See `.FeatureList.todnafeaturesviewer`.
+        See `.FeatureList.toftsviewer`.
         """
-        return self.fts.todnafeaturesviewer(seq=self, **kw)
+        return self.fts.toftsviewer(seq=self, **kw)
 
     @_add_inplace_doc
     def reverse(self):
