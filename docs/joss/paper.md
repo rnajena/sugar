@@ -33,7 +33,9 @@ Online documentation and tutorials are available on the GitHub project site.
 
 Other well-known frameworks for bioinformatics are Biopython [@biopython] and Biotite [@biotite].
 Launched in 2000, Biopython contains a large collection of freely available tools. In contrast, ``sugar`` tries to focus on the basics of IO as well as sequence and annotation (resp. feature) manipulation. In Table \ref{code}, we compare the code for reading a FASTA sequence file using ``sugar`` and Biopython, respectively. In addition, the ``sugar`` code example demonstrates a typical bioinformatics file manipulation task, which is not easily possible with Biopython alone due to its lack of a GFF writer. The excellent Biotite package also handles DNA/RNA sequences and has an additional focus on protein structures.
-``Sugar`` should not be seen as an alternative to these other packages, but rather as a complement. Therefore, adaptors for these packages are provided, which can easily convert ``sugar`` sequence objects into the corresponding objects of the Biopython and Biotite packages, and vice versa.
+``Sugar`` should not be seen as an alternative to these other packages, but rather as a complement. Therefore, adapters for these packages are provided, which can easily convert ``sugar`` sequence objects into the corresponding objects of the Biopython and Biotite packages, and vice versa.
+In addition, ``sugar`` annotation objects can be converted
+to corresponding objects of the DNA features viewer package [@ftsviewer] for easy plotting.
 
 ------                                      ------
 `from sugar import read, read_fts`{.python} `from Bio import SeqIO`{.python}
