@@ -53,37 +53,36 @@ def row2fts(row, type_=None, seqid=None):
     return FeatureList(fts)
 
 
-def fts2row(fts):
+def fts2row(fts, inchar='-', outchar='.', openchar='|', closechar='|', bothchar='|'):
     row = []
-    last_stop = None
+    last_stop = -1
     for ft in fts.sort():
         if len(ft.locs) > 1:
             warn('More than one location in feature, use full loc_range')
         start, stop = ft.locs.range
-        if last_stop is not None:
-            dif = start - last_stop
-            if dif > 0:
-                row.append('.' * dif)
-            elif dif == -1:  # use the same | for last and this feature
-                assert row[-1][-1] == '|'
-                row[-1] = row[-1][:-1]
-            elif dif < -1:
-                raise ValueError('Features overlap more than one residue')
+        dif = start - last_stop
+        if dif > 0:
+            row.append(outchar * dif)
+        elif dif == -1:  # use the same | for last and this feature
+            assert row[-1][-1] == closechar
+            row[-1] = row[-1][:-1]
+        elif dif < -1:
+            raise ValueError('Features overlap more than one residue')
         l = stop - start
         name = '' if ft.name is None else ft.name
         rowp = name
         while l > len(name) + len(rowp) + 150:
-            rowp = name + '.' * 100 + rowp
-        rowp = rowp.center(l, '.')
+            rowp = name + inchar * 100 + rowp
+        rowp = rowp.center(l, inchar)
         if l < len(name)-2:
             warn('Feature name too long, shorten it')
-            rowp = '.' + name[:l-2] + '.'
+            rowp = inchar + name[:l-2] + inchar
         if (ft.loc.defect.MISS_LEFT not in ft.loc.defect and
                 ft.loc.defect.BEYOND_LEFT not in ft.loc.defect):
-            rowp = '|' + rowp[1:]
+            rowp = (bothchar if dif == -1 else openchar) + rowp[1:]
         if (ft.loc.defect.MISS_RIGHT not in ft.locs[-1].defect and
                 ft.loc.defect.BEYOND_RIGHT not in ft.locs[-1].defect):
-            rowp = rowp[:-1] + '|'
+            rowp = rowp[:-1] + closechar
         assert len(rowp) == l
         row.append(rowp)
         last_stop = stop
