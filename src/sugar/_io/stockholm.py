@@ -17,29 +17,29 @@ def is_stockholm(f, **kw):
     return content == '# STOCKHOLM'
 
 
-def row2fts(row, type_=None, seqid=None):
+def row2fts(row, type_=None, seqid=None, fillchars='-.', splitchar='|'):
     import re
     from sugar.core.fts import Defect, Feature, FeatureList, Location
     i = 0
     fts = []
     while i < len(row):
-        j = row.find('|', i+1)
+        j = row.find(splitchar, i+1)
         if j == -1:
             j = len(row)
-        names = set(re.split('[.]+', row[i+1:j])) - {''}
+        names = set(re.split(f'[{fillchars}]+', row[i+1:j])) - {''}
         if len(names) > 0:
             stop = min(j+1, len(row))
             if len(names) > 1:
                 warn('More than one name for feature at location {i}:{stop}, use shortest name')
                 names = sorted(names, key=lambda n: len(n))[:1]
             name = names.pop()
-            if i == 0 and row[0] != '|' and j == len(row):
-                assert row[-1] != '|'
+            if i == 0 and row[0] != splitchar and j == len(row):
+                assert row[-1] != splitchar
                 defect = Defect.MISS_LEFT | Defect.MISS_RIGHT
-            if i == 0 and row[0] != '|':
+            if i == 0 and row[0] != splitchar:
                 defect = Defect.MISS_LEFT
             elif j == len(row):
-                assert row[-1] != '|'
+                assert row[-1] != splitchar
                 defect = Defect.MISS_RIGHT
             else:
                 defect = Defect.NONE
@@ -53,9 +53,10 @@ def row2fts(row, type_=None, seqid=None):
     return FeatureList(fts)
 
 
-def fts2row(fts, inchar='-', outchar='.', openchar='|', closechar='|', bothchar='|'):
+def fts2row(fts, inchar='-', outchar='.', splitchar='|', lensec=None):
+    openchar = closechar = bothchar = splitchar
     row = []
-    last_stop = -1
+    last_stop = 0
     for ft in fts.sort():
         if len(ft.locs) > 1:
             warn('More than one location in feature, use full loc_range')
@@ -86,7 +87,7 @@ def fts2row(fts, inchar='-', outchar='.', openchar='|', closechar='|', bothchar=
         assert len(rowp) == l
         row.append(rowp)
         last_stop = stop
-    return ''.join(row)
+    return ''.join(row).ljust(lensec or len(row), outchar)
 
 
 @_add_fmt_doc('read')

@@ -37,37 +37,63 @@ def test_stockholm_more_metadata():
 
 def test_stockholm_row2fts2row():
     from sugar._io.stockholm import row2fts, fts2row
-    row1 = '.....1....||....2....|3|...4...|'
-    row2 = '.....1....||....2....|3|...4....'
-    row3 = '|' + '.' * 1000 + '1|'
+    row1 = '-----1----||----2----|3|---4---|'
+    row2 = '-----1----||----2----|3|---4----'
+    row3 = '|' + '-' * 1000 + '1|'
+    row4 = '...|---1---|....|2|...'
+
     fts1 = row2fts(row1)
     fts2 = row2fts(row2)
     fts3 = row2fts(row3)
+    fts4 = row2fts(row4)
     assert len(fts1) == 4
     assert len(fts2) == 4
     assert len(fts3) == 1
+    assert len(fts4) == 2
     assert fts1[0].name == '1'
     assert fts2[0].name == '1'
     defect = fts1[0].loc.defect
     assert fts1[0].loc.defect == defect.MISS_LEFT
     assert fts1[1].loc.defect == defect.NONE
+    assert fts2[0].loc.defect == defect.MISS_LEFT
     assert fts2[-1].loc.defect == defect.MISS_RIGHT
     assert len(fts3[0]) == 1003
+
     row1b = fts2row(fts1)
     row2b = fts2row(fts2)
     row3b = fts2row(fts3)
+    row4b = fts2row(fts4, lensec=len(row4))
     assert row1 == row1b
     assert row2 == row2b
     assert len(row3b) == 1003
     assert row3b.count('1') > 1
-    assert row3b.startswith('|' + 10 * '.')
-    assert row3b.endswith(10 * '.' + '|')
+    assert row3b.startswith('|' + 10 * '-')
+    assert row3b.endswith(10 * '-' + '|')
+    assert row4b == row4
+
+    fts1b = row2fts(row1b)
+    fts2b = row2fts(row2b)
+    fts3b = row2fts(row3b)
+    fts4b = row2fts(row4b)
+    assert fts1b == fts1
+    assert fts2b == fts2
+    assert fts3b == fts3
+    assert fts4b == fts4
+
+    # test long name
     fts3[0].loc.stop = 6
     fts3[0].name = 'long_name'
     with pytest.warns(match='too long'):
         row3b = fts2row(fts3)
     assert len(row3b) == 6
     assert row3b == '|long|'
+
+    # test different chars
+    row4c = row4b.replace('|', ':').replace('.', ' ').replace('-', ' ')
+    fts4c = row2fts(row4c, splitchar=':', fillchars=' ')
+    assert fts4c == fts4
+    row4d = fts2row(fts4c, splitchar=':', inchar=' ', outchar=' ', lensec=len(row4c))
+    assert row4d == row4c
 
 
 def test_stockholm_multiline():
