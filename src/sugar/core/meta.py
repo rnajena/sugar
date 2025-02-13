@@ -80,6 +80,24 @@ class Attr(collections.abc.MutableMapping):
     def __len__(self):
         return len(self.__dict__)
 
+    def setdefault(self, k, *args):
+        """
+        Like `setdefault() <python:dict.setdefault>`, but creates a new Attr instance when no value is present and no default is set
+
+        .. rubric:: Example:
+
+        >>> seqs = read()
+        >>> seqs[0].meta.setdefault('_stockholm').setdefault('GR').mykey = 'value'
+        >>> print(seqs[0].meta._stockholm)
+        Attr(GR=Attr(mykey='value'))
+        """
+        if len(args) > 1:
+            raise ValueError('Too many arguments for')
+        v = {} if len(args) == 0 else args[0]
+        super().setdefault(k, v)
+        return self[k]
+
+
 
 class Meta(Attr):
     """
