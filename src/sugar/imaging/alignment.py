@@ -3,7 +3,6 @@ from warnings import warn
 import matplotlib.pyplot as plt
 
 import numpy as np
-import inspect
 
 from sugar.data import gcode
 from sugar.imaging.colors import get_color_scheme
