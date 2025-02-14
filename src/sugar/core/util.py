@@ -51,7 +51,7 @@ def deprecated(msg):
     return _deprecated
 
 
-def _get_kw_for_func(kw, func):
+def _get_kws_for_func(kw, func):
     from inspect import signature
     params = signature(func).parameters
     kw_func = [pname for pname, p in params.items()
@@ -59,8 +59,8 @@ def _get_kw_for_func(kw, func):
     return {k: v for k, v in kw.items() if k in kw_func}
 
 
-def _pop_kw_for_func(kw, func):
-    kw2 = _get_kw_for_func(kw, func)
+def _pop_kws_for_func(kw, func):
+    kw2 = _get_kws_for_func(kw, func)
     for k in kw2:
         kw.pop(k)
     return kw2

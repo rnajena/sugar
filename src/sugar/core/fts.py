@@ -780,21 +780,13 @@ class FeatureList(collections.UserList):
         :param seqlen: length of sequence, defaults to the length of ``seq`` or the stop location of the last feature.
         :param \*\*kw: All other kwargs are passed to ``GraphicFeature`` or ``GraphicRecord`` or ``CircularGraphicRecord``, respectively
         """
+        from sugar.core.util import _pop_kws_for_func
         from sugar.imaging.alignment import _get_fts_colordict
         if circular:
             from dna_features_viewer import CircularGraphicRecord as GR
         else:
             from dna_features_viewer import GraphicRecord as GR
-        rec_kw = [
-            'feature_level_height',
-            'first_index',
-            'plots_indexing',
-            'labels_spacing',
-            'ticks_resolution',
-            'top_position',
-            'annotation_height',
-        ]
-        kw2 = {k: kw.pop(k) for k in rec_kw if k in kw}
+        kw2 = _pop_kws_for_func(kw, GR)
         color, colorby = _get_fts_colordict(self, color, colorby)
         gfts = [ft.toftsviewer(label=label, color=color[colorby(ft)], **kw) for ft in self]
         if seqlen is None:
