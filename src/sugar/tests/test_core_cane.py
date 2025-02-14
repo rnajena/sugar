@@ -70,7 +70,7 @@ def test_orf():
     longest_orf = orfs.sort(len)[-1]
     assert seqs[0][longest_orf] == seqs[0]['cds']
 
-    orfs2 = seqs[0].find_orfs(rf='both')
+    orfs2 = seqs[0].find_orfs(rf='all')
     assert len(orfs2) > len(orfs)
 
     orfs = seqs.find_orfs()

@@ -204,7 +204,7 @@ def match(seq, sub, *, rf='fwd',
             Rfs 0 to 2 are on the forward strand,
             rfs -3 to -1 are on the backward strand,
             You can also specify a set or tuple of reading frames.
-            Additionally you can use one of ('fwd', 'bwd', 'both') to select
+            Additionally you can use one of ('fwd', 'bwd', 'all') to select
             all reading frames on the specified strands.
             Defaults to ``'fwd'`` -- all three reading frames on the forward strand.
             You may set rf to ``None`` to ignore reading frames (i.e. for aa seqs)
@@ -226,12 +226,12 @@ def match(seq, sub, *, rf='fwd',
     if isinstance(rf, int):
         rf = (rf,)
     elif isinstance(rf, str):
-        assert rf in ('fwd', 'bwd', 'both')
+        assert rf in ('fwd', 'bwd', 'all', 'both')
         if rf == 'fwd':
             rf = (0, 1, 2)
         elif rf == 'bwd':
             rf = (-1, -2, -3)
-        elif rf == 'both':
+        else:
             rf = (0, 1, 2, -1, -2, -3)
     if isinstance(sub, BioSeq):
         sub = sub.data
@@ -331,7 +331,7 @@ def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', ne
         You can attach these features to sequences using `.BioSeq.add_fts()` or `.BioBasket.add_fts()`.
         Use the `.BioSeq.fts` and `.BioBasket.fts` properties to overwrite features with the found ORFs.
     """
-    # rf  0, 1, 2, -1, -2, -3, 'fwd', 'bwd', 'both'
+    # rf  0, 1, 2, -1, -2, -3, 'fwd', 'bwd', 'all'
     assert need_start in ('never', 'always', 'once')
     if need_start in ('once', 'always'):
         starts = seq.matchall(start, rf=rf, gap=gap).groupby('rf')
@@ -340,7 +340,7 @@ def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', ne
         rf = (0, 1, 2)
     elif rf == 'bwd':
         rf = (-1, -2, -3)
-    elif rf == 'both':
+    elif rf in ('all', 'both'):
         rf = (0, 1, 2, -1, -2, -3)
     orfs = []
     for frame in rf:
@@ -349,7 +349,7 @@ def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', ne
             i1 = (frame if need_start == 'never' and i2 is None else
                   i2 if need_start in ('never', 'once') and i2 is not None else
                   starts[frame].pop(0).start())
-            if i2 is not None and i1 < i2:  # start codon before last stop codon (alread present in another ORF)
+            if i2 is not None and i1 < i2:  # start codon before last stop codon (already present in another ORF)
                 continue
             while len(stops.get(frame, [])) > 0:
                 i2 = stops[frame].pop(0).end()
