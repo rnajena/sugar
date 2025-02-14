@@ -118,6 +118,7 @@ intersphinx_mapping = {
     'matplotlib': ('https://matplotlib.org/stable', None),
     'dna_features_viewer': ('https://edinburgh-genome-foundry.github.io/DnaFeaturesViewer', None),
     'biopython': ('https://biopython.org/docs/latest', None),
+    'biotite': ('https://www.biotite-python.org/latest', None),
     # cannot download objects.inv of seaborn, see https://github.com/mwaskom/seaborn/issues/1133
     # 'seaborn': ('https://seaborn.pydata.org/objects.inv', None),
     }

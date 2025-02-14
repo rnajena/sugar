@@ -597,10 +597,10 @@ class BioSeq():
 
     def tobiotite(self, type=None, gap='-', warn=True):
         """
-        Convert BioSeq to biotite_ ``NucleotideSequence`` or ``ProteinSequence`` instance
+        Convert BioSeq to biotite_ `~biotite.sequence.NucleotideSequence` or `~biotite.sequence.ProteinSequence` instance
 
-        :param str type: ``'nt'`` creates a ``NucleotideSequence`` instance,
-            ``'aa'`` creates a ``ProteinSequence`` instance,
+        :param str type: ``'nt'`` creates a `~biotite.sequence.NucleotideSequence` instance,
+            ``'aa'`` creates a `~biotite.sequence.ProteinSequence` instance,
             by default the class is inferred from the sequence itself.
         :param str gap: Gap characters that must be removed from the sequence string.
         :param bool warn: Whether to warn if gap characters have been removed, default is True.
@@ -622,7 +622,7 @@ class BioSeq():
 
     def toftsviewer(self, **kw):
         r"""
-        Convert features of this sequence to DNAFeaturesViewer_ ``GraphicRecord``
+        Convert features of this sequence to DNAFeaturesViewer_ `~dna_features_viewer.GraphicRecord`
 
         See `.FeatureList.toftsviewer`.
         """
@@ -1239,10 +1239,10 @@ class BioBasket(collections.UserList):
 
     def tobiotite(self, *, type=None, msa=False, gap='-', warn=True):
         """
-        Convert BioSeq to a list of biotite_ ``NucleotideSequence`` or ``ProteinSequence`` instance
+        Convert BioSeq to a list of biotite_ `~biotite.sequence.NucleotideSequence` or `~biotite.sequence.ProteinSequence` instance
 
-        :param str type: ``'nt'`` creates a ``NucleotideSequence`` instance,
-            ``'aa'`` creates a ``ProteinSequence`` instance,
+        :param str type: ``'nt'`` creates a `~biotite.sequence.NucleotideSequence` instance,
+            ``'aa'`` creates a `~biotite.sequence.ProteinSequence` instance,
             by default the class is inferred from the sequence itself.
         :param bool msa: Return a biotite ``Alignment`` object instead of a list, default is False
         :param str gap: Gap characters that must be removed from the sequence strings.
