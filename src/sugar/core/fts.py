@@ -440,6 +440,7 @@ class Feature():
         """
         from dna_features_viewer import GraphicFeature
         start, stop = self.locs.range
+        strand = {'+': 1, '-': -1, '.': 0, '?': 0}[self.loc.strand]
         if label == 'default':
             label = self.meta.get('name') or self.type
         elif isinstance(label, str):
@@ -447,7 +448,7 @@ class Feature():
         elif label is not None:
             label = label(self)
         return GraphicFeature(
-            start=start, end=stop, strand=self.loc._stride,
+            start=start, end=stop, strand=strand,
             open_left=Defect.MISS_LEFT in self.loc.defect,
             open_right=Defect.MISS_RIGHT in self.locs[-1].defect,
             label=label, **kw)
@@ -800,8 +801,10 @@ class FeatureList(collections.UserList):
         return GR(sequence_length=seqlen, sequence=str(seq), features=gfts, **kw2)
 
     def plot_ftsviewer(self, *args, **kw):
+        """
+        Plot features using DNAFeaturesViewer_, see `~.imaging.ftsviewer.plot_ftsviewer()`
+        """
         from sugar.imaging import plot_ftsviewer
-        print(args, kw)
         return plot_ftsviewer(self, *args, **kw)
 
     def groupby(self, keys=('seqid',), flatten=False):

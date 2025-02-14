@@ -574,6 +574,15 @@ class BioSeq():
         from sugar.core.cane import find_orfs
         return find_orfs(self, *args, **kw)
 
+    def plot_ftsviewer(self, *args, **kw):
+        """
+        Plot features of the sequence using DNAFeaturesViewer_, see `~.imaging.ftsviewer.plot_ftsviewer()`
+
+        Using `.BioSeq.plot_ftsviewer()` over `.FeatureList.plot_ftsviewer()` has the advantage,
+        that sequence length is automatically used.
+        """
+        return BioBasket([self]).plot_ftsviewer(*args, **kw)
+
     def tostr(self, **kw):
         """
         Return a nice string, see `BioBasket.tostr()`
@@ -1274,7 +1283,14 @@ class BioBasket(collections.UserList):
         return plot_alignment(self, *args, **kw)
 
     def plot_ftsviewer(self, *args, **kw):
-        return self.fts.plot_ftsviewer(*args, seqs=self, **kw)
+        """
+        Plot features of the sequences using DNAFeaturesViewer_, see `~.imaging.ftsviewer.plot_ftsviewer()`
+
+        Using `.BioBasket.plot_ftsviewer()` over `.FeatureList.plot_ftsviewer()` has the advantage,
+        that sequence lengths are automatically used.
+        """
+        from sugar.imaging import plot_ftsviewer
+        return plot_ftsviewer(self.fts, *args, seqs=self, **kw)
 
     def merge(self, spacer='', update_fts=False, keys=('id',)):
         data = []

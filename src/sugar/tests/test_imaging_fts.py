@@ -7,7 +7,21 @@ from sugar.tests.util import _changetmpdir
 _PATH = None
 
 
-def test_plot_fts_via_ftsviewer():
+def test_plot_ftsviewer():
+    pytest.importorskip('matplotlib', reason='require matplotlib module')
+    pytest.importorskip('dna_features_viewer', reason='require dna_features_viewer module')
+    import matplotlib.pyplot as plt
+    seqs = read()
+    with _changetmpdir(_PATH) as tmpdir:
+        seqs.plot_ftsviewer('fts1.png')
+    fig = seqs[0].plot_ftsviewer()
+    plt.close(fig)
+    ax = plt.axes()
+    fig = seqs[0].plot_ftsviewer(ax=ax)
+    plt.close(fig)
+
+
+def test_plot_ftsviewer_record():
     pytest.importorskip('matplotlib', reason='require matplotlib module')
     pytest.importorskip('dna_features_viewer', reason='require dna_features_viewer module')
     import matplotlib.pyplot as plt
@@ -15,12 +29,12 @@ def test_plot_fts_via_ftsviewer():
     record = seqs[1].toftsviewer()
     record.plot()
     with _changetmpdir(_PATH) as tmpdir:
-        plt.savefig('fts1.png')
+        plt.savefig('fts2.png')
     plt.close()
 
 
 @pytest.mark.webtest
-def test_plot_fts_via_ftsviewer_genes():
+def test_plot_ftsviewer_genes():
     pytest.importorskip('matplotlib', reason='require matplotlib module')
     pytest.importorskip('dna_features_viewer', reason='require dna_features_viewer module')
     import matplotlib.pyplot as plt
@@ -31,8 +45,6 @@ def test_plot_fts_via_ftsviewer_genes():
     fts = seq.fts.select('cds')
     for ft in fts:
         ft.meta.name = ft.meta._genbank.gene
-    record = fts.toftsviewer(colorby='name', seqlen=len(seq))
-    record.plot()
     with _changetmpdir(_PATH) as tmpdir:
-        plt.savefig('fts2.png')
+        fts.plot_ftsviewer('fts3.png', colorby='name', seqlen=len(seq), figsize=(6, 2.5))
     plt.close()

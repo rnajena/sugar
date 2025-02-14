@@ -110,7 +110,7 @@ def plot_alignment(
     Plot an alignment
 
     :param seqs: sequences
-    :param fname: The filename if saving the plot, default: do not save the plot
+    :param fname: The filename if saving the plot, the figure will be closed afterwards, default: do not save the plot and return figure
     :param ax: The ax to plot in, default: create a new ax
     :param figsize: The size of the created figure, only applies for ``ax=None``
     :param extent: The extent of the plotted alignment in data coordinates ``[xmin, xmax, ymin, ymax]``,
@@ -155,7 +155,7 @@ def plot_alignment(
     :param show_spines,despine_offset: Parameters passed to seaborn's despine function,
         the default ``show_spines=False`` removes axes spines
     :param xticks: True leaves the xticks (default), False turns them off, can also be a list of xticks
-    :param dpi,transparent,bbox_inches: Parameters passed to savefig if the figure is saved
+    :param dpi,transparent,bbox_inches: Parameters passed to :meth:`~matplotlib.figure.Figure.savefig` if the figure is saved
     :param show: True shows the figure, default: False
     :param \*\*kw: Other kwargs are passed to matplotlib's :meth:`~matplotlib.axes.Axes.pcolormesh`
 
