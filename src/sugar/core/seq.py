@@ -792,7 +792,10 @@ class BioBasket(collections.UserList):
             if seq.id in fts:
                 seq.fts = fts.pop(seq.id)
             else:
-                del seq.meta.fts
+                try:
+                    del seq.meta.fts
+                except KeyError:
+                    pass
         if len(fts) > 0:
             missing_ids = ', '.join(fts.keys())
             warn(f'Features for seqids {missing_ids} could not be '
@@ -1132,7 +1135,7 @@ class BioBasket(collections.UserList):
         self.data = _sorted(self.data, keys=keys, reverse=reverse, attr='meta')
         return self
 
-    def groupby(self, keys=('id',)):
+    def groupby(self, keys=('id',), flatten=False):
         """
         Group sequences
 
@@ -1148,7 +1151,7 @@ class BioBasket(collections.UserList):
         >>> grouped = seqs.groupby()
         """
         from sugar.core.cane import _groupby
-        return _groupby(self, keys, attr='meta')
+        return _groupby(self, keys, attr='meta', flatten=flatten)
 
     @deprecated('The filter method is deprecated, use `select()` instead')
     def filter(self, **kw):
@@ -1270,9 +1273,12 @@ class BioBasket(collections.UserList):
         from sugar.imaging import plot_alignment
         return plot_alignment(self, *args, **kw)
 
+    def plot_ftsviewer(self, *args, **kw):
+        return self.fts.plot_ftsviewer(*args, seqs=self, **kw)
+
     def merge(self, spacer='', update_fts=False, keys=('id',)):
         data = []
-        for group in self.groupby(keys).values():
+        for group in self.groupby(keys, flatten=True).values():
             seq = group[0]
             for oseq in group[1:]:
                 seq.data = seq.data + spacer + oseq.data

@@ -427,7 +427,7 @@ class Feature():
     # def __hash__(self):
     #     return hash((self.type, self.locs, frozenset(self.meta.items())))
 
-    def toftsviewer(self, *, label=None, **kw):
+    def toftsviewer(self, *, label='default', **kw):
         r"""
         Convert feature to DNAFeaturesViewer_ `~dna_features_viewer.GraphicFeature`
 
@@ -440,11 +440,11 @@ class Feature():
         """
         from dna_features_viewer import GraphicFeature
         start, stop = self.locs.range
-        if label is None:
+        if label == 'default':
             label = self.meta.get('name') or self.type
         elif isinstance(label, str):
             label = self.meta.get(label, label)
-        else:
+        elif label is not None:
             label = label(self)
         return GraphicFeature(
             start=start, end=stop, strand=self.loc._stride,
@@ -756,7 +756,7 @@ class FeatureList(collections.UserList):
         """
         return {ft.id: ft for ft in self}
 
-    def toftsviewer(self, *, label=None, colorby='type', color=None,
+    def toftsviewer(self, *, label='default', colorby='type', color=None,
                             circular=False,
                             seqlen=None, seq=None,
                             **kw):
@@ -799,7 +799,12 @@ class FeatureList(collections.UserList):
                 seqlen = self.loc_range[1]
         return GR(sequence_length=seqlen, sequence=str(seq), features=gfts, **kw2)
 
-    def groupby(self, keys=('seqid',)):
+    def plot_ftsviewer(self, *args, **kw):
+        from sugar.imaging import plot_ftsviewer
+        print(args, kw)
+        return plot_ftsviewer(self, *args, **kw)
+
+    def groupby(self, keys=('seqid',), flatten=False):
         """
         Group features
 
@@ -815,7 +820,7 @@ class FeatureList(collections.UserList):
         >>> fts.groupby('type')  # doctest: +SKIP
         """
         from sugar.core.cane import _groupby
-        return _groupby(self, keys, attr='meta')
+        return _groupby(self, keys, attr='meta', flatten=flatten)
 
     @property
     def d(self):

@@ -25,15 +25,29 @@ def _keyfuncs(objs, keys, attr=None):
     return keyfuncs
 
 
-def _groupby(objs, keys, attr=None):
+def _flatten(d, pk=()):
+    d2 = {}
+    for k, v in d.items():
+        k = pk + (k,)
+        if isinstance(v, dict):
+            d2.update(_flatten(v, k).items())
+        else:
+            d2[k] = v
+    return d2
+
+
+def _groupby(objs, keys, attr=None, flatten=False):
     """
     Group objects, used by several objects in sugar.core
 
     :param keys: Tuple of keys or functions to use for grouping.
         May also be a single string or callable.
     :param attr: Attribute where to look for keys
+    :param flatten: Return a flattened instead of a nested dict
     :return: Nested dict structure
     """
+    if keys is None:
+        return {None: objs}
     keyfuncs = _keyfuncs(objs, keys, attr=attr)
     d = {}
     cls = objs.__class__
@@ -42,6 +56,8 @@ def _groupby(objs, keys, attr=None):
         for keyfunc in keyfuncs[:-1]:
             d2 = d2.setdefault(keyfunc(obj), {})
         d2.setdefault(keyfuncs[-1](obj), cls()).append(obj)
+    if flatten:
+        d = _flatten(d)
     return d
 
 

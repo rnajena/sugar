@@ -288,7 +288,3 @@ if __name__ == '__main__':
     seqs.fts = seqs.fts.slice(10, 15)[:1]
     print(seqs.fts)
     plot_alignment(seqs, fts=True, aspect=2, rasterized=True, color='0.8', symbols=True, symbol_color='flower')
-
-
-
-
