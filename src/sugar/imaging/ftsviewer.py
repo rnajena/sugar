@@ -7,6 +7,7 @@ def plot_ftsviewer(
         seqs=None, groupby='seqid',
         figsize=None, ncols=1, sharex=False, sharey=False, fig_kw={}, ax=None,
         axlabel=True, axlabel_kw={},
+        same_colors=True, colorby='type', color=None,
         dpi=None, transparent=None, bbox_inches=None, show=False,
         **kw):
     """
@@ -30,6 +31,7 @@ def plot_ftsviewer(
         the annotation in, make sure to only have a single annotation group
     :param axlabel: Plot the name of each group in the axis, default: True
     :param axlabel_kw: Dict of corresponding options passed to :meth:`~matplotlib.axes.Axes.annotate`
+    :param same_colors: Wether to use the same color mapping in all subplots, default True.
     :param dpi,transparent,bbox_inches: Parameters passed to :meth:`~matplotlib.figure.Figure.savefig` if the figure is saved
     :param show: True shows the figure, default: False
     :param \*\*kw: Other kwargs are passed to
@@ -55,6 +57,9 @@ def plot_ftsviewer(
     from dna_features_viewer import GraphicRecord
     grouped = fts.groupby(groupby, flatten=True)
     N = len(grouped)
+    if N > 1 and same_colors:
+        from sugar.imaging.alignment import _get_fts_colordict
+        color, colorby = _get_fts_colordict(fts, color, colorby)
     if ax is None:
         nrows = (N + ncols - 1) // ncols
         if figsize is None:
@@ -72,7 +77,7 @@ def plot_ftsviewer(
             ax = axes[i % nrows, i // nrows]
         if seqs is not None:
             seq = seqs.d[grouped[gkey][0].seqid]
-        record = grouped[gkey].toftsviewer(seq=seq, **kw)
+        record = grouped[gkey].toftsviewer(seq=seq, colorby=colorby, color=color, **kw)
         record.plot(ax=ax, **kw2)
         if axlabel and gkey is not None:
             axlabel_kw = axlabel_kw.copy()
