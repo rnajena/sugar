@@ -429,14 +429,14 @@ class Feature():
 
     def toftsviewer(self, *, label=None, **kw):
         r"""
-        Convert feature to DNAFeaturesViewer_ ``GraphicFeature``
+        Convert feature to DNAFeaturesViewer_ `~dna_features_viewer.GraphicFeature`
 
         :param label: The label of the feature,
             may be a str key of the meta dictionary,
             or a function taking the feature and returning the label,
             or the str label itself,
             defaults to ``'name'`` and if that is not present in the metadata, ``'type'``.
-        :param \*\*kw: All other kwargs are passed to ``GraphicFeature``
+        :param \*\*kw: All other kwargs are passed to `~dna_features_viewer.GraphicFeature`.
         """
         from dna_features_viewer import GraphicFeature
         start, stop = self.locs.range
@@ -761,7 +761,7 @@ class FeatureList(collections.UserList):
                             seqlen=None, seq=None,
                             **kw):
         r"""
-        Convert features to DNAFeaturesViewer_ ``GraphicRecord``
+        Convert features to DNAFeaturesViewer_ `~dna_features_viewer.GraphicRecord`
 
         :param label: The label of the feature,
             may be a str key of the meta dictionary,
@@ -775,10 +775,13 @@ class FeatureList(collections.UserList):
             a list of colors, or
             None for the default matplotlib color cycle (the default), or
             a dictionary mapping the feature identifiers to colors.
-        :param circular: If True return an instance of ``CircularGraphicRecord`` instead
+        :param circular: If True return an instance of `~dna_features_viewer.CircularGraphicRecord` instead
         :param seq: sequence or sequence data
         :param seqlen: length of sequence, defaults to the length of ``seq`` or the stop location of the last feature.
-        :param \*\*kw: All other kwargs are passed to ``GraphicFeature`` or ``GraphicRecord`` or ``CircularGraphicRecord``, respectively
+        :param \*\*kw: All other kwargs are passed to
+            `~dna_features_viewer.GraphicFeature` or
+            `~dna_features_viewer.GraphicRecord` or
+            `~dna_features_viewer.CircularGraphicRecord`, respectively.
         """
         from sugar.core.util import _pop_kws_for_func
         from sugar.imaging.alignment import _get_fts_colordict

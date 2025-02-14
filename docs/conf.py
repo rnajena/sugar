@@ -115,7 +115,8 @@ html_theme_options = {
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'pandas': ('https://pandas.pydata.org/docs', None),
-    'matplotlib': ('https://matplotlib.org/stable/', None),
+    'matplotlib': ('https://matplotlib.org/stable', None),
+    'dna_features_viewer': ('https://edinburgh-genome-foundry.github.io/DnaFeaturesViewer', None),
     # cannot download objects.inv of seaborn, see https://github.com/mwaskom/seaborn/issues/1133
     # 'seaborn': ('https://seaborn.pydata.org/objects.inv', None),
     }
