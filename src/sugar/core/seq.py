@@ -397,6 +397,24 @@ class BioSeq():
         return _Sliceable_GetItem(self, **kw)
 
     def slindex(self, gap=None):
+        """
+        Method that translates an index to account for gaps
+
+        .. rubric:: Example:
+
+        >>> from sugar import BioSeq
+        >>> seq = BioSeq('ATG---GGA')
+        >>> print(seq)
+        ATG---GGA
+        >>> print(seq[1:5])
+        TG--
+        >>> print(seq.sl(gap='-')[1:5])
+        TG---GG
+        >>> print(seq.slindex(gap='-')[1:5])
+        slice(1, 8, None)
+        >>> print(seq[seq.slindex(gap='-')[1:5]])
+        TG---GG
+        """
         return _Sliceable_GetItem(self, method='_getindex', gap=gap)
 
     def _slice_locs(self, locs, splitter=None, filler=None, gap=None, update_fts=False):
@@ -578,8 +596,10 @@ class BioSeq():
         """
         Plot features of the sequence using DNAFeaturesViewer_, see `~.imaging.ftsviewer.plot_ftsviewer()`
 
-        Using `.BioSeq.plot_ftsviewer()` over `.FeatureList.plot_ftsviewer()` has the advantage,
-        that sequence length is automatically used.
+        .. note::
+            Using `BioSeq <.BioSeq.plot_ftsviewer>` or `.BioBasket.plot_ftsviewer()`
+            over `.FeatureList.plot_ftsviewer()` has the advantage,
+            that sequence lengths are used automatically.
         """
         return BioBasket([self]).plot_ftsviewer(*args, **kw)
 
@@ -1286,8 +1306,10 @@ class BioBasket(collections.UserList):
         """
         Plot features of the sequences using DNAFeaturesViewer_, see `~.imaging.ftsviewer.plot_ftsviewer()`
 
-        Using `.BioBasket.plot_ftsviewer()` over `.FeatureList.plot_ftsviewer()` has the advantage,
-        that sequence lengths are automatically used.
+        .. note::
+            Using `BioSeq <.BioSeq.plot_ftsviewer>` or `.BioBasket.plot_ftsviewer()`
+            over `.FeatureList.plot_ftsviewer()` has the advantage,
+            that sequence lengths are used automatically.
         """
         from sugar.imaging import plot_ftsviewer
         return plot_ftsviewer(self.fts, *args, seqs=self, **kw)

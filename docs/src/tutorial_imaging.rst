@@ -48,9 +48,11 @@ and using
 Plotting features
 -----------------
 
-Sugar does not provide any capabilities to plot features,
-but an adapter is provided to convert `.FeatureList`, `.Feature`, or `.BioSeq` objects
-to DNAFeaturesViewer_ objects through the `~.FeatureList.toftsviewer()` method.
+Sugar can plot features with DNAFeaturesViewer_.
+Use the ``plot_ftsviewer()`` method of
+`FeatureList <.FeatureList.plot_ftsviewer>`,
+`BioBasket <.BioBasket.plot_ftsviewer>`, or
+`BioSeq <.BioSeq.plot_ftsviewer>`.
 
 Plot the features of the example sequence:
 
@@ -58,8 +60,7 @@ Plot the features of the example sequence:
 
 >>> from sugar import read
 >>> seqs = read()
->>> record = seqs[1].toftsviewer()
->>> record.plot()
+>>> seqs.plot_ftsviewer(show=True)
 
 .. image:: ../_static/fts1.png
     :width: 60%
@@ -72,8 +73,24 @@ Another example plotting the CDS features of an Ebolavirus RNA:
 >>> fts = seq.fts.select('cds')
 >>> for ft in fts:
 ...    ft.meta.name = ft.meta._genbank.gene
->>> record = fts.toftsviewer(colorby='name', seqlen=len(seq))
+>>> fts.plot_ftsviewer(colorby='name', seqlen=len(seq), figsize=(6, 2.5), show=True)
+
+.. image:: ../_static/fts3.png
+    :width: 60%
+
+If you want more fine-grained control you can convert features to
+a `~dna_features_viewer.GraphicRecord` object with the
+`~.FeatureList.toftsviewer()` method and use the
+`plotting <dna_features_viewer.GraphicRecord.plot>` method of the returned object:
+
+>>> seqs = read()
+>>> record = seqs[1].toftsviewer()
 >>> record.plot()
 
 .. image:: ../_static/fts2.png
     :width: 60%
+
+.. note::
+    Using `BioSeq <.BioSeq.plot_ftsviewer>` or `.BioBasket.plot_ftsviewer()`
+    over `.FeatureList.plot_ftsviewer()` has the advantage,
+    that sequence lengths are used automatically.
