@@ -707,7 +707,7 @@ class FeatureList(collections.UserList):
 
         All other kwargs must be of the form
         ``key_op=value``, where op is one of
-        the operators from the `python:operator` module.
+        the operators from the `operator` module.
         Additionally, the operator ``'in'`` (membership) is supported.
         The different selection criteria are combined with
         the *and* operator. If you need *or*, call select twice

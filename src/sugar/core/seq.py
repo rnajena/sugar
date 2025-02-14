@@ -41,7 +41,7 @@ class _BioSeqStr():
     The methods modify the data in-place, if applicable,
     which is different from the behavior of the original string methods.
 
-    See `python:str` for documentation of the methods.
+    See `str` for documentation of the methods.
 
     :meta public:
     """
@@ -275,7 +275,7 @@ class BioSeq():
         """
         Namespace holding all available string methods,
         see `_BioSeqStr` for available methods
-        and `python:str` for documentation of the methods
+        and `str` for documentation of the methods
 
         .. rubric:: Example:
 
@@ -759,7 +759,7 @@ class BioBasket(collections.UserList):
         The `BioBasket.str` methods call the corresponding `BioSeq.str` methods under the hood
         and return either the modified `BioBasket` object or a list of results.
         See `_BioSeqStr` for available methods
-        and `python:str` for method documentation.
+        and `str` for method documentation.
 
         .. rubric:: Example:
 
@@ -1163,7 +1163,7 @@ class BioBasket(collections.UserList):
 
         :param \*\*kw: All kwargs must be of the form
             ``key_op=value``, where op is one of
-            the operators from the `python:operator` module.
+            the operators from the `operator` module.
             Additionally, the operator ``'in'`` (membership) is supported.
             The different select conditions are combined with
             the *and* operator. If you need *or*, call select twice
