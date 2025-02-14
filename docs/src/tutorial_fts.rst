@@ -44,7 +44,7 @@ Features can be selected in several ways.
     >>> fts = read_fts()
     >>> print(fts[:2])  # Select the first two features
 
-2. Use `~.FeatureList.select()` to select features of a particular type::
+2. Use `~.FeatureList.select()` to select features of a particular type:
 
 .. runblock:: pycon
 
@@ -52,7 +52,7 @@ Features can be selected in several ways.
     >>> print(fts.select('mRNA'))  # Select the mRNA type features
     >>> print(fts.select(['gene', 'region']))  # Select the features of type gene and region
 
-3. Use `~.FeatureList.select()` to select features with other criteria::
+3. Use `~.FeatureList.select()` to select features with other criteria:
 
 .. runblock:: pycon
 
@@ -62,7 +62,7 @@ Features can be selected in several ways.
     >>> print(fts.select(id_in=['exon-XM_054717066.1-6',
     ...                         'exon-XM_054717066.1-7']))  # Selection based on ids
 
-4. Use `~.FeatureList.slice()` to select and slice by position::
+4. Use `~.FeatureList.slice()` to select and slice by position:
 
 .. runblock:: pycon
 
