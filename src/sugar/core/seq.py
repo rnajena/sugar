@@ -524,7 +524,7 @@ class BioSeq():
     @classmethod
     def frombiopython(cls, obj):
         """
-        Create a `BioSeq` object from a biopython_ ``Bio.SeqRecord`` or ``Bio.Seq`` object.
+        Create a `BioSeq` object from a biopython_ `~Bio.SeqRecord.SeqRecord` or `~Bio.Seq.Seq` object.
 
         :param obj: The object to convert.
         """
@@ -589,7 +589,7 @@ class BioSeq():
 
     def tobiopython(self):
         """
-        Convert BioSeq to biopython_ ``SeqRecord`` instance
+        Convert BioSeq to biopython_ `~Bio.SeqRecord.SeqRecord` instance
         """
         from Bio.Seq import Seq
         from Bio.SeqRecord import SeqRecord
@@ -1031,9 +1031,9 @@ class BioBasket(collections.UserList):
     @classmethod
     def frombiopython(cls, obj):
         """
-        Create a `BioBasket` object from a list of biopython_ ``SeqRecord`` or ``Seq`` objects.
+        Create a `BioBasket` object from a list of biopython_ `~Bio.SeqRecord.SeqRecord` or `~Bio.Seq.Seq` objects.
 
-        :param obj: The object to convert, can also be a biopython ``MultipleSeqAlignment`` object.
+        :param obj: The object to convert, can also be a `~Bio.Align.MultipleSeqAlignment` object.
         """
         seqs = [BioSeq.frombiopython(seq) for seq in obj]
         return cls(seqs)
@@ -1227,9 +1227,9 @@ class BioBasket(collections.UserList):
 
     def tobiopython(self, *, msa=False):
         """
-        Convert the BioBasket to a list of biopython_ ``SeqRecord`` objects
+        Convert the BioBasket to a list of biopython_ `~Bio.SeqRecord.SeqRecord` objects
 
-        :param bool msa: Return a biopython ``MultipleSeqAlignment`` object instead of a list.
+        :param bool msa: Return a biopython `~Bio.Align.MultipleSeqAlignment` object instead of a list.
         """
         seqs = [seq.tobiopython() for seq in self]
         if msa:
