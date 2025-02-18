@@ -438,7 +438,10 @@ class Feature():
             defaults to ``'name'`` and if that is not present in the metadata, ``'type'``.
         :param \*\*kw: All other kwargs are passed to `~dna_features_viewer.GraphicFeature`.
         """
-        from dna_features_viewer import GraphicFeature
+        try:
+            from dna_features_viewer import GraphicFeature
+        except ImportError as ex:
+            raise ImportError('Please install dna_features_viewer to use ftsviewer functionality') from ex
         start, stop = self.locs.range
         strand = {'+': 1, '-': -1, '.': 0, '?': 0}[self.loc.strand]
         if label == 'default':
@@ -786,10 +789,13 @@ class FeatureList(collections.UserList):
         """
         from sugar.core.util import _pop_kws_for_func
         from sugar.imaging.alignment import _get_fts_colordict
-        if circular:
-            from dna_features_viewer import CircularGraphicRecord as GR
-        else:
-            from dna_features_viewer import GraphicRecord as GR
+        try:
+            if circular:
+                from dna_features_viewer import CircularGraphicRecord as GR
+            else:
+                from dna_features_viewer import GraphicRecord as GR
+        except ImportError as ex:
+            raise ImportError('Please install dna_features_viewer to use ftsviewer functionality') from ex
         kw2 = _pop_kws_for_func(kw, GR)
         color, colorby = _get_fts_colordict(self, color, colorby)
         gfts = [ft.toftsviewer(label=label, color=color[colorby(ft)], **kw) for ft in self]

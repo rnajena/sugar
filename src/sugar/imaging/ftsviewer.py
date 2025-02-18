@@ -53,8 +53,11 @@ def plot_ftsviewer(
        :width: 40%
 
     """
+    try:
+        from dna_features_viewer import GraphicRecord
+    except ImportError as ex:
+        raise ImportError('Please install dna_features_viewer to use ftsviewer functionality') from ex
     import matplotlib.pyplot as plt
-    from dna_features_viewer import GraphicRecord
     grouped = fts.groupby(groupby, flatten=True)
     N = len(grouped)
     if N > 1 and same_colors:
