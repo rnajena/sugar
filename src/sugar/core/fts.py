@@ -449,7 +449,7 @@ class Feature():
         elif isinstance(label, str):
             label = self.meta.get(label, label)
         elif label is not None:
-            label = label(self)
+            label = str(label(self))
         return GraphicFeature(
             start=start, end=stop, strand=strand,
             open_left=Defect.MISS_LEFT in self.loc.defect,
