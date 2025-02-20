@@ -113,7 +113,10 @@ def _select(objs2, attr='meta', **kwargs):
                              getattr(obj, key, None) if attr is None else
                              getattr(getattr(obj, attr), key, None))
     for kw, value in kwargs.items():
-        key, kop = kw.rsplit('_', 1)
+        if '_' in kw:
+            key, kop = kw.rsplit('_', 1)
+        else:
+            key, kop = kw, 'eq'
         op = ops.get(kop)
         if op is None:
             op = getattr(operator, kop)
