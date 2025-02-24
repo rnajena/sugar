@@ -310,13 +310,13 @@ def _inds2orf(i1, i2, rf, lensec, ftype='ORF', seqid=None):
     return ft
 
 
-def find_orfs(seq, rf='fwd', start='start', stop='stop', need_start='always', need_stop=True, gap='-', minlen=0, ftype='ORF'):
+def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', need_stop=True, gap='-', minlen=0, ftype='ORF'):
     """
     Find open reading frames (ORFs)
 
     :param seq: `.BioSeq` sequence
     :param rf: reading frame, possible values: int, string or tuple. See also
-        `~match`. Default is ``'fwd'``.
+        `~match`. Default is ``'all'``.
     :param start: regular expression defining the start codons, defaults to ATG/AUG
     :param stop: regular expression defining the stop codons, defaults to stop codons
         in default translation table
