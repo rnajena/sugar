@@ -310,7 +310,8 @@ def _inds2orf(i1, i2, rf, lensec, ftype='ORF', seqid=None):
     return ft
 
 
-def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', need_stop=True, gap='-', minlen=0, ftype='ORF'):
+def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', need_stop=True,
+              allow_within=False, gap='-', minlen=0, ftype='ORF'):
     """
     Find open reading frames (ORFs)
 
@@ -325,6 +326,8 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
         Once: Only the first ORF in each RF starts with a start codon.
         Never: ORFs can start at each codon.
     :param need_stop: Whether the last ORF in each RF must end with a stop codon.
+    :allow_within: Allow ORFS which are contained within other ORFS in the same reading frame,
+        default is False.
     :param gap: Gap character inserted into the start and stop codon regexes,
         default is ``'-'``.
     :param minlin: Minimum length of ORFs
@@ -336,6 +339,8 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
     """
     # rf  0, 1, 2, -1, -2, -3, 'fwd', 'bwd', 'all'
     assert need_start in ('never', 'always', 'once')
+    if allow_within and need_start != 'always':
+        raise ValueError("allow_within option only allowed with need_start='always'")
     if need_start in ('once', 'always'):
         starts = seq.matchall(start, rf=rf, gap=gap).groupby('rf')
     stops = seq.matchall(stop, rf=rf, gap=gap).groupby('rf')
@@ -353,13 +358,15 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
                   i2 if need_start in ('never', 'once') and i2 is not None else
                   starts[frame].pop(0).start())
             if i2 is not None and i1 < i2:  # start codon before last stop codon (already present in another ORF)
-                continue
-            while len(stops.get(frame, [])) > 0:
-                i2 = stops[frame].pop(0).end()
-                if i2 > i1:  # stop codon before ORF is ignored
-                    break
+                if not allow_within:
+                    continue
             else:
-                i2 = None if need_stop else len(seq)
+                while len(stops.get(frame, [])) > 0:
+                    i2 = stops[frame].pop(0).end()
+                    if i2 > i1:  # stop codons before ORFs are ignored
+                        break
+                else:
+                    i2 = None if need_stop else len(seq)
             if i2 is not None:
                 orf = _inds2orf(i1, i2, frame, len(seq), seqid=seq.id, ftype=ftype)
                 if len(orf) >= minlen:

@@ -63,15 +63,21 @@ def test_match():
     assert match.span() != match3.span()
 
 
-def test_orf():
+def test_find_orfs():
     seqs = read()
-    orfs = seqs[0].find_orfs()
+    orfs = seqs[0].find_orfs(rf='fwd')
     assert len(orfs) > 0
     longest_orf = orfs.sort(len)[-1]
     assert seqs[0][longest_orf] == seqs[0]['cds']
 
     orfs2 = seqs[0].find_orfs(rf='all')
     assert len(orfs2) > len(orfs)
+
+    orfs3 = seqs[0].find_orfs(rf='fwd', allow_within=True)
+    assert len(orfs3) > len(orfs)
+
+    orfs4 = seqs[0].find_orfs(rf='all', allow_within=True)
+    assert len(orfs4) > len(orfs2)
 
     orfs = seqs.find_orfs()
     for id_ in seqs.ids:
