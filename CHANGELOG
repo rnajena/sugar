@@ -2,6 +2,8 @@ dev:
   * core:
     - add toftsviewer methods to FeatureList, Feature and BioSeq classes
     - BioBasket.countall can also count kmers
+    - add custom Attr.setdefault method
+  * imaging: add functionality to plot features, also add plot_ftsviewer methods
 v0.6.0:
   * core: deprecate filter methods, use select instead
 v0.5.0:
