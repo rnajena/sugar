@@ -10,6 +10,8 @@
 
 The sugar project aims to provide a lightweight framework to facilitate rapid application development for bioinformatics.
 
+It thus provides classes and functions for working with DNA and RNA sequences, as well as related annotations, and it provides parsers and writers for various file formats using a plugin interface.
+
 ### Documentation
 
 * Documentation including a tutorial is available [here](https://rnajena-sugar.readthedocs.io)
