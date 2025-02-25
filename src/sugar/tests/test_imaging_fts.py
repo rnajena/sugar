@@ -47,4 +47,6 @@ def test_plot_ftsviewer_genes():
         ft.meta.name = ft.meta._genbank.gene
     with _changetmpdir(_PATH) as tmpdir:
         fts.plot_ftsviewer('fts3.png', colorby='name', seqlen=len(seq), figsize=(6, 2.5))
+        orfs = seq.find_orfs(rf='all').select(len_gt=500)
+        orfs.plot_ftsviewer('fts4.png', label=None, colorby='rf', seqlen=len(seq), figsize=(6, 2.5))
     plt.close()
