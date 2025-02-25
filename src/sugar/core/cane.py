@@ -178,7 +178,7 @@ class BioMatchList(collections.UserList):
 
         :param keys: Tuple of meta keys or functions to use for grouping.
             Can also be a single string or a callable.
-            By default the method groups by seqid only.
+            By default the method groups by rf.
         :return: Nested dict structure
         """
         return _groupby(self, keys)
