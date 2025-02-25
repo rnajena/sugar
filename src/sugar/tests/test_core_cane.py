@@ -73,15 +73,153 @@ def test_find_orfs():
     orfs2 = seqs[0].find_orfs(rf='all')
     assert len(orfs2) > len(orfs)
 
-    orfs3 = seqs[0].find_orfs(rf='fwd', allow_within=True)
-    assert len(orfs3) > len(orfs)
+    orfsb = seqs[0].find_orfs(rf='fwd', nested='all')
+    assert len(orfsb) > len(orfs)
 
-    orfs4 = seqs[0].find_orfs(rf='all', allow_within=True)
+    orfsc = seqs[0].find_orfs(rf='fwd', need_stop=False)
+    assert len(orfsc) == len(orfs) + 2
+
+    orfs4 = seqs[0].find_orfs(rf='all', nested='all')
     assert len(orfs4) > len(orfs2)
 
     orfs = seqs.find_orfs()
     for id_ in seqs.ids:
         assert seqs.d[id_][orfs.groupby('seqid')[id_].sort(len)[-1]] == seqs.d[id_]['cds']
+
+
+def test_find_orfs_extended():
+    teststr = 'CCC_CAT_GCT_GAC_CTA_CCC_CAT_CAT_GTG_ACC_CCC_CTG_ACC_CAT_GCC_CTG_ACC_ATG_CCC_C'
+    seq = BioSeq(teststr.replace('_', ''))
+    assert (seq.find_orfs(rf='fwd') + seq.find_orfs(rf='bwd')) == seq.find_orfs(rf='all')
+    orfs1 = seq.find_orfs()
+    orfs2 = seq.find_orfs(need_start='never')
+    orfs3 = seq.find_orfs(need_start='once')
+    orfs1b = seq.find_orfs(nested='all')
+    orfs2b = seq.find_orfs(need_start='never', nested='all')
+    orfs3b = seq.find_orfs(need_start='once', nested='all')
+    orfs1c = seq.find_orfs(nested='no')
+    orfs2c = seq.find_orfs(need_start='never', nested='no')
+    orfs3c = seq.find_orfs(need_start='once', nested='no')
+    assert len(orfs1c) < len(orfs1) < len(orfs1b)
+    assert len(orfs1c) == 3
+    assert len(orfs1) == 4
+    assert len(orfs1b) == 7
+    assert orfs2 == orfs2b
+    assert len(orfs2) == 6
+    assert len(orfs2c) == 2
+    assert orfs3 == orfs3b
+    assert len(orfs3) == 6
+    assert len(orfs3c) == 3
+    assert orfs1c == orfs1c.copy().sort(lambda ft: [0, 1, 2, -1, -2, -3].index(ft.meta.rf))
+    orfs3d = seq.copy().rc().find_orfs(need_start='once', nested='all')
+    for orf in orfs3d:
+        orf.meta.rf = - 1 - orf.meta.rf
+    assert orfs3d.copy().rc(seqlen=len(seq)).sort() == orfs3b.copy().sort()
+    teststr3 = teststr[:30] + '-----' + teststr[30:]
+    seq = BioSeq(teststr3.replace('_', ''))
+    assert (seq.find_orfs(rf='fwd') + seq.find_orfs(rf='bwd')) == seq.find_orfs(rf='all')
+    assert len(orfs1) == len(seq.find_orfs())
+    assert len(orfs2) == len(seq.find_orfs(need_start='never'))
+    assert len(orfs3) == len(seq.find_orfs(need_start='once'))
+    assert len(orfs1b) == len(seq.find_orfs(nested='all'))
+    assert len(orfs2b) == len(seq.find_orfs(need_start='never', nested='all'))
+    assert len(orfs3b) == len(seq.find_orfs(need_start='once', nested='all'))
+    assert len(orfs1c) == len(seq.find_orfs(nested='no'))
+    assert len(orfs2c) == len(seq.find_orfs(need_start='never', nested='no'))
+    assert len(orfs3c) == len(seq.find_orfs(need_start='once', nested='no'))
+
+
+def test_find_orfs_vs_orffinder():
+    teststr = 'CCC_CAT_GCT_GAC_CTA_CCC_CAT_CAT_GTG_ACC_CCC_CTG_ACC_CAT_GCC_CTG_ACC_ATG_CCC_C'
+    seq = BioSeq(teststr.replace('_', ''))
+    # https://www.bioinformatics.org/sms2/orf_find.html
+    # ATG, fwd, 1, 2, 3
+    # >ORF number 1 in reading frame 1 on the direct strand extends from base 52 to base 57.
+    # ATGCCC
+    # >ORF number 1 in reading frame 2 on the direct strand extends from base 5 to base 28.
+    # ATGCTGACCTACCCCATCATGTGA
+    # >ORF number 2 in reading frame 2 on the direct strand extends from base 41 to base 49.
+    # ATGCCCTGA
+    # No ORFs were found in reading frame 3.
+    orfs = seq.find_orfs(rf='fwd', need_stop=False)
+    assert len(orfs) == 3
+    assert orfs[0].locs.range == (51, 57)
+    assert orfs[0].meta.rf == 0
+    assert orfs[1].locs.range == (4, 28)
+    assert orfs[1].meta.rf == 1
+    assert orfs[2].locs.range == (40, 49)
+    assert orfs[2].meta.rf == 1
+    assert all(orf.meta.has_start for orf in orfs)
+    assert not orfs[0].meta.has_stop
+    assert orfs[1].meta.has_stop
+    assert orfs[2].meta.has_stop
+    orfs2 = seq.find_orfs(rf='fwd', need_stop=True)
+    assert len(orfs2) == 2
+    assert orfs2 == orfs[1:]
+    # same with any codon:
+    # >ORF number 1 in reading frame 1 on the direct strand extends from base 1 to base 57.
+    # >ORF number 1 in reading frame 2 on the direct strand extends from base 2 to base 28.
+    # >ORF number 2 in reading frame 2 on the direct strand extends from base 29 to base 37.
+    # >ORF number 3 in reading frame 2 on the direct strand extends from base 38 to base 49.
+    # >ORF number 4 in reading frame 2 on the direct strand extends from base 50 to base 58.
+    # >ORF number 1 in reading frame 3 on the direct strand extends from base 3 to base 11.
+    # >ORF number 2 in reading frame 3 on the direct strand extends from base 12 to base 56.
+    orfs_orffinder = [
+        [0, 0, 57],
+        [1, 1, 28],
+        [1, 28, 37],
+        [1, 37, 49],
+        [1, 49, 58],
+        [2, 2, 11],
+        [2, 11, 56],
+    ]
+    orfs = seq.find_orfs(rf='fwd', need_stop=False, need_start='never')
+    orfs.sort('rf')
+    assert len(orfs) == 7
+    for orf, (rf, start, end) in zip(orfs, orfs_orffinder):
+        assert orf.locs.range == (start, end)
+        assert orf.meta.rf == rf
+    # ATG bwd strand
+    # No ORFs were found in reading frame 1.
+    # >ORF number 1 in reading frame 2 on the reverse strand extends from base 17 to base 46.
+    # >ORF number 2 in reading frame 2 on the reverse strand extends from base 53 to base 58.
+    # >ORF number 1 in reading frame 3 on the reverse strand extends from base 6 to base 38.
+    orfs_orffinder = [
+        [-2, 16, 46],
+        [-2, 52, 58],
+        [-3, 5, 38],
+    ]
+    orfs = seq.find_orfs(rf='bwd', need_stop=False)
+    assert len(orfs) == 3
+    for orf, (rf, start, end) in zip(orfs, orfs_orffinder):
+        print(orf, (rf, start, end))
+        assert orf.meta.rf == rf
+        assert orf.loc.start == len(seq) - end
+        assert orf.loc.stop == len(seq) - start
+    orfs2 = seq.find_orfs(rf='bwd', need_stop=True)
+    assert len(orfs2) == 2
+    assert orfs2 == orfs[:1] + orfs[-1:]
+    # any codon bwd strand
+    # >ORF number 1 in reading frame 1 on the reverse strand extends from base 1 to base 57.
+    # >ORF number 1 in reading frame 2 on the reverse strand extends from base 2 to base 46.
+    # >ORF number 2 in reading frame 2 on the reverse strand extends from base 47 to base 58.
+    # >ORF number 1 in reading frame 3 on the reverse strand extends from base 3 to base 38.
+    # >ORF number 2 in reading frame 3 on the reverse strand extends from base 39 to base 56.
+    orfs_orffinder = [
+        [-1, 0, 57],
+        [-2, 1, 46],
+        [-2, 46, 58],
+        [-3, 2, 38],
+        [-3, 38, 56],
+    ]
+    orfs = seq.find_orfs(rf='bwd', need_stop=False, need_start='never')
+    orfs.sort('rf', reverse=True)
+    assert len(orfs) == 5
+    for orf, (rf, start, end) in zip(orfs, orfs_orffinder):
+        assert orf.meta.rf == rf
+        assert orf.loc.start == len(seq) - end
+        assert orf.loc.stop == len(seq) - start
+
 
 
 def test_select_fts_second_modus():

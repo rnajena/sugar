@@ -154,11 +154,18 @@ class BioMatch(object):
         return getattr(self._match, attr)
     def __repr__(self):
         return f'<sugar.BioMatch object; match={self.group()}; span={self.span()}; rf={self.rf}; seqid={self.seqid}>'
-    def span(self):
-        start, stop = self._match.span()
+    def start(self):
         if self.rf is not None and self.rf < 0:
-            start, stop = self.lenseq - stop, self.lenseq - start
-        return start, stop
+            return self.lenseq - self._match.end()
+        else:
+            return self._match.start()
+    def end(self):
+        if self.rf is not None and self.rf < 0:
+            return self.lenseq - self._match.start()
+        else:
+            return self._match.end()
+    def span(self):
+        return self.start(), self.end()
 
 
 class BioMatchList(collections.UserList):
@@ -175,6 +182,17 @@ class BioMatchList(collections.UserList):
         :return: Nested dict structure
         """
         return _groupby(self, keys)
+
+    def select(self, **kw):
+        """
+        Select matches
+
+        :param keys: Tuple of meta keys or functions to use for grouping.
+            Can also be a single string or a callable.
+            By default the method groups by seqid only.
+        :return: Nested dict structure
+        """
+        return _select(self, attr=None, **kw)
 
     @property
     def d(self):
@@ -220,7 +238,10 @@ def match(seq, sub, *, rf='fwd',
             Defaults to False.
 
     Returns:
-        match (`BioMatch` or `BioMatchList` of matches or None)
+        match (`BioMatch` or `BioMatchList` of matches or None),
+        the list will be sorted by match position,
+        matches on the forward strand first,
+        then matches on the backward strand.
     """
     from bisect import bisect
     import re
@@ -280,7 +301,6 @@ def match(seq, sub, *, rf='fwd',
                         matches.append(m)
                     else:
                         return m
-
     if matchall:
         return BioMatchList(matches)
 
@@ -292,7 +312,7 @@ class ORFList(FeatureList):
     pass
 
 
-def _inds2orf(i1, i2, rf, lensec, ftype='ORF', seqid=None):
+def _inds2orf(i1, i2, rf, lensec, ftype='ORF', seqid=None, has_start=None, has_stop=None):
     """
     Create ORF feature from indices
     """
@@ -307,11 +327,20 @@ def _inds2orf(i1, i2, rf, lensec, ftype='ORF', seqid=None):
     ft.seqid = seqid
     ft.loc.strand = strand
     ft.meta.rf = rf
+    ft.meta.has_start = has_start
+    ft.meta.has_stop = has_stop
     return ft
 
 
+def _get_from_list(l, i, default=None):
+    try:
+        return l[i]
+    except IndexError:
+        return default
+
+
 def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', need_stop=True,
-              allow_within=False, gap='-', minlen=0, ftype='ORF'):
+              nested='other', gap='-', len_ge=0, ftype='ORF'):
     """
     Find open reading frames (ORFs)
 
@@ -320,17 +349,20 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
         `~match`. Default is ``'all'``.
     :param start: regular expression defining the start codons, defaults to ATG/AUG
     :param stop: regular expression defining the stop codons, defaults to stop codons
-        in default translation table
+        in the default translation table
     :param need_start: One of ``('always', 'once', 'never')``.
-        Always: Ech ORF starts with a start codon.
-        Once: Only the first ORF in each RF starts with a start codon.
+        Always: Each ORF starts with a start codon.
+        Once: Only the first ORF on the forward and backward strand starts with a start codon.
         Never: ORFs can start at each codon.
     :param need_stop: Whether the last ORF in each RF must end with a stop codon.
-    :allow_within: Allow ORFS which are contained within other ORFS in the same reading frame,
-        default is False.
+    :param nested: Allow nested ORFs fully contained within other ORFs,
+        one of ``('no', 'other', 'all')``.
+        No: No nested ORFs.
+        Other: Nested ORFs allowed in other reading frames (default).
+        All: Nested ORFs allowed in all reading frames.
     :param gap: Gap character inserted into the start and stop codon regexes,
         default is ``'-'``.
-    :param minlin: Minimum length of ORFs
+    :param len_ge: Return only ORFs with length greater equal, default: 0.
     :param ftype: Feature type for found ORFs, default is ``'ORF'``
 
     :returns: Returns a `~ORFList` of all found ORFs.
@@ -339,41 +371,84 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
     """
     # rf  0, 1, 2, -1, -2, -3, 'fwd', 'bwd', 'all'
     assert need_start in ('never', 'always', 'once')
-    if allow_within and need_start != 'always':
-        raise ValueError("allow_within option only allowed with need_start='always'")
-    if need_start in ('once', 'always'):
-        starts = seq.matchall(start, rf=rf, gap=gap).groupby('rf')
-    stops = seq.matchall(stop, rf=rf, gap=gap).groupby('rf')
+    assert nested in ('no', 'other', 'all')
+    if isinstance(rf, int):
+        rf = (rf,)
     if rf == 'fwd':
         rf = (0, 1, 2)
     elif rf == 'bwd':
         rf = (-1, -2, -3)
     elif rf in ('all', 'both'):
         rf = (0, 1, 2, -1, -2, -3)
+    rfsort = lambda i: [0, 1, 2, -1, -2, -3].index(i)
+    rf = sorted(rf, key=rfsort)
+    all_starts = seq.matchall(start, rf=rf, gap=gap)
+    starts = all_starts.groupby('rf')
+    stops = seq.matchall(stop, rf=rf, gap=gap).groupby('rf')
     orfs = []
     for frame in rf:
+        start_pos = {m._match.start() for m in starts.get(frame, [])}
+        framefwd = frame if frame >= 0 else abs(frame) - 1
         i2 = None
-        while need_start == 'never' or len(starts[frame]) > 0 or (need_start=='once' and i2 is not None):
-            i1 = (frame if need_start == 'never' and i2 is None else
-                  i2 if need_start in ('never', 'once') and i2 is not None else
-                  starts[frame].pop(0).start())
-            if i2 is not None and i1 < i2:  # start codon before last stop codon (already present in another ORF)
-                if not allow_within:
+        while i2 is None or i2 < len(seq) - 2:
+            # find start position of ORF
+            if i2 is None and need_start in ('never', 'once'):
+                if need_start == 'once':
+                    kw = dict(rf=rf, start=start, stop=stop, need_start='always', need_stop=need_stop,
+                              nested='other', gap=gap, len_ge=len_ge, ftype='ORF')
+                    start_orfs = seq.find_orfs(**kw).select(rf_in=((0, 1, 2) if frame >= 0 else (-1, -2, -3)))
+                    if len(start_orfs) == 0:
+                        break
+                    first_start = start_orfs[0]
+                    i1 = first_start.loc.start - 1
+                    frame0 = first_start.meta.rf
+                    if frame0 < 0:
+                        i1 = len(seq) - first_start.loc.stop - 1
+                        frame0 = abs(frame0) - 1
+                else:
+                    i1 = -1
+                    frame0 = 0
+                # find in-frame start position accounting for gaps
+                for i in range(i1+1, len(seq)):
+                    if gap is None or seq.data[i if frame >= 0 else len(seq) - 1 - i] not in gap:
+                        i1 += 1
+                        if i1 % 3 == framefwd:
+                            break
+                else:
+                    break
+            elif i2 is not None and need_start in ('never', 'once'):
+                i1 = i2
+            else:
+                try:
+                    i1 = starts[frame].pop(0)._match.start()
+                except (KeyError, IndexError):  # no new start codon found
+                    break
+            # find end position of ORF
+            if i2 is not None and i1 < i2:  # start codon before last stop codon (nested ORF)
+                if nested in ('other', 'no'):
                     continue
             else:
                 while len(stops.get(frame, [])) > 0:
-                    i2 = stops[frame].pop(0).end()
-                    if i2 > i1:  # stop codons before ORFs are ignored
+                    i2 = stops[frame].pop(0)._match.end()
+                    if i1 < i2:  # stop codons before ORF starts are ignored
+                        has_stop = True
                         break
-                else:
-                    i2 = None if need_stop else len(seq)
-            if i2 is not None:
-                orf = _inds2orf(i1, i2, frame, len(seq), seqid=seq.id, ftype=ftype)
-                if len(orf) >= minlen:
-                    orfs.append(orf)
-            if i2 in (None, len(seq)):
-                break
-    return ORFList(orfs)
+                else:  # did not found any stop codon
+                    if need_stop:
+                        break
+                    has_stop = False
+                    if gap is not None and any(g in seq.data for g in gap):
+                        # TODO: need to account for gaps
+                        i2 = len(seq)
+                    else:
+                        i2 = len(seq) - (len(seq) - framefwd) % 3
+            orf = _inds2orf(i1, i2, frame, len(seq), seqid=seq.id, ftype=ftype, has_start=i1 in start_pos, has_stop=has_stop)
+            if len(orf) >= len_ge:
+                orfs.append(orf)
+    orfs = ORFList(orfs)
+    if nested == 'no':
+        orfs.remove_nested()
+    return orfs
 
 
 def translate(seq, *, complete=False, check_start=None, check_stop=False,

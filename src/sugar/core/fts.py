@@ -270,6 +270,17 @@ class LocationTuple(tuple):
         msg = f"LocationTuple.overlaps() not supported for instances of '{type(other).__name__}'"
         raise TypeError(msg)
 
+    def contains(self, other):
+        """
+        Whether the location range contains the other location range
+        """
+        if isinstance(other, LocationTuple):
+            lr1 = self.range
+            lr2 = other.range
+            return lr1[0] <= lr2[0] and lr2[1] <= lr1[1]
+        msg = f"LocationTuple.overlaps() not supported for instances of '{type(other).__name__}'"
+        raise TypeError(msg)
+
     def _reverse(self, seqlen=0):
         """Return reversed LocationTuple"""
         return LocationTuple([loc._reverse(seqlen=seqlen) for loc in self])
@@ -404,6 +415,17 @@ class Feature():
         if isinstance(other, LocationTuple):
             return self.locs.overlaps(other)
         msg = f"Feature.overlaps() not supported for instances of '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def contains(self, other):
+        """
+        Whether the location range contains the other feature
+        """
+        if isinstance(other, Feature):
+            return self.locs.contains(other.locs)
+        if isinstance(other, LocationTuple):
+            return self.locs.contains(other)
+        msg = f"Feature.contains() not supported for instances of '{type(other).__name__}'"
         raise TypeError(msg)
 
     def rc(self, seqlen=0):
@@ -930,3 +952,40 @@ class FeatureList(collections.UserList):
         Return a deep copy of the object
         """
         return deepcopy(self)
+
+    def remove_nested(self):
+        """
+        Remove nested features, i.e. features contained within others
+        """
+        fts = sorted(self.data, key=len, reverse=True)
+        remove = []
+        for i, ft in enumerate(fts):
+            if ft in remove:
+                continue
+            for ft2 in fts[i+1:]:
+                if ft2 in remove:
+                    continue
+                if ft.contains(ft2):
+                    remove.append(ft2)
+        self.data = [ft for ft in self.data if ft not in remove]
+        return self
+
+    def remove_overlapping(self):
+        """
+        Remove overlapping features
+
+        Features on earlier positions in the list are preferred.
+        For example, to keep longer features, sort the list beforehand with
+        ``fts.sort(len, reverse=True)``.
+        """
+        remove = []
+        for i, ft in enumerate(self):
+            if ft in remove:
+                continue
+            for ft2 in self[i+1:]:
+                if ft2 in remove:
+                    continue
+                if ft.overlaps(ft2):
+                    remove.append(ft2)
+        self.data = [ft for ft in self.data if ft not in remove]
+        return self
