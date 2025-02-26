@@ -78,6 +78,14 @@ Another example plotting the CDS features of an Ebolavirus RNA:
 .. image:: ../_static/fts3.png
     :width: 60%
 
+For comparison we plot all open reading frames longer than 500 nucleotides:
+
+>>> orfs = seq.find_orfs().select(len_gt=500)
+>>> orfs.plot_ftsviewer(colorby='rf', label=None, seqlen=len(seq), figsize=(6, 2.5), show=True)
+
+.. image:: ../_static/fts4.png
+    :width: 60%
+
 If you want more fine-grained control you can convert features to
 a `~dna_features_viewer.GraphicRecord` object with the
 `~.FeatureList.toftsviewer()` method and use the
