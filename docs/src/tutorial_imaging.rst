@@ -8,7 +8,7 @@ Some code examples follow:
 
 >>> from sugar import read
 >>> seqs = read('https://osf.io/download/j2wyv')
->>> seqs.plot_alignment(show=True, figsize=(10, 4))
+>>> seqs.plot_alignment(show=True, color='gray', figsize=(10, 4))
 
 .. image:: ../_static/ali1.png
     :width: 60%

@@ -40,7 +40,7 @@ def test_plot_alignment_examples():
     pytest.importorskip('matplotlib', reason='require matplotlib module')
     seqs = read('https://osf.io/download/j2wyv')
     with _changetmpdir(_PATH):
-        seqs.plot_alignment('ali1.png', figsize=(10, 2))
+        seqs.plot_alignment('ali1.png', color='gray', figsize=(10, 2))
         seqs[10:20, 70:120].plot_alignment('ali2.png', color=None, figsize=(10,4),
                                     symbols=True, aspect=2, alpha=0.5, xticks=False, bbox_inches='tight')
         seqs2 = seqs[:5, :150].copy()
