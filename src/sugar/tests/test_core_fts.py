@@ -149,3 +149,17 @@ def test_fts_toftsviewer():
     assert isinstance(obj, featview.GraphicRecord)
     obj2 = fts.toftsviewer(circular=True)
     assert isinstance(obj, featview.GraphicRecord)
+
+
+def test_fts_remove_overlapping():
+    fts = read_fts()
+    assert len(fts.copy().remove_overlapping()) == 1
+    fts2 = fts.sort(len).remove_overlapping()
+    for i, ft1 in enumerate(fts2):
+        for ft2 in fts2[i+1:]:
+            assert not ft1.overlaps(ft2)
+
+
+def test_fts_remove_nested():
+    fts = read_fts()
+    assert len(fts.copy().remove_nested()) == 1
