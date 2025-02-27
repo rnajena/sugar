@@ -1,4 +1,4 @@
-dev:
+v0.7.0:
   * core:
     - add toftsviewer methods to FeatureList, Feature and BioSeq classes
     - BioBasket.countall can also count kmers
