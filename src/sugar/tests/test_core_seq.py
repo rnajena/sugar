@@ -241,6 +241,13 @@ def test_seqs_getitem_special():
     assert seq3.str.replace('X', '') == seq2
 
 
+def test_seqs_getitem_special_edgecases():
+    seq = read()[1]
+    seq.fts[1].strand = '-'
+    seq2 = seq.sl(update_fts=True)[seq.fts[1]]
+    assert seq2 == seq2[seq2.fts[1]]
+
+
 def test_seqs_getitem_typeerror():
     seqs = read()
     fts = seqs.fts

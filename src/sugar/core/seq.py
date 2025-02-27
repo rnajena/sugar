@@ -341,7 +341,7 @@ class BioSeq():
         """
         self.reverse().complement()
         if update_fts:
-            self.fts = self.fts.rc(lenseq=len(self))
+            self.fts = self.fts.rc(seqlen=len(self))
         return self
 
     def __getitem__(self, index):
@@ -445,7 +445,7 @@ class BioSeq():
             for loc in locs:
                 fts.extend(self.fts.slice(loc.start, loc.stop, rel=start))
             if locs[0].strand == '-':
-                fts = fts.rc(lenseq=stop)
+                fts = fts.rc(seqlen=stop)
             sub_seq.fts = fts
         return sub_seq
 
