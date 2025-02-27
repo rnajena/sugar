@@ -211,7 +211,6 @@ class BioMatchList(collections.UserList):
         return self.tostr()
 
 
-
 def match(seq, sub, *, rf='fwd',
           start=0, gap='-', matchall=False):
     """
@@ -323,9 +322,8 @@ def _inds2orf(i1, i2, rf, lensec, ftype='ORF', seqid=None, has_start=None, has_s
         i1, i2 = lensec - i2, lensec - i1
         strand = '-'
     assert i1 < i2
-    ft = Feature(ftype, start=i1, stop=i2)
+    ft = Feature(ftype, start=i1, stop=i2, strand=strand)
     ft.seqid = seqid
-    ft.loc.strand = strand
     ft.meta.rf = rf
     ft.meta.has_start = has_start
     ft.meta.has_stop = has_stop
@@ -340,7 +338,7 @@ def _get_from_list(l, i, default=None):
 
 
 def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', need_stop=True,
-              nested='other', gap='-', len_ge=0, ftype='ORF'):
+              nested='other', gap=None, len_ge=0, ftype='ORF'):
     """
     Find open reading frames (ORFs)
 
@@ -361,7 +359,7 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
         Other: Nested ORFs allowed in other reading frames (default).
         All: Nested ORFs allowed in all reading frames.
     :param gap: Gap character inserted into the start and stop codon regexes,
-        default is ``'-'``.
+        default is None.
     :param len_ge: Return only ORFs with length greater equal, default: 0.
     :param ftype: Feature type for found ORFs, default is ``'ORF'``
 
@@ -383,8 +381,11 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
     rfsort = lambda i: [0, 1, 2, -1, -2, -3].index(i)
     rf = sorted(rf, key=rfsort)
     all_starts = seq.matchall(start, rf=rf, gap=gap)
+    all_starts.reverse()
     starts = all_starts.groupby('rf')
-    stops = seq.matchall(stop, rf=rf, gap=gap).groupby('rf')
+    all_stops = seq.matchall(stop, rf=rf, gap=gap)
+    all_stops.reverse()
+    stops = all_stops.groupby('rf')
     orfs = []
     for frame in rf:
         start_pos = {m._match.start() for m in starts.get(frame, [])}
@@ -396,6 +397,7 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
                 if need_start == 'once':
                     kw = dict(rf=rf, start=start, stop=stop, need_start='always', need_stop=need_stop,
                               nested='other', gap=gap, len_ge=len_ge, ftype='ORF')
+                    # TODO this can be enhanced, we only need the first ORF on the fwd and bwd strand.
                     start_orfs = seq.find_orfs(**kw).select(rf_in=((0, 1, 2) if frame >= 0 else (-1, -2, -3)))
                     if len(start_orfs) == 0:
                         break
@@ -420,7 +422,7 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
                 i1 = i2
             else:
                 try:
-                    i1 = starts[frame].pop(0)._match.start()
+                    i1 = starts[frame].pop()._match.start()
                 except (KeyError, IndexError):  # no new start codon found
                     break
             # find end position of ORF
@@ -428,8 +430,8 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
                 if nested in ('other', 'no'):
                     continue
             else:
-                while len(stops.get(frame, [])) > 0:
-                    i2 = stops[frame].pop(0)._match.end()
+                while stops.get(frame):
+                    i2 = stops[frame].pop()._match.end()
                     if i1 < i2:  # stop codons before ORF starts are ignored
                         has_stop = True
                         break

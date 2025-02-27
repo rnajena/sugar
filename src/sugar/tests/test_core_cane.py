@@ -88,9 +88,12 @@ def test_find_orfs():
 
 
 def test_find_orfs_extended():
+    from functools import reduce
+    from operator import add
     teststr = 'CCC_CAT_GCT_GAC_CTA_CCC_CAT_CAT_GTG_ACC_CCC_CTG_ACC_CAT_GCC_CTG_ACC_ATG_CCC_C'
     seq = BioSeq(teststr.replace('_', ''))
     assert (seq.find_orfs(rf='fwd') + seq.find_orfs(rf='bwd')) == seq.find_orfs(rf='all')
+    assert reduce(add, [seq.find_orfs(rf=rf) for rf in (0, 1, 2, -1, -2, -3)]) == seq.find_orfs(rf='all')
     orfs1 = seq.find_orfs()
     orfs2 = seq.find_orfs(need_start='never')
     orfs3 = seq.find_orfs(need_start='once')
@@ -117,16 +120,16 @@ def test_find_orfs_extended():
     assert orfs3d.copy().rc(seqlen=len(seq)).sort() == orfs3b.copy().sort()
     teststr3 = teststr[:30] + '-----' + teststr[30:]
     seq = BioSeq(teststr3.replace('_', ''))
-    assert (seq.find_orfs(rf='fwd') + seq.find_orfs(rf='bwd')) == seq.find_orfs(rf='all')
-    assert len(orfs1) == len(seq.find_orfs())
-    assert len(orfs2) == len(seq.find_orfs(need_start='never'))
-    assert len(orfs3) == len(seq.find_orfs(need_start='once'))
-    assert len(orfs1b) == len(seq.find_orfs(nested='all'))
-    assert len(orfs2b) == len(seq.find_orfs(need_start='never', nested='all'))
-    assert len(orfs3b) == len(seq.find_orfs(need_start='once', nested='all'))
-    assert len(orfs1c) == len(seq.find_orfs(nested='no'))
-    assert len(orfs2c) == len(seq.find_orfs(need_start='never', nested='no'))
-    assert len(orfs3c) == len(seq.find_orfs(need_start='once', nested='no'))
+    assert seq.find_orfs(rf='fwd', gap='-') + seq.find_orfs(rf='bwd', gap='-') == seq.find_orfs(rf='all', gap='-')
+    assert len(orfs1) == len(seq.find_orfs(gap='-'))
+    assert len(orfs2) == len(seq.find_orfs(need_start='never', gap='-'))
+    assert len(orfs3) == len(seq.find_orfs(need_start='once', gap='-'))
+    assert len(orfs1b) == len(seq.find_orfs(nested='all', gap='-'))
+    assert len(orfs2b) == len(seq.find_orfs(need_start='never', nested='all', gap='-'))
+    assert len(orfs3b) == len(seq.find_orfs(need_start='once', nested='all', gap='-'))
+    assert len(orfs1c) == len(seq.find_orfs(nested='no', gap='-'))
+    assert len(orfs2c) == len(seq.find_orfs(need_start='never', nested='no', gap='-'))
+    assert len(orfs3c) == len(seq.find_orfs(need_start='once', nested='no', gap='-'))
 
 
 def test_find_orfs_vs_orffinder():

@@ -132,7 +132,7 @@ def test_fts_tolists():
         assert strand == '+'
 
 
-def test_fts_topandas():
+def test_fts_tofrompandas():
     pandas = pytest.importorskip('pandas', reason='require pandas module')
     fts = read_fts().select('CDS')
     df = fts.topandas()
@@ -140,6 +140,11 @@ def test_fts_topandas():
     assert df['type'][0] == 'CDS'
     assert df['start'][0] == 61943
     assert df['strand'][0] == '+'
+
+
+def test_fts_to_frompandas():
+    pandas = pytest.importorskip('pandas', reason='require pandas module')
+
 
 
 def test_fts_toftsviewer():
