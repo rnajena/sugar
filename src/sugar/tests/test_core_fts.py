@@ -140,6 +140,9 @@ def test_fts_tofrompandas():
     assert df['type'][0] == 'CDS'
     assert df['start'][0] == 61943
     assert df['strand'][0] == '+'
+    from sugar import FeatureList
+    fts2 = FeatureList.frompandas(df)
+    assert fts2[0].loc.start == 61943
 
 
 def test_fts_to_frompandas():
