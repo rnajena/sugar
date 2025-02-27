@@ -243,9 +243,12 @@ def test_seqs_getitem_special():
 
 def test_seqs_getitem_special_edgecases():
     seq = read()[1]
-    seq.fts[1].strand = '-'
+    seq.fts[1].loc.strand = '-'
+    seq.fts[2].loc.strand = '-'
     seq2 = seq.sl(update_fts=True)[seq.fts[1]]
+    seq3 = seq.sl(update_fts=True)[seq.fts[2]]
     assert seq2 == seq2[seq2.fts[1]]
+    assert seq3 == seq3[seq3.fts[1]]
 
 
 def test_seqs_getitem_typeerror():

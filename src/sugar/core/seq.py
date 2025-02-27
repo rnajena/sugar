@@ -445,7 +445,7 @@ class BioSeq():
             for loc in locs:
                 fts.extend(self.fts.slice(loc.start, loc.stop, rel=start))
             if locs[0].strand == '-':
-                fts = fts.rc(seqlen=stop)
+                fts = fts.rc(seqlen=stop-start)
             sub_seq.fts = fts
         return sub_seq
 
