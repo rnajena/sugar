@@ -464,7 +464,7 @@ class BioSeq():
                 start, stop = index.range
                 return self.slindex(gap=gap)[start:stop]
             else:
-                raise TypeError('Index not supported')
+                raise TypeError(f"Index of type '{type(index).__name__}' not supported")
         # from bisect import bisect
         nogaps = [i for i, nt in enumerate(self.data) if nt not in gap]
         adj = lambda i: nogaps[i] if i is not None and i < len(nogaps) else None
@@ -498,7 +498,7 @@ class BioSeq():
             if isinstance(index, LocationTuple):
                 subseq = self._slice_locs(index, gap=gap, update_fts=update_fts, **kw)
             else:
-                raise TypeError('Index not supported')
+                raise TypeError(f"Index of type '{type(index).__name__}' not supported")
         else:
             subseq = self.__class__(
                 self.data[index if gap is None else self._getindex(index, gap=gap)],
@@ -939,9 +939,9 @@ class BioBasket(collections.UserList):
                 seqs = self.__class__(self.data[i], meta=self.meta)
                 seqs.data = [seq._getitem(j, **kw) for seq in seqs.data]
             else:
-                raise TypeError('Index not supported')
+                raise TypeError('First dimension of 2D index must be of type int or slice')
         else:
-            raise TypeError('Index not supported')
+            raise TypeError(f"Index of type '{type(i).__name__}' not supported")
         return seqs
 
     def __setitem__(self, i, value):
@@ -956,7 +956,7 @@ class BioBasket(collections.UserList):
             for seq in self[i]:
                 seq[j] = value
         else:
-            raise TypeError('Index not supported')
+            raise TypeError(f"Index of type '{type(i).__name__}' not supported")
 
     @_add_inplace_doc
     def complement(self):

@@ -241,6 +241,12 @@ def test_seqs_getitem_special():
     assert seq3.str.replace('X', '') == seq2
 
 
+def test_seqs_getitem_typeerror():
+    seqs = read()
+    fts = seqs.fts
+    with pytest.raises(TypeError):
+        seqs[fts]
+
 def test_sl_slicable_inplace():
     seqs = read()
     assert seqs.sl()[:1] == seqs[:1]
