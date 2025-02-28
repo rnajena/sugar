@@ -142,12 +142,12 @@ class BioMatch(object):
     >>> print(match.group(), match.rf)
     ATA 2
     """
-    def __init__(self, match, rf=None, lenseq=None, seqid=None):
+    def __init__(self, match, rf=None, seqlen=None, seqid=None):
         #: original Match object
         self._match = match
         #: reading frame (-3 to 2)
         self.rf = rf
-        self.lenseq = lenseq
+        self.seqlen = seqlen
         #: sequence id
         self.seqid = seqid
     def __getattr__(self, attr):
@@ -156,12 +156,12 @@ class BioMatch(object):
         return f'<sugar.BioMatch object; match={self.group()}; span={self.span()}; rf={self.rf}; seqid={self.seqid}>'
     def start(self):
         if self.rf is not None and self.rf < 0:
-            return self.lenseq - self._match.end()
+            return self.seqlen - self._match.end()
         else:
             return self._match.start()
     def end(self):
         if self.rf is not None and self.rf < 0:
-            return self.lenseq - self._match.start()
+            return self.seqlen - self._match.start()
         else:
             return self._match.end()
     def span(self):
@@ -283,7 +283,7 @@ def match(seq, sub, *, rf='fwd',
                 # bisect(gaps, i) gives number of gaps before index i
                 this_rf = (i - start - (bisect(gaps, i) if gaps else 0)) % 3 if rf is not None else None
                 if this_rf is None or this_rf in rf:
-                    m = BioMatch(m, rf=this_rf, lenseq=len(seq), seqid=seq.id)
+                    m = BioMatch(m, rf=this_rf, seqlen=len(seq), seqid=seq.id)
                     if matchall:
                         matches.append(m)
                     else:
@@ -295,7 +295,7 @@ def match(seq, sub, *, rf='fwd',
                 # bisect(gaps, i) gives number of gaps before index i
                 this_rf = (i - start - (bisect(gaps, i) if gaps else 0)) % 3
                 if -1*this_rf-1 in rf:
-                    m = BioMatch(m, rf=-1*this_rf-1, lenseq=len(seq), seqid=seq.id)
+                    m = BioMatch(m, rf=-1*this_rf-1, seqlen=len(seq), seqid=seq.id)
                     if matchall:
                         matches.append(m)
                     else:
