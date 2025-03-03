@@ -9,7 +9,7 @@ The readers in this module also support older versions of the GFF format.
 .. _here: https://agat.readthedocs.io/en/latest/gxf.html
 """
 
-from urllib.parse import quote, unquote
+from urllib.parse import unquote
 from warnings import warn
 
 from sugar.core.fts import FeatureList, Location, Feature
@@ -71,6 +71,15 @@ copyattrs_inv = {
     'gff': {v: k for k, v in copyattrs['gff']},
     'gtf': {v: k for k, v in copyattrs['gtf']},
     }
+
+_QUOTE_MAP = {chr(n): f'%{n:02X}' for n in (37, 38, 44, 59, 61, 127) + tuple(range(32))}
+
+
+def _quote_gff3(s):
+    # Alternatively re.sub could be used for a single iteration over the string
+    for char, quoted_char in _QUOTE_MAP.items():
+        s = s.replace(char, quoted_char)
+    return s
 
 
 @_add_fmt_doc('read_fts')
@@ -280,8 +289,8 @@ def _write_fts_gxf(fts, f, header=None, header_sugar=True, flavor='gff'):
         seqid = meta[mf].pop('seqid', '.')
         source = meta[mf].pop('source', '.')
         if flavor == 'gff':
-            seqid = quote(seqid)
-            source = quote(source)
+            seqid = _quote_gff3(seqid)
+            source = _quote_gff3(source)
         score = meta[mf].pop('score', '.')
         phase = meta[mf].pop('phase' if flavor == 'gff' else 'frame', '.')
         type_ = meta[mf].pop('type', None) or meta.get('type') or '.'
@@ -301,8 +310,8 @@ def _write_fts_gxf(fts, f, header=None, header_sugar=True, flavor='gff'):
             if len(gxf_meta) == 0:
                 attrstr = '.'
             elif flavor == 'gff':
-                attrstr = ';'.join(quote(k) + '=' + (','.join(quote(vv) for vv in v) if isinstance(v, (list, tuple)) else
-                                                     quote(str(v)))
+                attrstr = ';'.join(_quote_gff3(k) + '=' + (','.join(_quote_gff3(vv) for vv in v) if isinstance(v, (list, tuple)) else
+                                                     _quote_gff3(str(v)))
                                    for k, v in gxf_meta.items())
             else:
                 assert flavor == 'gtf'
