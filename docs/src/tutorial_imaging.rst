@@ -49,7 +49,7 @@ Plotting features
 -----------------
 
 Sugar can plot features with DNAFeaturesViewer_.
-Use the ``plot_ftsviewer()`` method of
+Use the `~.ftsviewer.plot_ftsviewer()` method of
 `FeatureList <.FeatureList.plot_ftsviewer>`,
 `BioBasket <.BioBasket.plot_ftsviewer>`, or
 `BioSeq <.BioSeq.plot_ftsviewer>`.
@@ -85,6 +85,10 @@ For comparison we plot all open reading frames with a minimum length of 500 nucl
 
 .. image:: ../_static/fts4.png
     :width: 60%
+
+.. note::
+    Use the ``colorby`` option to specify the category by which the features will be colored.
+    Use the ``color`` argument to specify the colors used. See `~.FeatureList.toftsviewer()`.
 
 If you want more fine-grained control you can convert features to
 a `~dna_features_viewer.GraphicRecord` object with the
