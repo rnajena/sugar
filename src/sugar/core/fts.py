@@ -723,7 +723,7 @@ class FeatureList(collections.UserList):
         """
         return self.select(**kw)
 
-    def select(self, type=None, *, inplace=False, **kw):
+    def select(self, type=None, *, inplace=False, strand=None, **kw):
         r"""
         Select features
 
@@ -753,16 +753,16 @@ class FeatureList(collections.UserList):
         >>> fts3 = fts.select(len_gt=100_000)  # select all fts with length > 100 kB
         """
         from sugar.core.cane import _select
-        if type is None:
-            selected = self.data
-        else:
+        selected = self.data
+        if type is not None:
             if not isinstance(type, str):
                 type = tuple(t.lower() for t in type)
-            selected = []
-            for ft in self.data:
+            selected = [
+                ft for ft in selected
                 if (isinstance(type, str) and ft.type.lower() == type.lower() or
-                        isinstance(type, tuple) and ft.type.lower() in type):
-                    selected.append(ft)
+                    isinstance(type, tuple) and ft.type.lower() in type)]
+        if strand is not None:
+            selected = [ft for ft in selected if ft.loc.strand == strand]
         selected = _select(selected, **kw)
         if inplace:
             self.data = selected
