@@ -12,10 +12,10 @@ from sugar.data import gcode
 def create_logo(fname, seed=None, **kw):
     name = 'SUGAR'
     try:
-        seed = datetime.fromisoformat(seed)
+        seed = datetime.fromisoformat(seed).toordinal()
     except Exception:
         if seed is None:
-            seed = datetime.today()
+            seed = datetime.today().toordinal()
     random.seed(seed)
     gc = gcode()
     first_codon = random.choice(sorted(gc.ttinv[name[0]]))
