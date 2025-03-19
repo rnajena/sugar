@@ -32,3 +32,4 @@ Other options are described in the documentation.
 ### Contributions
 
 Contributions are welcome! -- e.g. report or fix bugs, discuss or add features, improve the documentation.
+See the [CONTRIBUTING.md](CONTRIBUTING.md) file for details.
