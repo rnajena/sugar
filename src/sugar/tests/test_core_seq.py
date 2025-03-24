@@ -2,7 +2,6 @@
 
 import pytest
 from sugar import read, Attr, BioSeq, BioBasket, Feature, FeatureList
-from sugar.tests.util import tempfilename
 
 
 def test_siformat():
@@ -148,12 +147,11 @@ def test_countall_pandas():
     assert abs(df['prob'].sum() - 2) < 1e-8
 
 
-def test_countplot():
+def test_countplot(tmpfname):
     pytest.importorskip('pandas', reason='require pandas module')
     pytest.importorskip('seaborn', reason='require seaborn module')
     seqs = read()
-    with tempfilename() as fname:
-        seqs[0].countplot(plot=fname)
+    seqs[0].countplot(plot=tmpfname)
 
 
 def test_meta_str():

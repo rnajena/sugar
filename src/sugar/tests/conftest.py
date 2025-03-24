@@ -63,3 +63,8 @@ def outdir(request, tmp_path):
     """
     outdir = request.config.getoption('--outdir')
     return tmp_path if outdir is None else Path(outdir)
+
+
+@pytest.fixture()
+def tmpfname(tmp_path):
+    return tmp_path / 'tmp'

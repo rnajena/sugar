@@ -1,7 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 
 import sugar
-from sugar.tests.util import tempfilename
 
 
 ### define a simple FASTA-like binary plugin
@@ -48,19 +47,18 @@ def write_fts_testbin(fts, f):
 ###
 
 
-def test_create_binary_seq_test_file():
+def test_create_binary_seq_test_file(tmpfname):
     # from importlib.resources import files
     # fname = str(files('sugar.tests.data').joinpath('io_binary_plugin_atg.bintest'))
     seqs = sugar.read()
-    with tempfilename(suffix='.bintest') as fname:
-        seqs.write(fname)
+    seqs.write(tmpfname.with_suffix('.bintest'))
 
-def test_create_binary_fts_test_file():
+
+def test_create_binary_fts_test_file(tmpfname):
     # from importlib.resources import files
     # fname = str(files('sugar.tests.data').joinpath('io_binary_plugin_fake_fts.bintest'))
     fts = sugar.read_fts()
-    with tempfilename(suffix='.bintest') as fname:
-        fts.write(fname)
+    fts.write(tmpfname.with_suffix('.bintest'))
 
 
 def test_binary_seq_plugin():
