@@ -59,7 +59,7 @@ def tmp_path_cd(tmp_path):
 @pytest.fixture()
 def outdir(request, tmp_path):
     """
-    A fixture which changes the dir to a temporary directory
+    A fixture which returns a directory for test output
     """
     outdir = request.config.getoption('--outdir')
     return tmp_path if outdir is None else Path(outdir)
