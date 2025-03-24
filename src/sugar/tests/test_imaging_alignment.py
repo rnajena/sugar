@@ -32,12 +32,12 @@ def test_plot_alignment():
 
 
 @pytest.mark.webtest
-def test_plot_alignment_examples(tmp_path_cd):
+def test_plot_alignment_examples(outdir):
     pytest.importorskip('matplotlib', reason='require matplotlib module')
     seqs = read('https://osf.io/download/j2wyv')
-    seqs.plot_alignment('ali1.png', color='gray', figsize=(10, 2))
+    seqs.plot_alignment(outdir / 'ali1.png', color='gray', figsize=(10, 2))
     seqs[10:20, 70:120].plot_alignment('ali2.png', color=None, figsize=(10,4),
                                 symbols=True, aspect=2, alpha=0.5, xticks=False, bbox_inches='tight')
     seqs2 = seqs[:5, :150].copy()
     seqs2.translate(complete=True).plot_alignment(
-        'ali3.png', color='flower', figsize=(10,4), symbols=True, aspect=2, alpha=0.5, xticks=False, edgecolors='w')
+        outdir / 'ali3.png', color='flower', figsize=(10,4), symbols=True, aspect=2, alpha=0.5, xticks=False, edgecolors='w')

@@ -3,17 +3,13 @@ import pytest
 from sugar import read
 from contextlib import chdir
 
-# set path to save images
-_PATH = None
 
-
-def test_plot_ftsviewer(tmp_path):
+def test_plot_ftsviewer(outdir):
     pytest.importorskip('matplotlib', reason='require matplotlib module')
     pytest.importorskip('dna_features_viewer', reason='require dna_features_viewer module')
     import matplotlib.pyplot as plt
     seqs = read()
-    with chdir(tmp_path):
-        seqs.plot_ftsviewer('fts1.png')
+    seqs.plot_ftsviewer(outdir / 'fts1.png')
     fig = seqs[0].plot_ftsviewer()
     plt.close(fig)
     ax = plt.axes()
@@ -21,20 +17,19 @@ def test_plot_ftsviewer(tmp_path):
     plt.close(fig)
 
 
-def test_plot_ftsviewer_record(tmp_path):
+def test_plot_ftsviewer_record(outdir):
     pytest.importorskip('matplotlib', reason='require matplotlib module')
     pytest.importorskip('dna_features_viewer', reason='require dna_features_viewer module')
     import matplotlib.pyplot as plt
     seqs = read()
     record = seqs[1].toftsviewer()
     record.plot()
-    with chdir(tmp_path) as tmpdir:
-        plt.savefig('fts2.png')
+    plt.savefig(outdir / 'fts2.png')
     plt.close()
 
 
 @pytest.mark.webtest
-def test_plot_ftsviewer_genes(tmp_path):
+def test_plot_ftsviewer_genes(outdir):
     pytest.importorskip('matplotlib', reason='require matplotlib module')
     pytest.importorskip('dna_features_viewer', reason='require dna_features_viewer module')
     import matplotlib.pyplot as plt
@@ -45,8 +40,7 @@ def test_plot_ftsviewer_genes(tmp_path):
     fts = seq.fts.select('cds')
     for ft in fts:
         ft.meta.name = ft.meta._genbank.gene
-    with chdir(tmp_path) as tmpdir:
-        fts.plot_ftsviewer('fts3.png', colorby='name', seqlen=len(seq), figsize=(6, 2.5))
-        orfs = seq.find_orfs(len_ge=500)
-        orfs.plot_ftsviewer('fts4.png', label=None, colorby='rf', seqlen=len(seq), figsize=(6, 2.5))
+    fts.plot_ftsviewer(outdir / 'fts3.png', colorby='name', seqlen=len(seq), figsize=(6, 2.5))
+    orfs = seq.find_orfs(len_ge=500)
+    orfs.plot_ftsviewer(outdir / 'fts4.png', label=None, colorby='rf', seqlen=len(seq), figsize=(6, 2.5))
     plt.close()
