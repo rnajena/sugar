@@ -1,10 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 import pytest
 from sugar import read
-from sugar.tests.util import _changetmpdir
-
-# set path to save images
-_PATH = None
 
 
 def test_plot_alignment():
@@ -36,17 +32,12 @@ def test_plot_alignment():
 
 
 @pytest.mark.webtest
-def test_plot_alignment_examples():
+def test_plot_alignment_examples(tmp_path_cd):
     pytest.importorskip('matplotlib', reason='require matplotlib module')
     seqs = read('https://osf.io/download/j2wyv')
-    with _changetmpdir(_PATH):
-        seqs.plot_alignment('ali1.png', color='gray', figsize=(10, 2))
-        seqs[10:20, 70:120].plot_alignment('ali2.png', color=None, figsize=(10,4),
-                                    symbols=True, aspect=2, alpha=0.5, xticks=False, bbox_inches='tight')
-        seqs2 = seqs[:5, :150].copy()
-        seqs2.translate(complete=True).plot_alignment(
-            'ali3.png', color='flower', figsize=(10,4), symbols=True, aspect=2, alpha=0.5, xticks=False, edgecolors='w')
-
-
-
-
+    seqs.plot_alignment('ali1.png', color='gray', figsize=(10, 2))
+    seqs[10:20, 70:120].plot_alignment('ali2.png', color=None, figsize=(10,4),
+                                symbols=True, aspect=2, alpha=0.5, xticks=False, bbox_inches='tight')
+    seqs2 = seqs[:5, :150].copy()
+    seqs2.translate(complete=True).plot_alignment(
+        'ali3.png', color='flower', figsize=(10,4), symbols=True, aspect=2, alpha=0.5, xticks=False, edgecolors='w')

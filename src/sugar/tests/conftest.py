@@ -1,5 +1,6 @@
-import pytest
+from contextlib import chdir
 from copy import deepcopy
+import pytest
 
 
 def pytest_addoption(parser):
@@ -39,3 +40,12 @@ def fix_entrypoints_in_pytest_session():
     util.FMTS_ALL['seqs'].remove('testbin')
     util.FMTS['fts'].remove('testbin')
     util.FMTS_ALL['fts'].remove('testbin')
+
+
+@pytest.fixture()
+def tmp_path_cd(tmp_path):
+    """
+    A fixture which changes the dir to a temporary directory
+    """
+    with chdir(tmp_path):
+        yield tmp_path
