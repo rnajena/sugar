@@ -9,6 +9,11 @@ import os
 
 @contextmanager
 def tempfilename(suffix=''):
+    """
+    A context manager yielding the name of a temporary file,
+
+    use this or the pytest fixture ``tmpfname``
+    """
     with tempfile.TemporaryDirectory(prefix='sugar_') as tmp:
         yield os.path.join(tmp, 'tmp' + suffix)
 

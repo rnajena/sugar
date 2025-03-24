@@ -67,4 +67,10 @@ def outdir(request, tmp_path):
 
 @pytest.fixture()
 def tmpfname(tmp_path):
+    """
+    A fixture to return a the name of a temporary file,
+
+    use this fixture or the tmpfilename context manager
+    in the sugar.tests.util module
+    """
     return tmp_path / 'tmp'
