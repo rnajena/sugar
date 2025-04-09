@@ -16,6 +16,7 @@ keywords = [
     "fasta", "genbank", "stockholm", "blast", "entrez",
     "index"
 ]
+requires-python = ">= 3.11"
 dependencies = [
   "binarysearchfile",
   "matplotlib",
