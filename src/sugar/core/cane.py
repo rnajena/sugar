@@ -80,7 +80,7 @@ def _sorted(objs, keys=None, reverse=False, attr=None):
     return objs
 
 
-def _select(objs2, attr='meta', **kwargs):
+def _select(objs, attr='meta', **kwargs):
     r"""
     Select objects, used by several objects in sugar.core
 
@@ -103,24 +103,28 @@ def _select(objs2, attr='meta', **kwargs):
     ops = {'max': operator.le,
            'min': operator.ge,
            'in': lambda a, b: a in b,
-           'notin': lambda a, b: a not in b,
-           'lowerin': lambda a, b: a.lower() in b,
-           'lowereq': lambda a, b: a.lower() == b,
            }
     allowed_funcs = {'len': len}
-    objs = objs2
-    getv = lambda obj, key: (allowed_funcs[key](obj) if key in allowed_funcs else
-                             getattr(obj, key, None) if attr is None else
-                             getattr(getattr(obj, attr), key, None))
     for kw, value in kwargs.items():
         if '_' in kw:
             key, kop = kw.rsplit('_', 1)
         else:
             key, kop = kw, 'eq'
+        applynot = kop.startswith('not')
+        kop = kop.removeprefix('not')
+        applylower = kop.startswith('lower')
+        kop = kop.removeprefix('lower')
         op = ops.get(kop)
         if op is None:
             op = getattr(operator, kop)
-        filt = lambda obj: op(getv(obj, key), value)
+        getv = ((lambda obj: allowed_funcs[key](obj)) if key in allowed_funcs else
+                (lambda obj: getattr(obj, key, None)) if attr is None else
+                (lambda obj: getattr(getattr(obj, attr), key, None)))
+        match (applynot, applylower):
+            case (False, False): filt = lambda obj: op(getv(obj), value)
+            case (True, False): filt = lambda obj: not op(getv(obj), value)
+            case (False, True): filt = lambda obj: op(getv(obj).lower(), value)
+            case (True, True): filt = lambda obj: not op(getv(obj).lower(), value)
         objs = [obj for obj in objs if filt(obj)]
     return objs
 
