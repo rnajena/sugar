@@ -1,4 +1,4 @@
-dev:
+v0.8.0:
   * core:
     - extend select method, allow not and lower prefixes, allow to select fts by strandness
   * io:
