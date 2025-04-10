@@ -18,6 +18,7 @@ keywords = [
 requires-python = ">= 3.11"
 dependencies = [
   "binarysearchfile",
+  "dna_features_viewer_lite",
   "matplotlib",
   "pandas",
   "platformdirs",
