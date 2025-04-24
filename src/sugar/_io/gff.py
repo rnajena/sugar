@@ -176,6 +176,8 @@ def _read_fts_gxf(f, filt=None, filt_fast=None, default_ftype=None, comments=Non
                     attrs[k.strip()] = v
             elif flavor == 'gff' and gff_version == '3':
                 for kv in attrcol.split(';'):
+                    if kv.strip() == '':
+                        continue
                     k, v = kv.strip().split('=')
                     attrs[unquote(k.strip())] = (
                         unquote(v.strip()) if ',' not in v else
