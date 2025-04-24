@@ -311,7 +311,20 @@ def read_tabular(f, *, sep='\t', outfmt=None, ftype=None, fmt='blast',
             qstart = attrs[c['qstart']]
             qstop = attrs[c['qend']]
             if attrs.get('sstrand') == 'N/A':  # only applicable for BLAST
-                strand = '.'
+                if start > stop:
+                    # here old BLAST versions were inconsequenct
+                    # sstrand is N/A, but start is smaller than stop indicating a ft on the - strand
+                    from warnings import warn
+                    warn('Inconsequent values: sstrand N/A, but start larger than stop. Strand is set to -.'
+                         'Consider updating BLAST, as this was a problem with old BLAST versions. '
+                         'If you are already using the latest BLAST version, '
+                         'please submit a bug report to sugar developers.')
+                    start, stop = stop, start
+                    strand = '-'
+                else:
+                    # in some cases, setting '+' would be more appropriate
+                    # but from the available data it is impossible to say
+                    strand = '.'
             elif (start > stop and qstart < qstop) or (start < stop and qstart > qstop):
                 if start > stop:
                     start, stop = stop, start
@@ -328,6 +341,7 @@ def read_tabular(f, *, sep='\t', outfmt=None, ftype=None, fmt='blast',
                 if attrs.get('sstrand') not in (None, '+', 'plus'):
                     raise ValueError('Expected strand +, got - in sstrand')
             else:
+                # single residuu features
                 strand = attrs.get('sstrand', '.')
             loc = Location(start-1, stop, strand)
             _fmt = '_' + fmt
