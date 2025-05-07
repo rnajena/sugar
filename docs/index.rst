@@ -11,6 +11,7 @@ as well as related annotations,
 and it provides parsers and writers for various file formats using a plugin interface.
 
 | :doc:`Tutorial <src/tutorial_install>` → Start here
+| :doc:`Developer corner <src/dev_doc>` → How to build the documentation, write an IO plugin, etc.
 | :doc:`API documentation <src/api>` → Use the source, Luke
 
 .. toctree::
@@ -18,4 +19,5 @@ and it provides parsers and writers for various file formats using a plugin inte
 
     Home <self>
     Tutorial <src/tutorial_install>
+    Developer corner <src/dev_doc>
     API <src/api>
