@@ -12,11 +12,6 @@ The sugar project aims to provide a lightweight framework to facilitate rapid ap
 
 It thus provides classes and functions for working with DNA and RNA sequences, as well as related annotations, and it provides parsers and writers for various file formats using a plugin interface.
 
-### Documentation
-
-* Documentation including a tutorial is available [here](https://rnajena-sugar.readthedocs.io)
-* Developer-oriented documentation can be found in the [wiki](https://github.com/rnajena/sugar/wiki)
-
 ### Installation
 
 Use pip, e.g.
@@ -25,11 +20,31 @@ Use pip, e.g.
 pip install rnajena-sugar
 ```
 
-Run tests with `sugar test`.
+Run tests with the `sugar test` command.
 
-Other options are described in the documentation.
+Other options are described in the [documentation](https://rnajena-sugar.readthedocs.io/en/latest/src/tutorial_install.html).
+
+### Getting started
+
+Read about how to get started in the [tutorial](https://rnajena-sugar.readthedocs.io/en/latest/src/tutorial_install.html) section of the documentation.
+
+```python
+from sugar import read
+seqs = read()  # load example GenBank file
+print(seqs)
+print(seqs[1].fts)  # show features attached to second sequence
+seqs.plot_ftsviewer(show=True)  # plot attached features
+aas = seqs['cds'].translate()
+print(aas)
+aas.write('translated_cds.fasta')
+```
+
+### Documentation and Changelog
+
+Documentation can be found at [Read the Docs](https://rnajena-sugar.readthedocs.io).
+The detailed changelog is available [here](https://github.com/rnajena/sugar/blob/master/CHANGELOG).
 
 ### Contributions
 
 Contributions are welcome! -- e.g. report or fix bugs, discuss or add features, improve the documentation.
-See the [CONTRIBUTING.md](CONTRIBUTING.md) file for details.
+See the [CONTRIBUTING.md](https://github.com/rnajena/sugar/blob/master/CONTRIBUTING.md) file for details.
