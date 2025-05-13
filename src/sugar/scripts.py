@@ -168,9 +168,15 @@ def cli(cmd_args=None):
     p_printf = sub.add_parser('printf', help='print contents of fts file')
     p_trans = sub.add_parser('translate', help='translate nucleotide sequence')
     msg = 'run sugar test suite'
-    msg2 = ('The test suite uses pytest. You can call pytest directly or use '
-            'most of pytest cli arguments in the sugar test call. '
-            'See pytest -h. Use the --web option to additionally run web tests.')
+
+    msg2 = (
+        'The test suite uses pytest. See pytest -h for for available options. '
+        'Note that tests that require an Internet connection are skipped by default, '
+        'this behavior can be turned off with the --web option. '
+        'Also, depending on the installation and platform, '
+        'some tests may be skipped or have an expected failure, '
+        'to see details about the reasons please use the --verbose flag.'
+        )
     p_test = sub.add_parser('test', help=msg, description=msg2)
 
     for p in (p_print, p_printf, p_load, p_loadf):

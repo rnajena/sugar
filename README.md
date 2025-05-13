@@ -20,9 +20,9 @@ Use pip, e.g.
 pip install rnajena-sugar
 ```
 
-Run tests with the `sugar test` command.
+Other installation options are described in the [documentation](https://rnajena-sugar.readthedocs.io/en/latest/src/tutorial_install.html).
 
-Other options are described in the [documentation](https://rnajena-sugar.readthedocs.io/en/latest/src/tutorial_install.html).
+Run tests with the `sugar test` command. Note that tests that require an Internet connection are skipped by default, this behavior can be turned off with the `--web` option. Also, depending on the installation and platform, some tests may be skipped or have an expected failure, to see details about the reasons please use the `--verbose` flag.
 
 ### Getting started
 

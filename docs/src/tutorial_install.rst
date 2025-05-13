@@ -52,3 +52,7 @@ After installation, the test suite can be run with::
     sugar test
 
 You may want to check out its options with ``sugar test -h`` and ``pytest -h``.
+Note that tests that require an Internet connection are skipped by default,
+this behavior can be turned off with the ``--web`` option.
+Also, depending on the installation and platform, some tests may be skipped or have an expected failure,
+to see details about the reasons please use the ``--verbose`` flag.
