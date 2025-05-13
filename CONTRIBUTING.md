@@ -16,6 +16,7 @@ You can report bugs using the issue tracker on GitHub. Please make sure that 1. 
 Optionally, you can try to check if the bug is already fixed in the development version by installing it (see the documentation on how to install the dev version).
 
 When reporting bugs, it is best to include a minimal reproducible example and, if available, an exception traceback. Please also format code blocks or tracebacks properly by enclosing them with triple back ticks.
+If possible, you can use the example objects returned by `read()` and `read_fts()` when called without the `fname` argument.
 
 ### Improve the documentation
 
