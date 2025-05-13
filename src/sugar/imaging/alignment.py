@@ -256,6 +256,7 @@ def plot_alignment(
             fig.draw_without_rendering()
             bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
             symbol_size = bbox.width * fig.dpi * abs((x[-1] - x[0]) / (ax.get_xlim()[1] - ax.get_xlim()[0])) / n
+            print(f'adj {ax.get_adjustable()} width {bbox.width} dpi {fig.dpi} plot width {x[-1] - x[0]} xlim {ax.get_xlim()[1] - ax.get_xlim()[0]} n {n} symbol_size {symbol_size} aspect {aspect}')
         for i in range(len(data)):
             for j in range(n):
                 xy = 0.5 * (x[j] + x[j+1]), 0.5 * (y[i] + y[i+1])
