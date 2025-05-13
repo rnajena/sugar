@@ -3,9 +3,9 @@ import pytest
 from sugar import read
 
 
-def test_plot_alignment():
+def test_plot_alignment(outdir):
     """
-    Just test that no error occurs, you can check the image by uncommenting some lines
+    Just test that no error occurs
     """
     pytest.importorskip('matplotlib', reason='require matplotlib module')
     import matplotlib.pyplot as plt
@@ -19,7 +19,7 @@ def test_plot_alignment():
     seqs.plot_alignment(ax=axes[2], fts=True, aspect=2, rasterized=True, color='0.8', symbols=True, symbol_color='flower')
     seqs.plot_alignment(ax=axes[3], fts=True, aspect=2, color='0.8', symbols=True, fts_color='white', fts_alpha=0.5)
     seqs.plot_alignment(ax=axes[4], fts=True, fts_display='box', aspect=2, color='0.8', symbols=True)
-    # plt.savefig('test_plot_alignment.pdf')
+    plt.savefig(outdir / 'test_plot_alignment.pdf')
     plt.close()
 
     fig, ax = plt.subplots(1, figsize=(20, 5))
@@ -27,7 +27,7 @@ def test_plot_alignment():
     seqs.plot_alignment(ax=ax, extent=[0, 100, -20, -2], rasterized=True, color='flower', symbols=True)
     seqs.plot_alignment(ax=ax, extent=[0, 100, -40, -22], color='0.8', symbols=True, fts=True, fts_alpha=0.5)
     seqs.plot_alignment(ax=ax, extent=[0, 50, -60, -42], fts=True, fts_display='box', aspect=2, color='0.8', symbols=True, fts_color='blue', fts_alpha=0.5)
-    # plt.savefig('test_plot_alignment2.pdf')
+    plt.savefig(outdir / 'test_plot_alignment2.pdf')
     plt.close()
 
 
