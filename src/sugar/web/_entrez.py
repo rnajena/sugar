@@ -108,7 +108,7 @@ class Entrez():
         return fname
 
     def fetch_basket(self, seqids, **kw):
-        """
+        r"""
         Fetch multiple sequences using the client
 
         :param seqids: A list of ids to fetch
@@ -118,7 +118,7 @@ class Entrez():
         return [self.fetch_seq(seqid, **kw) for seqid in seqids]
 
     def get_seq(self, seqid, *, read_kw=None, **kw):
-        """
+        r"""
         Fetch a sequence and return it
 
         :param seqid: Id of the sequence to be fetched
@@ -132,7 +132,7 @@ class Entrez():
         return read(fname, **read_kw)[0]
 
     def get_basket(self, seqids, *, read_kw=None, **kw):
-        """
+        r"""
         Fetch multiple sequences and return them
 
         :param seqids: A list of ids to fetch
