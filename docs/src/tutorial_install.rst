@@ -45,6 +45,12 @@ an editable install is generally preferable::
     pip install -e sugar
 
 
+.. rubric:: Minimal install
+
+For advanced users, it is possible to get a base installation of sugar using pip's ``--no-deps`` flag.
+A subset of dependencies can be installed manually, depending on the functionality needed.
+
+
 .. rubric:: Running the test suite
 
 After installation, the test suite can be run with::
