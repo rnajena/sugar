@@ -151,6 +151,8 @@ def _resolve_fname(example_fname='!data/example.gb'):
 
     Can also deal with online resources, glob expressions,
     BytesIO and TextIO objects are just passed through.
+    If no filename is specified, the decorated function reads
+    the ``example_fname`` file.
     """
     def wrapper(reader):
         @wraps(reader)
@@ -236,6 +238,9 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, **kw):
     ...     print(f'GC content of seq {seq.id} is {100*seq.gc:.0f}%.')
     GC content of seq AB047639 is 58%.
     GC content of seq AB677533 is 57%.
+
+    .. note::
+        Calling ``iter_()`` without the ``fname`` argument returns an example sequences iterator.
     """
     if fmt is None:
         fmt = detect(fname, encoding=encoding, **kw)
@@ -266,7 +271,7 @@ def read(fname, fmt=None, *, mode='r', encoding=None, **kw):
     :param fname: filename, can also be a glob expression,
         a web resource,
         an archive, gzipped file,
-        or a file-like object (e.g. `~io.BytesIO`, `~io.StringIO`)
+        or a file-like object (e.g. `~io.BytesIO`, `~io.StringIO`).
     :param fmt: format of the file (default: auto-detect from content)
     :param mode: mode for opening the file, change this only if you know what
         you do
@@ -302,6 +307,9 @@ def read(fname, fmt=None, *, mode='r', encoding=None, **kw):
     AB047639    9678  ACCTGCCCCTAATAGGGGCGACACTCCGCCATGAATCACTCCCCTGT...  GC:58.26%
     AB677533    9471  GCCCGCCCCCTGATGGGGGCGACACTCCGCCATGAATCACTCCCCTG...  GC:57.46%
       customize output with BioBasket.tostr() method
+
+    .. note::
+        Calling ``read()`` without the ``fname`` argument returns an example sequences object.
     """
     if fmt is None:
         fmt = detect(fname, **kw)
@@ -331,6 +339,7 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
         a web resource,
         an archive, gzipped file,
         or a file-like object (e.g. `~io.BytesIO`, `~io.StringIO`)
+
     :param fmt: format of the file (default: auto-detect from content)
     :param mode: mode for opening the file, change this only if you know what
         you do
@@ -340,10 +349,15 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
 
     All other kwargs are passed to the underlying reader routine.
 
+
+
     The following formats are supported, for documentation of supported kwargs
     follow the provided links.
 
     {format_table}
+
+    .. note::
+        Calling ``read_fts()`` without the ``fname`` argument returns an example features object.
     """
     if fmt is None:
         fmt = detect(fname, what='fts', **kw)
