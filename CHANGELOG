@@ -3,6 +3,7 @@ dev:
   * io
     - blast: old blast files with sstrand N/A and start larger than stop can be read now
     - genbank: fix parsing of some nested location expressions, see #5
+    - genbank: allow parsing seqids inside location fields
     - gff: allow lines to end with ; in the GFF3 reader
 v0.8.0:
   * core:

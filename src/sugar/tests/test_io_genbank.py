@@ -66,6 +66,7 @@ def test_gb_loc_parsing():
     with pytest.warns():
         locs = _parse_locs('J00194.1:100..202')
         locs[0].start == 99
+        assert locs[0].meta._genbank.seqid == 'J00194.1'
         locs2 = _parse_locs('join(1..100,J00194.1:100..202)')
         locs2[0].start == 0
         locs2[1].start == 0

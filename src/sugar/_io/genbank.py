@@ -35,9 +35,13 @@ def _parse_locs(loc: str):
 def _parse_single_loc(loc: str):
     if ':' in loc:
         from warnings import warn
-        warn('Parsing of seqids inside genbank loc fields is not yet supported, ignore the seqid. '
-             'Please open a feature request if you want this functionality included.')
-        _, loc = loc.split(':')
+        warn('Found seqid inside GenBank loc field, '
+             'the seqid is saved in Location.meta._genbank.seqid. '
+             'Other parts of sugar may ignore this information.')
+        seqid, loc = loc.split(':')
+        meta = {'_genbank': {'seqid': seqid}}
+    else:
+        meta = None
     defect = Defect.NONE
     if loc[0] == '<':
         defect |= Defect.BEYOND_LEFT
@@ -55,10 +59,10 @@ def _parse_single_loc(loc: str):
         defect |= Defect.BETWEEN_CONSECUTIVE
     else:
         # single base
-        return Location(int(loc)-1, int(loc), defect=defect)
+        return Location(int(loc)-1, int(loc), defect=defect, meta=meta)
     # base range
     start, stop = loc.split(splitter)
-    return Location(int(start)-1, int(stop), defect=defect)
+    return Location(int(start)-1, int(stop), defect=defect, meta=meta)
 
 
 @_add_fmt_doc('read_fts')
