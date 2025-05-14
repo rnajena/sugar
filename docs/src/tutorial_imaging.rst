@@ -2,7 +2,6 @@ Plotting alignments
 ===================
 
 Alignments can be plotted using the `.BioBasket.plot_alignment()` method.
-Some code examples follow:
 
 .. These figures are generated manually with the test suite
 
@@ -65,7 +64,9 @@ Plot the features of the example sequence:
 .. image:: ../_static/fts1.png
     :width: 60%
 
-Another example plotting the CDS features of an Ebolavirus RNA:
+Here is another example of plotting the CDS features of an Ebolavirus RNA.
+The GenBank file is included in the provided tutorial files.
+It is downloaded again here using the Entrez client.
 
 >>> from sugar.web import Entrez
 >>> client = Entrez()
