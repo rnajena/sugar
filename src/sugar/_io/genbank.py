@@ -18,18 +18,15 @@ is_fts_genbank = is_genbank
 
 def _parse_locs(loc: str):
     # See https://www.insdc.org/submitting-standards/feature-table/#3.4
-    locs = []
-    if loc.startswith(('join', 'order', 'complement')):
-        from warnings import warn
-        warn('Parsing of genbank loc join, order, complement is untested')
-        # TODO: add some tests
+    if loc.startswith('complement'):
+        locs = _parse_locs(loc[loc.index('(')+1:loc.rindex(')')])[::-1]
+        for locobj in locs:
+            locobj.strand = {'-': '+', '+': '-'}.get(locobj.strand, locobj.strand)
+    elif loc.startswith(('join', 'order')):
         locs = [_parse_locs(subloc.strip())
                 for subloc in
                 loc[loc.index('(')+1:loc.rindex(')')].split(',')]
         locs = [l for ll in locs for l in ll]
-        if loc.startswith('complement'):
-            for loc in locs:
-                loc.strand = {'-': '+', '+': '-'}.get(loc.strand, loc.strand)
     else:
         locs = [_parse_single_loc(loc)]
     return locs
@@ -38,7 +35,8 @@ def _parse_locs(loc: str):
 def _parse_single_loc(loc: str):
     if ':' in loc:
         from warnings import warn
-        warn('Parsing of seqids inside genbank loc fields is not yet supported, ignore the seqid')
+        warn('Parsing of seqids inside genbank loc fields is not yet supported, ignore the seqid. '
+             'Please open a feature request if you want this functionality included.')
         _, loc = loc.split(':')
     defect = Defect.NONE
     if loc[0] == '<':
