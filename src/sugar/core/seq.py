@@ -545,6 +545,10 @@ class BioSeq():
         Create a `BioSeq` object from a biopython_ `~Bio.SeqRecord.SeqRecord` or `~Bio.Seq.Seq` object.
 
         :param obj: The object to convert.
+
+        .. note::
+            BioPython Features in the ``SeqRecord.features`` attribute are not converted.
+            This functionality may be added in a future release of sugar.
         """
         if hasattr(obj, 'seq'):  # SeqRecord
             data = str(obj.seq)
@@ -619,6 +623,8 @@ class BioSeq():
     def tobiopython(self):
         """
         Convert BioSeq to biopython_ `~Bio.SeqRecord.SeqRecord` instance
+
+        Attached ``BioSeq.fts`` features are not converted.
         """
         from Bio.Seq import Seq
         from Bio.SeqRecord import SeqRecord
@@ -1066,6 +1072,10 @@ class BioBasket(collections.UserList):
         Create a `BioBasket` object from a list of biopython_ `~Bio.SeqRecord.SeqRecord` or `~Bio.Seq.Seq` objects.
 
         :param obj: The object to convert, can also be a `~Bio.Align.MultipleSeqAlignment` object.
+
+        .. note::
+            BioPython Features in the ``SeqRecord.features`` attribute are not converted.
+            This functionality may be added in a future release of sugar.
         """
         seqs = [BioSeq.frombiopython(seq) for seq in obj]
         return cls(seqs)
@@ -1262,6 +1272,8 @@ class BioBasket(collections.UserList):
         Convert the BioBasket to a list of biopython_ `~Bio.SeqRecord.SeqRecord` objects
 
         :param bool msa: Return a biopython `~Bio.Align.MultipleSeqAlignment` object instead of a list.
+
+        Attached ``BioSeq.fts`` features are not converted.
         """
         seqs = [seq.tobiopython() for seq in self]
         if msa:
