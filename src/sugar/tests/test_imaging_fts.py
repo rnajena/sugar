@@ -35,8 +35,7 @@ def test_plot_ftsviewer_genes(outdir):
     import matplotlib.pyplot as plt
     from sugar.web import Entrez
     client = Entrez()
-    with pytest.warns():  # join in genbank loc is untested
-        seq = client.get_seq('AF086833')
+    seq = client.get_seq('AF086833')
     fts = seq.fts.select('cds')
     for ft in fts:
         ft.meta.name = ft.meta._genbank.gene
