@@ -1,0 +1,61 @@
+##gff-version 3
+#!gff-spec-version 1.21
+#!processor NCBI annotwriter
+##sequence-region AF086833.2 1 18959
+##species https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=128952
+AF086833.2	Genbank	region	1	18959	.	+	.	ID=AF086833.2:1..18959;Dbxref=taxon:128952;gb-acronym=EBOV-May;gbkey=Src;mol_type=viral cRNA;strain=Mayinga
+AF086833.2	Genbank	five_prime_UTR	1	55	.	+	.	ID=id-AF086833.2:1..55;Note=putative leader region;function=regulation or initiation of RNA replication;gbkey=5'UTR
+AF086833.2	Genbank	gene	56	3026	.	+	.	ID=gene-NP;Name=NP;gbkey=Gene;gene=NP;gene_biotype=protein_coding
+AF086833.2	Genbank	mRNA	56	3026	.	+	.	ID=rna-NP;Parent=gene-NP;gbkey=mRNA;gene=NP;product=nucleoprotein
+AF086833.2	Genbank	exon	56	3026	.	+	.	ID=exon-NP-1;Parent=rna-NP;gbkey=mRNA;gene=NP;product=nucleoprotein
+AF086833.2	Genbank	CDS	470	2689	.	+	0	ID=cds-AAD14590.1;Parent=rna-NP;Dbxref=NCBI_GP:AAD14590.1;Name=AAD14590.1;gbkey=CDS;gene=NP;product=nucleoprotein;protein_id=AAD14590.1
+AF086833.2	Genbank	region	56	67	.	+	.	ID=id-NP;Note=putative%3B transcription start signal;gbkey=misc_signal;gene=NP
+AF086833.2	Genbank	region	3015	3026	.	+	.	ID=id-NP-2;gbkey=polyA_signal;gene=NP
+AF086833.2	Genbank	sequence_feature	3027	3031	.	+	.	ID=id-AF086833.2:3027..3031;Note=intergenic region;gbkey=misc_feature
+AF086833.2	Genbank	gene	3032	4407	.	+	.	ID=gene-VP35;Name=VP35;gbkey=Gene;gene=VP35;gene_biotype=protein_coding
+AF086833.2	Genbank	mRNA	3032	4407	.	+	.	ID=rna-VP35;Parent=gene-VP35;gbkey=mRNA;gene=VP35;product=VP35
+AF086833.2	Genbank	exon	3032	4407	.	+	.	ID=exon-VP35-1;Parent=rna-VP35;gbkey=mRNA;gene=VP35;product=VP35
+AF086833.2	Genbank	CDS	3129	4151	.	+	0	ID=cds-AAD14582.1;Parent=rna-VP35;Dbxref=NCBI_GP:AAD14582.1;Name=AAD14582.1;gbkey=CDS;gene=VP35;product=VP35;protein_id=AAD14582.1
+AF086833.2	Genbank	region	3032	3043	.	+	.	ID=id-VP35;Note=putative%3B transcription start signal;gbkey=misc_signal;gene=VP35
+AF086833.2	Genbank	region	4397	4407	.	+	.	ID=id-VP35-2;gbkey=polyA_signal;gene=VP35
+AF086833.2	Genbank	gene	4390	5894	.	+	.	ID=gene-VP40;Name=VP40;gbkey=Gene;gene=VP40;gene_biotype=protein_coding
+AF086833.2	Genbank	region	4390	4401	.	+	.	ID=id-VP40;Note=transcription start signal;gbkey=misc_signal;gene=VP40
+AF086833.2	Genbank	mRNA	4390	5894	.	+	.	ID=rna-VP40;Parent=gene-VP40;gbkey=mRNA;gene=VP40;product=VP40
+AF086833.2	Genbank	exon	4390	5894	.	+	.	ID=exon-VP40-1;Parent=rna-VP40;gbkey=mRNA;gene=VP40;product=VP40
+AF086833.2	Genbank	CDS	4479	5459	.	+	0	ID=cds-AAD14583.1;Parent=rna-VP40;Dbxref=NCBI_GP:AAD14583.1;Name=AAD14583.1;gbkey=CDS;gene=VP40;product=matrix protein;protein_id=AAD14583.1
+AF086833.2	Genbank	region	5883	5894	.	+	.	ID=id-VP40-2;gbkey=polyA_signal;gene=VP40
+AF086833.2	Genbank	sequence_feature	5895	5899	.	+	.	ID=id-AF086833.2:5895..5899;Note=intergenic region;gbkey=misc_feature
+AF086833.2	Genbank	gene	5900	8305	.	+	.	ID=gene-GP;Name=GP;gbkey=Gene;gene=GP;gene_biotype=protein_coding
+AF086833.2	Genbank	region	8295	8305	.	+	.	ID=id-GP;gbkey=polyA_signal;gene=GP
+AF086833.2	Genbank	CDS	6039	6923	.	+	0	ID=cds-AAD14585.1;Parent=gene-GP;Dbxref=NCBI_GP:AAD14585.1;Name=AAD14585.1;Note=an addition A residue is inserted during transcription%3B encodes two disulfide linked subunits GP1 and GP2;gbkey=CDS;gene=GP;product=virion spike glycoprotein precursor;protein_id=AAD14585.1
+AF086833.2	Genbank	CDS	6923	8068	.	+	0	ID=cds-AAD14585.1;Parent=gene-GP;Dbxref=NCBI_GP:AAD14585.1;Name=AAD14585.1;Note=an addition A residue is inserted during transcription%3B encodes two disulfide linked subunits GP1 and GP2;gbkey=CDS;gene=GP;product=virion spike glycoprotein precursor;protein_id=AAD14585.1
+AF086833.2	Genbank	CDS	6039	6922	.	+	0	ID=cds-AAD14586.1;Parent=gene-GP;Dbxref=NCBI_GP:AAD14586.1;Name=AAD14586.1;Note=second non-structural secreted glycoprotein%3B secreted in a monomeric form%3B one A residue is deleted or two additional A residues are inserted at the editing site during transcription of the GP gene;gbkey=CDS;gene=GP;product=ssGP;protein_id=AAD14586.1
+AF086833.2	Genbank	CDS	6924	6933	.	+	1	ID=cds-AAD14586.1;Parent=gene-GP;Dbxref=NCBI_GP:AAD14586.1;Name=AAD14586.1;Note=second non-structural secreted glycoprotein%3B secreted in a monomeric form%3B one A residue is deleted or two additional A residues are inserted at the editing site during transcription of the GP gene;gbkey=CDS;gene=GP;product=ssGP;protein_id=AAD14586.1
+AF086833.2	Genbank	mRNA	5900	8305	.	+	.	ID=rna-GP;Parent=gene-GP;Note=unedited mRNA;gbkey=mRNA;gene=GP;product=sGP
+AF086833.2	Genbank	exon	5900	8305	.	+	.	ID=exon-GP-1;Parent=rna-GP;Note=unedited mRNA;gbkey=mRNA;gene=GP;product=sGP
+AF086833.2	Genbank	CDS	6039	7133	.	+	0	ID=cds-AAD14584.1;Parent=rna-GP;Dbxref=NCBI_GP:AAD14584.1;Name=AAD14584.1;Note=sGP secreted as a anti-parallel oriented homodimer;gbkey=CDS;gene=GP;product=sGP;protein_id=AAD14584.1
+AF086833.2	Genbank	region	5900	5911	.	+	.	ID=id-GP-2;Note=putative%3B transcription start signal;gbkey=misc_signal;gene=GP
+AF086833.2	Genbank	region	6918	6924	.	+	.	ID=id-GP-3;Note=additional A residues are inserted or deleted during transcription of the GP gene by the viral polymerase;function=RNA editing;gbkey=misc_signal;gene=GP
+AF086833.2	Genbank	gene	8288	9740	.	+	.	ID=gene-VP30;Name=VP30;gbkey=Gene;gene=VP30;gene_biotype=protein_coding
+AF086833.2	Genbank	mRNA	8288	9740	.	+	.	ID=rna-VP30;Parent=gene-VP30;gbkey=mRNA;gene=VP30;product=VP30
+AF086833.2	Genbank	exon	8288	9740	.	+	.	ID=exon-VP30-1;Parent=rna-VP30;gbkey=mRNA;gene=VP30;product=VP30
+AF086833.2	Genbank	CDS	8509	9375	.	+	0	ID=cds-AAD14587.1;Parent=rna-VP30;Dbxref=NCBI_GP:AAD14587.1;Name=AAD14587.1;gbkey=CDS;gene=VP30;product=polymerase complex protein;protein_id=AAD14587.1
+AF086833.2	Genbank	region	8288	8299	.	+	.	ID=id-VP30;Note=putative%3B transcription start signal;gbkey=misc_signal;gene=VP30
+AF086833.2	Genbank	region	9730	9740	.	+	.	ID=id-VP30-2;Note=putative;gbkey=polyA_signal;gene=VP30
+AF086833.2	Genbank	sequence_feature	9741	9884	.	+	.	ID=id-AF086833.2:9741..9884;Note=intergenic region;gbkey=misc_feature
+AF086833.2	Genbank	gene	9885	11518	.	+	.	ID=gene-VP24;Name=VP24;Note=putative;gbkey=Gene;gene=VP24;gene_biotype=protein_coding
+AF086833.2	Genbank	mRNA	9885	11496	.	+	.	ID=rna-VP24;Parent=gene-VP24;gbkey=mRNA;gene=VP24;product=VP24
+AF086833.2	Genbank	exon	9885	11496	.	+	.	ID=exon-VP24-1;Parent=rna-VP24;gbkey=mRNA;gene=VP24;product=VP24
+AF086833.2	Genbank	CDS	10345	11100	.	+	0	ID=cds-AAD14588.1;Parent=rna-VP24;Dbxref=NCBI_GP:AAD14588.1;Name=AAD14588.1;gbkey=CDS;gene=VP24;product=VP24;protein_id=AAD14588.1
+AF086833.2	Genbank	sequence_feature	11497	11500	.	+	.	ID=id-VP24;Note=intergenic region;gbkey=misc_feature;gene=VP24
+AF086833.2	Genbank	region	9885	9896	.	+	.	ID=id-VP24-2;Note=transcription start signal;gbkey=misc_signal;gene=VP24
+AF086833.2	Genbank	region	11485	11496	.	+	.	ID=id-VP24-3;Note=putative;gbkey=polyA_signal;gene=VP24
+AF086833.2	Genbank	region	11508	11518	.	+	.	ID=id-VP24-4;gbkey=polyA_signal;gene=VP24
+AF086833.2	Genbank	gene	11501	18282	.	+	.	ID=gene-L;Name=L;gbkey=Gene;gene=L;gene_biotype=protein_coding
+AF086833.2	Genbank	region	11501	11512	.	+	.	ID=id-L;Note=transcription start signal;gbkey=misc_signal;gene=L
+AF086833.2	Genbank	mRNA	11501	18282	.	+	.	ID=rna-L;Parent=gene-L;gbkey=mRNA;gene=L;product=polymerase
+AF086833.2	Genbank	exon	11501	18282	.	+	.	ID=exon-L-1;Parent=rna-L;gbkey=mRNA;gene=L;product=polymerase
+AF086833.2	Genbank	CDS	11581	18219	.	+	0	ID=cds-AAD14589.1;Parent=rna-L;Dbxref=NCBI_GP:AAD14589.1;Name=AAD14589.1;gbkey=CDS;gene=L;product=polymerase;protein_id=AAD14589.1
+AF086833.2	Genbank	region	18272	18282	.	+	.	ID=id-L-2;gbkey=polyA_signal;gene=L
+AF086833.2	Genbank	three_prime_UTR	18283	18959	.	+	.	ID=id-AF086833.2:18283..18959;Note=putative trailer region;function=regulation or initiation of RNA replication;gbkey=3'UTR
+
