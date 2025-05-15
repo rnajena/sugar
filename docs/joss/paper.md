@@ -50,7 +50,8 @@ The code example using ``sugar`` also demonstrates reading of a BLAST result fil
 # Acknowledgements
 
 The use of a plugin system for reading and writing was inspired by ObsPy [@obspy], a Python framework for seismology.
-This project was funded by  by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC 2051 -- Project ID 390713860.
+I would like to thank the reviewers, Tushar Dave and Leighton Pritchard.
+This project was funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy -- EXC 2051 -- Project ID 390713860.
 
 
 # References
