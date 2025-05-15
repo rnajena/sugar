@@ -121,3 +121,20 @@ See also the advanced example in the :doc:`Sequences Tutorial <tutorial_seqs>`.
    :width: 90%
 
 Attributes marked with an asterisk are accessible directly from the feature object.
+
+
+.. rubric:: Associate features
+
+You can associate features with sequences using the `.BioBasket.add_fts()`` methods,
+or by setting the `.BioBasket.fts` attribute directly.
+For example, if you have a FASTA file and a GFF file with the corresponding features,
+you can do the following:
+
+>>> seqs = read('AF086833.fasta')
+>>> fts = read_fts('AF086833.gff')
+>>> seqs.fts = fts
+
+The last line associates the features to the correct sequences in the ``BioSeq.meta.fts`` attribute
+(also accessible via ``BioSeq.fts``).
+If you want to write sequences and features in separate files,
+just use the ``seqs.write()`` and ``seqs.fts.write()`` methods.
