@@ -5,6 +5,8 @@ dev:
     - genbank: fix parsing of some nested location expressions, see #5
     - genbank: allow parsing seqids inside location fields
     - gff: allow lines to end with ; in the GFF3 reader
+  * add sugar tutorial command to provide the data files used in the tutorial
+  * documentation improvements thanks to JOSS reviews
 v0.8.0:
   * core:
     - extend select method, allow not and lower prefixes, allow to select fts by strandness
