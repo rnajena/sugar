@@ -70,6 +70,11 @@ def test_translate():
         with tempfilename() as fname2:
             assert b'' == check_output(f'sugar translate --complete {fname} -o {fname2} -fo sjson'.split())
 
+def test_tutorial(tmp_path_cd):
+    assert b'' == check_output('sugar tutorial'.split())
+    fnames = [f.name for f in tmp_path_cd.iterdir()]
+    assert 'hits.blastn' in fnames
+    assert len(fnames) == 5
 
 def test_index():
     # TODO: write test for index script
