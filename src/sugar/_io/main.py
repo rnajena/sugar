@@ -98,7 +98,7 @@ def detect_ext(fname, what='seqs'):
                 return fmt
 
 
-_ARCHIVE_EXTS = ['.zip', '.tar', '.gz.tar', '.bz.tar', '.xz.tar']
+_ARCHIVE_EXTS = ['.zip', '.gz.tar', '.bz.tar', '.xz.tar', '.tar']
 
 
 def _resolve_archive(writer):
@@ -110,13 +110,20 @@ def _resolve_archive(writer):
             msg = 'archive option is only allowed for file names, not file-like objects'
             raise ValueError(msg)
         if isinstance(fname, str):
-            for ext in _ARCHIVE_EXTS:
-                if fname.endswith(ext):
-                    archive = ext.replace('.', '')
-                    fname = fname.removesuffix(ext)
-            else:
-                if archive is True:
-                    archive = shutil.get_archive_formats()[0][0]
+            if archive is not False:
+                for ext in _ARCHIVE_EXTS:
+                    if fname.endswith(ext):
+                        archive2 = ext.replace('.', '')
+                        if isinstance(archive, str) and archive != archive2:
+                            from warnings import warn
+                            warn('Archive parameter and file name indicate different type, '
+                                 f'use {archive} over {archive2}')
+                        else:
+                            archive = archive2
+                        fname = fname.removesuffix(ext)
+                        break
+            if archive is True:
+                archive = 'zip'
         if archive is None:
             return  writer(objs, fname, *args, **kw)
         else:

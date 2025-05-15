@@ -22,13 +22,14 @@ The following code loads two local files.
 The format of the first file is specified explicitly,
 the format of the second file is autodetected (Stockholm).
 Gaps are removed from the alignment using a string method.
+The original ``ali`` object is left untouched.
 Then, a file containing the sequence from the FASTA file and
 the first two sequences from the alignment is created. ::
 
     >>> from sugar import read
     >>> seqs = read('AF086833.fasta', 'fasta')
     >>> ali = read('pesti.stk')
-    >>> cleaned = ali.str.replace('-', '')
+    >>> cleaned = ali.copy().str.replace('-', '')
     >>> combined = seqs + cleaned[:2]
     >>> combined.write('combined.fasta')
 
