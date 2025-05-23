@@ -12,6 +12,7 @@ Submodules
    fts
    cane
    meta
+   _adapter
 
 .. toctree::
    :maxdepth: 3
@@ -22,3 +23,4 @@ Submodules
    sugar.core.fts
    sugar.core.meta
    sugar.core.cane
+   sugar.core._adapter
