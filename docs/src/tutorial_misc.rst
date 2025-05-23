@@ -1,9 +1,9 @@
 More bits and pieces
 ====================
 
-.. rubric:: Adaptors
+.. rubric:: Adapters
 
-Sugar provides adaptors to convert sequence objects to the corresponding sequence objects
+Sugar provides adapters to convert sequence objects to the corresponding sequence objects
 in the Biopython and Biotite libraries, and vice versa.
 
 .. runblock:: pycon
