@@ -125,7 +125,7 @@ Attributes marked with an asterisk are accessible directly from the feature obje
 
 .. rubric:: Associate features
 
-You can associate features with sequences using the `.BioBasket.add_fts()`` methods,
+You can associate features with sequences using the `.BioBasket.add_fts()` methods,
 or by setting the `.BioBasket.fts` attribute directly.
 For example, if you have a FASTA file and a GFF file with the corresponding features,
 you can do the following:
