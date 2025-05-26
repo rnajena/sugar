@@ -10,7 +10,7 @@ def plot_ftsviewer(
         same_colors=True, colorby='type', color=None,
         dpi=None, transparent=None, bbox_inches=None, show=False,
         **kw):
-    """
+    r"""
     Plot features using DNAFeaturesViewer_ and `~.FeatureList.toftsviewer()`
 
     :param fts: features

@@ -13,14 +13,24 @@ and automatically detects file formats by inspecting the file contents.
 To write sequences to files, use the `.BioBasket.write()` method.
 When writing, the format can be automatically detected from the file extension.
 
-The following code loads two local files,
-sugar automatically detects the format in the first call.
-After that, a file containing sequences from both original files is written to disk. ::
+.. note::
+   If you don't have any example files on hand:
+   All of the local example files used in the tutorial are distributed with the sugar package.
+   You can copy them into the current folder using the ``sugar tutorial`` command.
+
+The following code loads two local files.
+The format of the first file is specified explicitly,
+the format of the second file is autodetected (Stockholm).
+Gaps are removed from the alignment using a string method.
+The original ``ali`` object is left untouched.
+Then, a file containing the sequence from the FASTA file and
+the first two sequences from the alignment is created. ::
 
     >>> from sugar import read
-    >>> seqs = read('example.fasta')
-    >>> more_seqs = read('virus.stk', 'stockholm')
-    >>> combined = seqs + more_seqs
+    >>> seqs = read('AF086833.fasta', 'fasta')
+    >>> ali = read('pesti.stk')
+    >>> cleaned = ali.copy().str.replace('-', '')
+    >>> combined = seqs + cleaned[:2]
     >>> combined.write('combined.fasta')
 
 Calling `.read()` without any arguments returns sample sequences.

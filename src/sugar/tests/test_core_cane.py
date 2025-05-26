@@ -195,7 +195,6 @@ def test_find_orfs_vs_orffinder():
     orfs = seq.find_orfs(rf='bwd', need_stop=False)
     assert len(orfs) == 3
     for orf, (rf, start, end) in zip(orfs, orfs_orffinder):
-        print(orf, (rf, start, end))
         assert orf.meta.rf == rf
         assert orf.loc.start == len(seq) - end
         assert orf.loc.stop == len(seq) - start

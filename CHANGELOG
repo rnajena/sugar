@@ -1,8 +1,14 @@
 dev:
   * add dna-features-viewer-lite as dependency
+  * add tobiopython and frombiopython methods to Feature and FeatureList classes,
+    features attached to sequences are also converted to or from BioPython, see #7
   * io
     - blast: old blast files with sstrand N/A and start larger than stop can be read now
+    - genbank: fix parsing of some nested location expressions, see #5
+    - genbank: allow parsing seqids inside location fields
     - gff: allow lines to end with ; in the GFF3 reader
+  * add sugar tutorial command to provide the data files used in the tutorial
+  * documentation improvements thanks to JOSS reviews
 v0.8.0:
   * core:
     - extend select method, allow not and lower prefixes, allow to select fts by strandness

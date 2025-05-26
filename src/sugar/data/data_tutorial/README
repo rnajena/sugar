@@ -1,0 +1,3 @@
+The fasta, gb and gff files were downloaded from https://www.ncbi.nlm.nih.gov/nuccore/AF086833.
+The blastn file was produced with BLAST, see https://doi.org/10.3390/v16081210.
+The pesti.stk alignment file is adapted from an upcoming publication.

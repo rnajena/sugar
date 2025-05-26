@@ -7,10 +7,12 @@ Run ``sugar -h`` to see all available subcommands.
 """
 
 import argparse
-import sys
 import contextlib
-from pathlib import Path
+from importlib.resources import files
 import os
+from pathlib import Path
+import shutil
+import sys
 
 
 @contextlib.contextmanager
@@ -89,6 +91,14 @@ def translate(fname, fmt, out=None, fmtout=None, cds=False, **kw):
         seqs.write(out, fmt=fmtout)
 
 
+def copy_tutorial_files(out='.'):
+    dest = Path(out)
+    srcs = [f for f in files('sugar.data.data_tutorial').iterdir()
+            if f.is_file() and not f.name.startswith('README')]
+    for src in srcs:
+        shutil.copy(src, dest)
+
+
 def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
     """Dispatch command to function"""
     if pdb:
@@ -127,6 +137,8 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
         _fastaindex_cmd(**kw)
     elif command == 'translate':
         translate(fname, fmt=fmt, **kw)
+    elif command == 'tutorial':
+        copy_tutorial_files(**kw)
     elif command == 'test':
         try:
             import pytest
@@ -167,10 +179,16 @@ def cli(cmd_args=None):
     p_print = sub.add_parser('print', help='print contents of seq file')
     p_printf = sub.add_parser('printf', help='print contents of fts file')
     p_trans = sub.add_parser('translate', help='translate nucleotide sequence')
+    p_tutorial = sub.add_parser('tutorial', help='copy data files used in the tutorial to current directory')
     msg = 'run sugar test suite'
-    msg2 = ('The test suite uses pytest. You can call pytest directly or use '
-            'most of pytest cli arguments in the sugar test call. '
-            'See pytest -h. Use the --web option to additionally run web tests.')
+    msg2 = (
+        'The test suite uses pytest. See pytest -h for for available options. '
+        'Note that tests that require an Internet connection are skipped by default, '
+        'this behavior can be turned off with the --web option. '
+        'Also, depending on the installation and platform, '
+        'some tests may be skipped or have an expected failure, '
+        'to see details about the reasons please use the --verbose flag.'
+        )
     p_test = sub.add_parser('test', help=msg, description=msg2)
 
     for p in (p_print, p_printf, p_load, p_loadf):
@@ -193,6 +211,7 @@ def cli(cmd_args=None):
         p.add_argument('-o', '--out', help='filename out')
         p.add_argument('-f', '--fmt', help='format in')
         p.add_argument('-fo', '--fmtout', help='format out')
+    p_tutorial.add_argument('-o', '--out', help='alternative path to copy files', default=argparse.SUPPRESS)
 
     p_trans.add_argument('-tt', '--translation-table', help='number of translation table, default 1', default=1, type=int, dest='tt')
     p_trans.add_argument('-c', '--complete', help='whether to ignore stop codons', action='store_true')

@@ -18,18 +18,15 @@ is_fts_genbank = is_genbank
 
 def _parse_locs(loc: str):
     # See https://www.insdc.org/submitting-standards/feature-table/#3.4
-    locs = []
-    if loc.startswith(('join', 'order', 'complement')):
-        from warnings import warn
-        warn('Parsing of genbank loc join, order, complement is untested')
-        # TODO: add some tests
+    if loc.startswith('complement'):
+        locs = _parse_locs(loc[loc.index('(')+1:loc.rindex(')')])[::-1]
+        for locobj in locs:
+            locobj.strand = {'-': '+', '+': '-'}.get(locobj.strand, locobj.strand)
+    elif loc.startswith(('join', 'order')):
         locs = [_parse_locs(subloc.strip())
                 for subloc in
                 loc[loc.index('(')+1:loc.rindex(')')].split(',')]
         locs = [l for ll in locs for l in ll]
-        if loc.startswith('complement'):
-            for loc in locs:
-                loc.strand = {'-': '+', '+': '-'}.get(loc.strand, loc.strand)
     else:
         locs = [_parse_single_loc(loc)]
     return locs
@@ -38,8 +35,13 @@ def _parse_locs(loc: str):
 def _parse_single_loc(loc: str):
     if ':' in loc:
         from warnings import warn
-        warn('Parsing of seqids inside genbank loc fields is not yet supported, ignore the seqid')
-        _, loc = loc.split(':')
+        warn('Found seqid inside GenBank loc field, '
+             'the seqid is saved in Location.meta._genbank.seqid. '
+             'Other parts of sugar may ignore this information.')
+        seqid, loc = loc.split(':')
+        meta = {'_genbank': {'seqid': seqid}}
+    else:
+        meta = None
     defect = Defect.NONE
     if loc[0] == '<':
         defect |= Defect.BEYOND_LEFT
@@ -57,10 +59,10 @@ def _parse_single_loc(loc: str):
         defect |= Defect.BETWEEN_CONSECUTIVE
     else:
         # single base
-        return Location(int(loc)-1, int(loc), defect=defect)
+        return Location(int(loc)-1, int(loc), defect=defect, meta=meta)
     # base range
     start, stop = loc.split(splitter)
-    return Location(int(start)-1, int(stop), defect=defect)
+    return Location(int(start)-1, int(stop), defect=defect, meta=meta)
 
 
 @_add_fmt_doc('read_fts')

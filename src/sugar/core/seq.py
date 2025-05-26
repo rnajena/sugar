@@ -542,34 +542,25 @@ class BioSeq():
     @classmethod
     def frombiopython(cls, obj):
         """
-        Create a `BioSeq` object from a biopython_ `~Bio.SeqRecord.SeqRecord` or `~Bio.Seq.Seq` object.
+        Create a `.BioSeq` object from a biopython_ `~Bio.SeqRecord.SeqRecord` or `~Bio.Seq.Seq` object.
 
         :param obj: The object to convert.
+
+        .. note::
+            BioPython Features in the ``SeqRecord.features`` attribute are automatically converted.
         """
-        if hasattr(obj, 'seq'):  # SeqRecord
-            data = str(obj.seq)
-            id_ = obj.id
-        else:  # Seq
-            data = str(obj)
-            id_ = None
-        return cls(data, id=id_)
+        from sugar.core._adapter import biopython2seq
+        return biopython2seq(obj, cls=cls)
 
     @classmethod
     def frombiotite(cls, obj):
         """
-        Create a `BioSeq` object from a biotite_ sequence object.
+        Create a `.BioSeq` object from a biotite_ sequence object.
 
         :param obj: The object to convert.
         """
-        from biotite.sequence import NucleotideSequence, ProteinSequence
-        data = ''.join(obj.symbols)
-        type_ = None
-        if isinstance(obj, NucleotideSequence):
-            type_ = 'nt'
-        elif isinstance(obj, ProteinSequence):
-            type_ = 'aa'
-        return cls(data, type=type_)
-
+        from sugar.core._adapter import biotite2seq
+        return biotite2seq(obj, cls=cls)
 
     def match(self, *args, **kw):
         """
@@ -619,12 +610,13 @@ class BioSeq():
     def tobiopython(self):
         """
         Convert BioSeq to biopython_ `~Bio.SeqRecord.SeqRecord` instance
-        """
-        from Bio.Seq import Seq
-        from Bio.SeqRecord import SeqRecord
-        return SeqRecord(Seq(self.data), id=self.id)
 
-    def tobiotite(self, type=None, gap='-', warn=True):
+        Attached ``BioSeq.fts`` features are automatically converted.
+        """
+        from sugar.core._adapter import seq2biopython
+        return seq2biopython(self)
+
+    def tobiotite(self, **kw):
         """
         Convert BioSeq to biotite_ `~biotite.sequence.NucleotideSequence` or `~biotite.sequence.ProteinSequence` instance
 
@@ -634,20 +626,8 @@ class BioSeq():
         :param str gap: Gap characters that must be removed from the sequence string.
         :param bool warn: Whether to warn if gap characters have been removed, default is True.
         """
-        from biotite.sequence import NucleotideSequence, ProteinSequence
-        data = self.data
-        if gap:
-            for g in gap:
-                if g in data:
-                    if warn:
-                        from warnings import warn
-                        warn(f'Remove gap characters {gap} for the conversion to biotite')
-                    for g in gap:
-                        data = data.replace(g, '')
-                    break
-        type = type or self.type
-        cls = {'nt': NucleotideSequence, 'aa': ProteinSequence}[type]
-        return cls(data)
+        from sugar.core._adapter import seq2biotite
+        return seq2biotite(self, **kw)
 
     def toftsviewer(self, **kw):
         r"""
@@ -1063,27 +1043,25 @@ class BioBasket(collections.UserList):
     @classmethod
     def frombiopython(cls, obj):
         """
-        Create a `BioBasket` object from a list of biopython_ `~Bio.SeqRecord.SeqRecord` or `~Bio.Seq.Seq` objects.
+        Create a `.BioBasket` object from a list of biopython_ `~Bio.SeqRecord.SeqRecord` or `~Bio.Seq.Seq` objects.
 
         :param obj: The object to convert, can also be a `~Bio.Align.MultipleSeqAlignment` object.
+
+        .. note::
+            BioPython Features in the ``SeqRecord.features`` attribute are automatically converted.
         """
-        seqs = [BioSeq.frombiopython(seq) for seq in obj]
-        return cls(seqs)
+        from sugar.core._adapter import biopython2seqs
+        return biopython2seqs(obj, cls=cls)
 
     @classmethod
     def frombiotite(cls, obj):
         """
-        Create a `BioBasket` object from a list of biotite_ sequence objects.
+        Create a `.BioBasket` object from a list of biotite_ sequence objects.
 
         :param obj: The object to convert, can also be a biotite ``Alignment`` object.
         """
-        if hasattr(obj, 'sequences'):  # Alignment object
-            types = [BioSeq.frombiotite(seq).type for seq in obj.sequences]
-            ali = [BioSeq(data, type=type_) for data, type_ in zip(obj.get_gapped_sequences(), types)]
-            return cls(ali)
-        else:
-            seqs = [BioSeq.frombiotite(seq) for seq in obj]
-            return cls(seqs)
+        from sugar.core._adapter import biotite2seqs
+        return biotite2seqs(obj, cls=cls)
 
     @staticmethod
     def fromfmtstr(in_, fmt=None, **kw):
@@ -1262,16 +1240,15 @@ class BioBasket(collections.UserList):
         Convert the BioBasket to a list of biopython_ `~Bio.SeqRecord.SeqRecord` objects
 
         :param bool msa: Return a biopython `~Bio.Align.MultipleSeqAlignment` object instead of a list.
-        """
-        seqs = [seq.tobiopython() for seq in self]
-        if msa:
-            from Bio.Align import MultipleSeqAlignment
-            seqs = MultipleSeqAlignment(seqs)
-        return seqs
 
-    def tobiotite(self, *, type=None, msa=False, gap='-', warn=True):
+        Attached ``BioSeq.fts`` features are not converted.
         """
-        Convert BioSeq to a list of biotite_ `~biotite.sequence.NucleotideSequence` or `~biotite.sequence.ProteinSequence` instance
+        from sugar.core._adapter import seqs2biopython
+        return seqs2biopython(self, msa=msa)
+
+    def tobiotite(self, **kw):
+        """
+        Convert BioBasket to a list of biotite_ `~biotite.sequence.NucleotideSequence` or `~biotite.sequence.ProteinSequence` instance
 
         :param str type: ``'nt'`` creates a `~biotite.sequence.NucleotideSequence` instance,
             ``'aa'`` creates a `~biotite.sequence.ProteinSequence` instance,
@@ -1281,12 +1258,8 @@ class BioBasket(collections.UserList):
         :param bool warn: Wether to warn if gap characters have been removed, default is True,
             not used with ``msa=True``
         """
-        seqs = [seq.tobiotite(type=type, gap=gap, warn=not msa and warn) for seq in self]
-        if msa:
-            from biotite.sequence.align import Alignment
-            trace = Alignment.trace_from_strings([seq.data for seq in self])
-            seqs = Alignment(seqs, trace)
-        return seqs
+        from sugar.core._adapter import seqs2biotite
+        return seqs2biotite(self, **kw)
 
     def write(self, fname=None, fmt=None, **kw):
         """

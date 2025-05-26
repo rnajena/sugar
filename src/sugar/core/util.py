@@ -27,6 +27,13 @@ def _add_inplace_doc(func):
     return func
 
 
+# def _add_doc_from_other(ofunc):
+#     def decorator(func):
+#         func.__doc__ = ofunc.__doc__
+#         return func
+#     return decorator
+
+
 class SugarDeprecationWarning(UserWarning):
     pass
 

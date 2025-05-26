@@ -45,6 +45,12 @@ an editable install is generally preferable::
     pip install -e sugar
 
 
+.. rubric:: Minimal install
+
+For advanced users, it is possible to get a base installation of sugar using pip's ``--no-deps`` flag.
+A subset of dependencies can be installed manually, depending on the functionality needed.
+
+
 .. rubric:: Running the test suite
 
 After installation, the test suite can be run with::
@@ -52,3 +58,7 @@ After installation, the test suite can be run with::
     sugar test
 
 You may want to check out its options with ``sugar test -h`` and ``pytest -h``.
+Note that tests that require an Internet connection are skipped by default,
+this behavior can be turned off with the ``--web`` option.
+Also, depending on the installation and platform, some tests may be skipped or have an expected failure,
+to see details about the reasons please use the ``--verbose`` flag.
