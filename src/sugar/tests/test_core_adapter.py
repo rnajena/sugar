@@ -32,7 +32,8 @@ def test_seqs2biopython2seqs():
 def test_biopython2seqs2biopython():
     SeqIO = pytest.importorskip('Bio.SeqIO', reason='require biopython module')
     fname = files('sugar.tests.data').joinpath('example.gb')
-    records = list(SeqIO.parse(fname, 'genbank'))
+    with open(fname) as f:
+        records = list(SeqIO.parse(f, 'genbank'))
     seqs = BioBasket.frombiopython(records)
     assert [len(seq.fts) for seq in seqs] == [len(seq.features) for seq in records]
     records2 = seqs.tobiopython()
