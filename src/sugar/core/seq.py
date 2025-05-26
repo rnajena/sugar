@@ -547,8 +547,7 @@ class BioSeq():
         :param obj: The object to convert.
 
         .. note::
-            BioPython Features in the ``SeqRecord.features`` attribute are not converted.
-            This functionality may be added in a future release of sugar.
+            BioPython Features in the ``SeqRecord.features`` attribute are automatically converted.
         """
         from sugar.core._adapter import biopython2seq
         return biopython2seq(obj, cls=cls)
@@ -612,7 +611,7 @@ class BioSeq():
         """
         Convert BioSeq to biopython_ `~Bio.SeqRecord.SeqRecord` instance
 
-        Attached ``BioSeq.fts`` features are not converted.
+        Attached ``BioSeq.fts`` features are automatically converted.
         """
         from sugar.core._adapter import seq2biopython
         return seq2biopython(self)
@@ -1049,8 +1048,7 @@ class BioBasket(collections.UserList):
         :param obj: The object to convert, can also be a `~Bio.Align.MultipleSeqAlignment` object.
 
         .. note::
-            BioPython Features in the ``SeqRecord.features`` attribute are not converted.
-            This functionality may be added in a future release of sugar.
+            BioPython Features in the ``SeqRecord.features`` attribute are automatically converted.
         """
         from sugar.core._adapter import biopython2seqs
         return biopython2seqs(obj, cls=cls)

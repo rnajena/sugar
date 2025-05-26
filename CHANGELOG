@@ -1,5 +1,7 @@
 dev:
   * add dna-features-viewer-lite as dependency
+  * add tobiopython and frombiopython methods to Feature and FeatureList classes,
+    features attached to sequences are also converted to or from BioPython, see #7
   * io
     - blast: old blast files with sstrand N/A and start larger than stop can be read now
     - genbank: fix parsing of some nested location expressions, see #5

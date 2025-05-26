@@ -449,6 +449,25 @@ class Feature():
     # def __hash__(self):
     #     return hash((self.type, self.locs, frozenset(self.meta.items())))
 
+    @classmethod
+    def frombiopython(cls, obj):
+        """
+        Create a `.Feature` object from a biopython_ `~Bio.SeqFeature.SeqFeature` object.
+
+        :param obj: The object to convert.
+
+        Location defects are ignored.
+        """
+        from sugar.core._adapter import biopython2ft
+        return biopython2ft(obj, cls=cls)
+
+    def tobiopython(self):
+        """
+        Convert Feature to biopython_ `~Bio.SeqFeature.SeqFeature` instance
+        """
+        from sugar.core._adapter import ft2biopython
+        return ft2biopython(self)
+
     def toftsviewer(self, *, label='default', **kw):
         r"""
         Convert feature to DNAFeaturesViewer_ `~dna_features_viewer.GraphicFeature`
@@ -528,6 +547,18 @@ class FeatureList(collections.UserList):
             ft = Feature(locs=[loc], meta=rec)
             fts.append(ft)
         return cls(fts)
+
+    @classmethod
+    def frombiopython(cls, obj):
+        """
+        Create a `.FeatureList` object from a list of biopython_ `~Bio.SeqFeature.SeqFeature` objects.
+
+        :param obj: The object to convert.
+
+        Location defetcs are ignored.
+        """
+        from sugar.core._adapter import biopython2fts
+        return biopython2fts(obj, cls=cls)
 
     def __str__(self):
         return self.tostr()
@@ -769,6 +800,13 @@ class FeatureList(collections.UserList):
             return self
         else:
             return self.__class__(selected)
+
+    def tobiopython(self):
+        """
+        Convert the FeatureList to a list of biopython_ `~Bio.SeqFeature.SeqFeature` objects
+        """
+        from sugar.core._adapter import fts2biopython
+        return fts2biopython(self)
 
     def todict(self):
         """
