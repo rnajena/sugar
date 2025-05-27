@@ -128,96 +128,104 @@ def _read_fts_gxf(f, filt=None, filt_fast=None, default_ftype=None, comments=Non
             gff_version = '3'
     fts = []
     lastid = None
-    for line in f:
-        line2 = line
-        line = line.strip()
-        if flavor == 'gff' and line.startswith('##FASTA'):
-            break
-        if filt_fast is not None and filt_fast.lower() not in line.lower():
-            continue
-        if '#' in line:
-            line, comment = line.split('#', 1)
+    for lineno, line in enumerate(f):
+        try:
+            line2 = line
             line = line.strip()
-            if comments is not None:
-                comments.append('#' + comment)
-        if  line == '':
-            continue
-        cols = line.split('\t')
-        if len(cols) not in (8, 9):
-            # be forgiving here and also except any whitespace instead of tab
-            cols = line.split(maxsplit=8)
-        if len(cols) == 9:
-            *cols, attrcol = cols
-        else:
-            attrcol = ''
-        if flavor == 'gff' and gff_version == '3':
-            cols = list(map(unquote, cols))
-        seqid, source, type_, start, stop, score, strand, phase = cols
-        if type_ == '.':
-            type_ = default_ftype
-        if filt and type_ not in filt:
-            continue
-        loc = Location(int(start)-1, int(stop), strand=strand)
-        attrs = {}
-        attrcol = attrcol.strip()
-        if attrcol not in ('', '.'):
-            if flavor == 'gff' and gff_version == '1':
-                attrs['group'] = attrcol
-            elif flavor == 'gff' and gff_version == '2' or flavor == 'gtf':
-                for kv in attrcol.split(';'):
-                    if kv.strip() == '':
-                        continue
-                    elif '"' in kv:
-                        k, v = kv.strip().split('"', maxsplit=1)
-                        if v[-1] == '"':
-                            v = v[:-1]
-                    else:
-                        k, v = kv.split(maxsplit=1)
-                    attrs[k.strip()] = v
-            elif flavor == 'gff' and gff_version == '3':
-                for kv in attrcol.split(';'):
-                    if kv.strip() == '':
-                        continue
-                    k, v = kv.strip().split('=')
-                    attrs[unquote(k.strip())] = (
-                        unquote(v.strip()) if ',' not in v else
-                        [unquote(vv.strip()) for vv in v.strip().split(',')])
+            if flavor == 'gff' and line.startswith('##FASTA'):
+                break
+            if filt_fast is not None and filt_fast.lower() not in line.lower():
+                continue
+            if '#' in line:
+                line, comment = line.split('#', 1)
+                line = line.strip()
+                if comments is not None:
+                    comments.append('#' + comment)
+            if  line == '':
+                continue
+            cols = line.split('\t')
+            if len(cols) not in (8, 9):
+                # be forgiving here and also except any whitespace instead of tab
+                cols = line.split(maxsplit=8)
+            if len(cols) == 9:
+                *cols, attrcol = cols
             else:
-                assert False
-            for k in ('evalue', 'E_value'):
-                if k in attrs:
-                    try:
-                        attrs[k] = float(attrs[k])
-                    except ValueError:
-                        pass
-        if seqid != '.':
-            attrs['seqid'] = seqid
-        if source != '.':
-            attrs['source'] = source
-        if score != '.':
-            attrs['score'] = float(score)
-        if phase != '.':
-            if flavor == 'gff':
-                attrs['phase'] = int(phase)
+                attrcol = ''
+            if flavor == 'gff' and gff_version == '3':
+                cols = list(map(unquote, cols))
+            seqid, source, type_, start, stop, score, strand, phase = cols
+            if type_ == '.':
+                type_ = default_ftype
+            if filt and type_ not in filt:
+                continue
+            loc = Location(int(start)-1, int(stop), strand=strand)
+            attrs = {}
+            attrcol = attrcol.strip()
+            if attrcol not in ('', '.'):
+                if flavor == 'gff' and gff_version == '1':
+                    attrs['group'] = attrcol
+                elif flavor == 'gff' and gff_version == '2' or flavor == 'gtf':
+                    for kv in attrcol.split(';'):
+                        if kv.strip() == '':
+                            continue
+                        elif '"' in kv:
+                            k, v = kv.strip().split('"', maxsplit=1)
+                            if v[-1] == '"':
+                                v = v[:-1]
+                        else:
+                            k, v = kv.split(maxsplit=1)
+                        attrs[k.strip()] = v
+                elif flavor == 'gff' and gff_version == '3':
+                    for kv in attrcol.split(';'):
+                        if kv.strip() == '':
+                            continue
+                        k, v = kv.strip().split('=')
+                        attrs[unquote(k.strip())] = (
+                            unquote(v.strip()) if ',' not in v else
+                            [unquote(vv.strip()) for vv in v.strip().split(',')])
+                else:
+                    assert False
+                for k in ('evalue', 'E_value'):
+                    if k in attrs:
+                        try:
+                            attrs[k] = float(attrs[k])
+                        except ValueError:
+                            pass
+            if seqid != '.':
+                attrs['seqid'] = seqid
+            if source != '.':
+                attrs['source'] = source
+            if score != '.':
+                attrs['score'] = float(score)
+            if phase != '.':
+                if flavor == 'gff':
+                    attrs['phase'] = int(phase)
+                else:
+                    attrs['frame'] = int(phase)
+            if 'ID' in attrs:
+                id_ = (attrs['ID'], type_, seqid)
             else:
-                attrs['frame'] = int(phase)
-        if 'ID' in attrs:
-            id_ = (attrs['ID'], type_, seqid)
-        else:
-            id_ = None
-        mf = '_' + flavor
-        if id_ is not None and id_ == lastid:
-            for k, v in attrs.items():
-                if fts[-1].meta[mf].get(k) != v:
-                    # TODO: add proper meta attribute to Location?
-                    if not hasattr(loc.meta, mf):
-                        loc.meta[mf] = Attr()
-                    loc.meta[mf][k] = v
-            fts[-1].locs = fts[-1].locs + (loc,)
-        else:
-            meta = Meta({mf: attrs})
-            fts.append(Feature(type_, locs=[loc], meta=meta))
-        lastid = id_
+                id_ = None
+            mf = '_' + flavor
+            if id_ is not None and id_ == lastid:
+                for k, v in attrs.items():
+                    if fts[-1].meta[mf].get(k) != v:
+                        # TODO: add proper meta attribute to Location?
+                        if not hasattr(loc.meta, mf):
+                            loc.meta[mf] = Attr()
+                        loc.meta[mf][k] = v
+                fts[-1].locs = fts[-1].locs + (loc,)
+            else:
+                meta = Meta({mf: attrs})
+                fts.append(Feature(type_, locs=[loc], meta=meta))
+            lastid = id_
+        except Exception as ex:
+            msg = (f'Parsing error on line number {lineno+1} of '
+                   f"{flavor.upper()}{gff_version if flavor == 'gff' else ''} file.\n"
+                   'If the detected file format is not correct, please use the fmt parameter. '
+                   'If the file is valid, or if you think this case should be covered, please contact the developers. '
+                   f'Problematic line:\n{line}')
+            raise ValueError(msg) from ex
     for ft in fts:
         for gxfattr, metaattr in copyattrs[flavor]:
             if gxfattr in ft.meta[mf]:
