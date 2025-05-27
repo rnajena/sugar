@@ -55,12 +55,12 @@ def _debug_wrong_symbol_size(ax, x, n):
 
 
 def test_aspect_symbol_size(outdir):
-    pytest.importorskip('matplotlib', reason='require matplotlib module')
+    mpl = pytest.importorskip('matplotlib', reason='require matplotlib module')
     import matplotlib.pyplot as plt
-    import matplotlib as mpl
     seqs = read()[:, :100]
 
-    with mpl.rc_context({'figure.subplot.left': 0.1, 'figure.subplot.right':  0.9}):
+    with mpl.rc_context({'figure.autolayout': False,'figure.constrained_layout.use': False,
+                         'figure.subplot.left': 0.1, 'figure.subplot.right':  0.9}):
         for adjustable in ('box', 'datalim'):
             fig = plt.figure(figsize=(12.5, 8), dpi=100)
             ax = fig.add_subplot()
