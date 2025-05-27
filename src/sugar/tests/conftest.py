@@ -61,8 +61,16 @@ def outdir(request, tmp_path):
     """
     A fixture which returns a directory for test output
     """
-    outdir = request.config.getoption('--outdir')
-    return tmp_path if outdir is None else Path(outdir)
+    out = request.config.getoption('--outdir')
+    if out is None:
+        out = tmp_path
+    else:
+        out = Path(out)
+        if not out.is_dir():
+            from warnings import warn
+            warn(f'Create missing outdir directory at {out}')
+            out.mkdir()
+    return out
 
 
 @pytest.fixture()
