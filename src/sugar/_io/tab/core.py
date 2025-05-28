@@ -187,7 +187,11 @@ _MMSEQS_HEADER_NAMES = [hv.name for hv in _HEADER['mmseqs']]
 
 copyattrs = [('bitscore', 'score'),
              ('evalue', 'evalue'),
+             ('saccver', 'seqid'),
+             ('sacc', 'seqid'),
              ('sseqid', 'seqid'),
+             ('qaccver', 'name'),
+             ('qacc', 'name'),
              ('qseqid', 'name'),
              ]
 
