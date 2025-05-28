@@ -1,9 +1,13 @@
 dev:
   * add dna-features-viewer-lite as dependency
-  * add tobiopython and frombiopython methods to Feature and FeatureList classes,
-    features attached to sequences are also converted to or from BioPython, see #7
+  * core:
+    - add tobiopython and frombiopython methods to Feature and FeatureList classes,
+      features attached to sequences are also converted to or from BioPython, see #7
+    - add contains, distance, overlaps, overlaplen methods to Location, LocationTuple, Feature
+    - add mid method to Location and LocationTuple
   * io
     - blast: old blast files with sstrand N/A and start larger than stop can be read now
+    - blast: be more flexible when matching blast fields to seqid and name
     - genbank: fix parsing of some nested location expressions, see #5
     - genbank: allow parsing seqids inside location fields
     - gff: allow lines to end with ; in the GFF3 reader

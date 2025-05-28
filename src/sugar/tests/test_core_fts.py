@@ -81,6 +81,36 @@ def test_ft_overlaps():
     fts = read_fts()
     assert fts.get('cds').overlaps(fts.get('region'))
     assert fts.get('cds').overlaps(fts.get('region').locs)
+    assert fts.get('cds').locs.overlaps(fts.get('region').loc)
+    assert fts.get('cds').loc.overlaps(fts.get('region').loc)
+
+
+def test_ft_overlaplen():
+    fts = read_fts()
+    assert fts.get('cds').overlaplen(fts.get('region')) == len(fts.get('cds'))
+    assert fts.get('cds').overlaplen(fts.get('region').locs) == len(fts.get('cds'))
+    assert fts.get('cds').locs.overlaplen(fts.get('region').loc) == len(fts.get('cds'))
+    assert fts.get('cds').loc.overlaplen(fts.get('region').loc) == len(fts.get('cds').loc)
+
+
+def test_ft_contains():
+    fts = read_fts()
+    assert not fts.get('cds').contains(fts.get('region'))
+    assert fts.get('region').contains(fts.get('cds'))
+    assert fts.get('region').locs.contains(fts.get('cds').locs)
+    assert fts.get('region').loc.contains(fts.get('cds').loc)
+    assert fts.get('cds').loc.contains(fts.get('cds').loc)
+
+
+def test_ft_distance():
+    fts = read_fts()
+    d1 = fts.get('cds').distance(fts.get('cDNA_match'))
+    assert d1 > 0
+    assert fts.get('cds').locs.distance(fts.get('cDNA_match').locs) == d1
+    assert fts.get('cds').loc.distance(fts.get('cDNA_match').loc) > 0
+    d2 = fts.get('cds').distance(fts.get('cDNA_match'), pos='middle')
+    assert d2 > d1
+    assert fts.get('cds').locs.distance(fts.get('cds').locs) == 0
 
 
 def test_ft_shortcuts():
@@ -99,10 +129,15 @@ def test_ft_shortcuts():
 def test_locs_magic_methods():
     fts = read_fts()
     assert fts.get('cds').locs < fts.get('cDNA_match').locs
+    assert fts.get('cds').loc < fts.get('cDNA_match').loc
     assert fts.get('cds').locs <= fts.get('cDNA_match').locs
+    assert fts.get('cds').loc <= fts.get('cDNA_match').loc
     assert fts.get('cDNA_match').locs > fts.get('cds').locs
+    assert fts.get('cDNA_match').loc > fts.get('cds').loc
     assert fts.get('cDNA_match').locs >= fts.get('cds').locs
-    assert fts.get('cds').locs - fts.get('cds').locs == 0
+    assert fts.get('cDNA_match').loc >= fts.get('cds').loc
+    with pytest.warns():  # deprecated
+        assert fts.get('cds').locs - fts.get('cds').locs == 0
 
 
 def test_locs_new():

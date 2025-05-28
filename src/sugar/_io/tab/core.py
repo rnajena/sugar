@@ -357,7 +357,7 @@ def read_tabular(f, *, sep='\t', outfmt=None, ftype=None, fmt='blast',
                 ft.meta[_fmt].pident = ft.meta[_fmt].fident * 100
             # TODO adapt
             for blastattr, metaattr in copyattrs:
-                if c[blastattr] in ft.meta[_fmt]:
+                if blastattr in c and c[blastattr] in ft.meta[_fmt]:
                     ft.meta[metaattr] = ft.meta[_fmt][c[blastattr]]
             fts.append(ft)
     return FeatureList(fts)

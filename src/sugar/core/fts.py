@@ -127,6 +127,17 @@ class Location():
             self._meta = Meta()
         return self._meta
 
+    @property
+    def range(self):
+        """
+        Get the range of the location
+
+        :returns:
+            tuple ``start, stop`` with start and stop location
+            (zero-based numbering)
+        """
+        return self.start, self.stop
+
     @meta.setter
     def meta(self, v):
         self._meta = None if v is None else Meta(v)
@@ -172,6 +183,99 @@ class Location():
         defect = loc.defect._reverse()
         return Location(start, stop, strand, defect, meta=loc.meta)
 
+    def __lt__(self, other):
+        if isinstance(other, (Location, LocationTuple)):
+            start, stop = self.range
+            start2, stop2 = other.range
+            return start < start2 or (start==start2 and stop < stop2)
+        msg = f"'<' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def __le__(self, other):
+        if isinstance(other, (Location, LocationTuple)):
+            start, stop = self.range
+            start2, stop2 = other.range
+            return start < start2 or (start==start2 and stop <= stop2)
+        msg = f"'<=' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def __gt__(self, other):
+        if isinstance(other, (Location, LocationTuple)):
+            start, stop = self.range
+            start2, stop2 = other.range
+            return start > start2 or (start==start2 and stop > stop2)
+        msg = f"'>' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def __ge__(self, other):
+        if isinstance(other, (Location, LocationTuple)):
+            start, stop = self.range
+            start2, stop2 = other.range
+            return start > start2 or (start==start2 and stop >= stop2)
+        msg = f"'>=' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def mid(self, round=True):
+        """
+        Return the middle position of the location or location tuple
+        """
+        s = sum(self.range)
+        return s // 2 if round else s / 2
+
+    def overlaps(self, other):
+        """
+        Whether the location/locations overlap with the other location/locations
+        """
+        if isinstance(other, (Location, LocationTuple)):
+            lr1 = self.range
+            lr2 = other.range
+            return lr1[0] < lr2[1] and lr1[1] > lr2[0]
+        msg = f"{type(self).__name__}.overlaps() not supported for instances of '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def overlaplen(self, other):
+        """
+        Return overlap length with the other location or location tuple
+        """
+        if isinstance(other, (Location, LocationTuple)):
+            lr1 = self.range
+            lr2 = other.range
+            return max(0, min(lr1[1], lr2[1]) - max(lr1[0], lr2[0]))
+        msg = f"{type(self).__name__}.overlaplen() not supported for instances of '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def contains(self, other):
+        """
+        Whether the location range contains the other location range
+        """
+        if isinstance(other, (Location, LocationTuple)):
+            lr1 = self.range
+            lr2 = other.range
+            return lr1[0] <= lr2[0] and lr2[1] <= lr1[1]
+        msg = f"{type(self).__name__}.overlaps() not supported for instances of '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def distance(self, other, *, pos='inner', sign=False):
+        """
+        Distance to other location or location tuple
+        """
+        assert pos in ('inner', 'middle')
+        if isinstance(other, (Location, LocationTuple)):
+            if self.overlaps(other):
+                return 0
+            lr1 = self.range
+            lr2 = other.range
+            if pos == 'middle':
+                dist = sum(lr2) // 2 - sum(lr1) // 2
+            elif lr1 > lr2:
+                dist = lr2[1] - lr1[0]
+            else:
+                dist = lr2[0] - lr1[1]
+            if not sign:
+                dist = abs(dist)
+            return dist
+        msg = f"{type(self).__name__}.distance() not supported for instances of '{type(other).__name__}'"
+        raise TypeError(msg)
 
 class LocationTuple(tuple):
     """
@@ -208,7 +312,7 @@ class LocationTuple(tuple):
     @property
     def range(self):
         """
-        Get the range of locations of this feature
+        Get the range of the location or location tuple
 
         :returns:
             tuple ``start, stop`` with start and stop location
@@ -218,67 +322,24 @@ class LocationTuple(tuple):
         stop = max(loc.stop for loc in self)
         return start, stop
 
-    def __lt__(self, other):
-        if isinstance(other, LocationTuple):
-            start, stop = self.range
-            start2, stop2 = other.range
-            return start < start2 or (start==start2 and stop < stop2)
-        msg = f"'<' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
-        raise TypeError(msg)
+    __lt__ = Location.__lt__
+    __le__ = Location.__le__
+    __gt__ = Location.__gt__
+    __ge__ = Location.__ge__
+    contains = Location.contains
+    distance = Location.distance
+    mid = Location.mid
+    overlaplen = Location.overlaplen
+    overlaps = Location.overlaps
 
-    def __le__(self, other):
-        if isinstance(other, LocationTuple):
-            start, stop = self.range
-            start2, stop2 = other.range
-            return start < start2 or (start==start2 and stop <= stop2)
-        msg = f"'<=' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
-        raise TypeError(msg)
-
-    def __gt__(self, other):
-        if isinstance(other, LocationTuple):
-            start, stop = self.range
-            start2, stop2 = other.range
-            return start > start2 or (start==start2 and stop > stop2)
-        msg = f"'>' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
-        raise TypeError(msg)
-
-    def __ge__(self, other):
-        if isinstance(other, LocationTuple):
-            start, stop = self.range
-            start2, stop2 = other.range
-            return start > start2 or (start==start2 and stop >= stop2)
-        msg = f"'>=' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
-        raise TypeError(msg)
-
+    @deprecated('__sub__ is deprecated, use `LocationTuple.distance()` instead')
     def __sub__(self, other):
-        """Return position in the middle of both ranges"""
+        """Return distance between the middle of both ranges"""
         if isinstance(other, LocationTuple):
             lr1 = self.range
             lr2 = other.range
             return (sum(lr1) - sum(lr2)) // 2
         msg = f"'-' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
-        raise TypeError(msg)
-
-    def overlaps(self, other):
-        """
-        Whether the location ranges overlap with the other location range
-        """
-        if isinstance(other, LocationTuple):
-            lr1 = self.range
-            lr2 = other.range
-            return lr1[0] < lr2[1] and lr1[1] > lr2[0]
-        msg = f"LocationTuple.overlaps() not supported for instances of '{type(other).__name__}'"
-        raise TypeError(msg)
-
-    def contains(self, other):
-        """
-        Whether the location range contains the other location range
-        """
-        if isinstance(other, LocationTuple):
-            lr1 = self.range
-            lr2 = other.range
-            return lr1[0] <= lr2[0] and lr2[1] <= lr1[1]
-        msg = f"LocationTuple.overlaps() not supported for instances of '{type(other).__name__}'"
         raise TypeError(msg)
 
     def _reverse(self, seqlen=0):
@@ -406,26 +467,48 @@ class Feature():
         lr = self.locs.range
         return lr[1] - lr[0]
 
+    def contains(self, other):
+        """
+        Whether the feature location range contains other
+        """
+        if isinstance(other, Feature):
+            return self.locs.contains(other.locs)
+        if isinstance(other, (Location, LocationTuple)):
+            return self.locs.contains(other)
+        msg = f"Feature.contains() not supported for instances of '{type(other).__name__}'"
+        raise TypeError(msg)
+
+    def distance(self, other, **kw):
+        """
+        Distance to other location or location tuple, see `LocationTuple.distance()`
+        """
+        if isinstance(other, Feature):
+            return self.locs.distance(other.locs, **kw)
+        if isinstance(other, (Location, LocationTuple)):
+            return self.locs.distance(other, **kw)
+        msg = f"Feature.distance() not supported for instances of '{type(other).__name__}'"
+        raise TypeError(msg)
+
     def overlaps(self, other):
         """
-        Whether the location ranges overlap with the other feature
+        Whether the feature location overlaps with the other
         """
         if isinstance(other, Feature):
             return self.locs.overlaps(other.locs)
-        if isinstance(other, LocationTuple):
+        if isinstance(other, (Location, LocationTuple)):
             return self.locs.overlaps(other)
         msg = f"Feature.overlaps() not supported for instances of '{type(other).__name__}'"
         raise TypeError(msg)
 
-    def contains(self, other):
+    def overlaplen(self, other):
         """
-        Whether the location range contains the other feature
+        Return overlap length with the other location or location tuple
         """
         if isinstance(other, Feature):
-            return self.locs.contains(other.locs)
-        if isinstance(other, LocationTuple):
-            return self.locs.contains(other)
-        msg = f"Feature.contains() not supported for instances of '{type(other).__name__}'"
+            return self.locs.overlaplen(other.locs)
+        if isinstance(other, (Location, LocationTuple)):
+            return self.locs.overlaplen(other)
+        msg = f"Feature.overlaplen() not supported for instances of '{type(other).__name__}'"
         raise TypeError(msg)
 
     def rc(self, seqlen=0):
