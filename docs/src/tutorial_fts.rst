@@ -20,7 +20,8 @@ Printing a FeatureList shows lines like this::
 
     {type} {start}{strand} {len} {meta}
 
-This example prints the the first 5 features of a sample GFF file included in the package:
+The following example prints the the first 5 features of the sample GFF file included in the package.
+This file can be read by calling .read_fts() without any arguments.
 
 .. runblock:: pycon
 
