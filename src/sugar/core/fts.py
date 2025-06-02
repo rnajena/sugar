@@ -130,7 +130,7 @@ class Location():
     @property
     def range(self):
         """
-        Get the range of the location
+        Get the range of the location or location tuple
 
         :returns:
             tuple ``start, stop`` with start and stop location
@@ -269,14 +269,12 @@ class Location():
         if isinstance(other, (Location, LocationTuple)):
             if self.overlaps(other):
                 return 0
-            lr1 = self.range
-            lr2 = other.range
             if pos == 'middle':
-                dist = lr2.mid - lr1.mid
-            elif lr1 > lr2:
-                dist = lr2[1] - lr1[0]
+                dist = other.mid - self.mid
+            elif self > other:
+                dist = other.stop - self.start
             else:
-                dist = lr2[0] - lr1[1]
+                dist = other.start - self.stop
             if not sign:
                 dist = abs(dist)
             return dist
@@ -316,25 +314,27 @@ class LocationTuple(tuple):
         return super().__new__(cls, locs)
 
     @property
-    def range(self):
+    def start(self):
         """
-        Get the range of the location or location tuple
+        Get the start position of location tuple
+        """
+        return min(loc.start for loc in self)
 
-        :returns:
-            tuple ``start, stop`` with start and stop location
-            (zero-based numbering)
+    @property
+    def stop(self):
         """
-        start = min(loc.start for loc in self)
-        stop = max(loc.stop for loc in self)
-        return start, stop
+        Get the stop position of location tuple
+        """
+        return max(loc.stop for loc in self)
 
     __lt__ = Location.__lt__
     __le__ = Location.__le__
     __gt__ = Location.__gt__
     __ge__ = Location.__ge__
+    range = Location.range
+    mid = Location.mid
     contains = Location.contains
     distance = Location.distance
-    mid = Location.mid
     overlaplen = Location.overlaplen
     overlaps = Location.overlaps
 

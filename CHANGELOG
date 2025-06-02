@@ -4,7 +4,7 @@ dev:
     - add tobiopython and frombiopython methods to Feature and FeatureList classes,
       features attached to sequences are also converted to or from BioPython, see #7
     - add contains, distance, overlaps, overlaplen methods to Location, LocationTuple, Feature
-    - add mid attribute to Location and LocationTuple
+    - add start, stop, mid attributes to LocationTuple, add mid attribute to Location
   * io
     - blast: old blast files with sstrand N/A and start larger than stop can be read now
     - blast: be more flexible when matching blast fields to seqid and name
