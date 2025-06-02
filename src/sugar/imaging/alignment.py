@@ -253,9 +253,10 @@ def plot_alignment(
         if 'horizontalalignment' not in symbol_kw:
             symbol_kw.setdefault('ha', 'center')
         if symbol_size is None:
+            dpi = fig.dpi  # see issue #6
             fig.draw_without_rendering()
             bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-            symbol_size = bbox.width * fig.dpi * abs((x[-1] - x[0]) / (ax.get_xlim()[1] - ax.get_xlim()[0])) / n
+            symbol_size = bbox.width * dpi * abs((x[-1] - x[0]) / (ax.get_xlim()[1] - ax.get_xlim()[0])) / n
         for i in range(len(data)):
             for j in range(n):
                 xy = 0.5 * (x[j] + x[j+1]), 0.5 * (y[i] + y[i+1])
