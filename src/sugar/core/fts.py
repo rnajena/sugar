@@ -215,12 +215,12 @@ class Location():
         msg = f"'>=' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
         raise TypeError(msg)
 
-    def mid(self, round=True):
+    @property
+    def mid(self):
         """
         Return the middle position of the location or location tuple
         """
-        s = sum(self.range)
-        return s // 2 if round else s / 2
+        return sum(self.range) // 2
 
     def overlaps(self, other):
         """

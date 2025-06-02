@@ -113,6 +113,11 @@ def test_ft_distance():
     assert fts.get('cds').locs.distance(fts.get('cds').locs) == 0
 
 
+def test_ft_locs_mid():
+    ft = read_fts()[0]
+    assert ft.locs.mid == ft.loc.mid
+
+
 def test_ft_shortcuts():
     ft = read_fts()[0]
     assert ft.id == ft.meta.id
