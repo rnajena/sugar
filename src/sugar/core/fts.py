@@ -258,6 +258,12 @@ class Location():
     def distance(self, other, *, pos='inner', sign=False):
         """
         Distance to other location or location tuple
+
+        :param str pos: ``'inner'`` returns the shortest distance between the locations,
+            ``'middle'`` returns the distance between the mid locations
+        :param bool sign: If set to True, the returned distance will have a negative sign
+            if the other location has a smaller position.
+            Otherwise the distance will always be larger equal than zero.
         """
         assert pos in ('inner', 'middle')
         if isinstance(other, (Location, LocationTuple)):
@@ -266,7 +272,7 @@ class Location():
             lr1 = self.range
             lr2 = other.range
             if pos == 'middle':
-                dist = sum(lr2) // 2 - sum(lr1) // 2
+                dist = lr2.mid - lr1.mid
             elif lr1 > lr2:
                 dist = lr2[1] - lr1[0]
             else:

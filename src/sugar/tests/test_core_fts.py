@@ -109,7 +109,10 @@ def test_ft_distance():
     assert fts.get('cds').locs.distance(fts.get('cDNA_match').locs) == d1
     assert fts.get('cds').loc.distance(fts.get('cDNA_match').loc) > 0
     d2 = fts.get('cds').distance(fts.get('cDNA_match'), pos='middle')
+    d3 = fts.get('cDNA_match').distance(fts.get('cds'), pos='middle', sign=True)
     assert d2 > d1
+    assert d3 < 0
+    assert abs(d3) == d2
     assert fts.get('cds').locs.distance(fts.get('cds').locs) == 0
 
 
