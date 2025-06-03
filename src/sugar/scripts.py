@@ -149,7 +149,11 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
         path = Path(__file__).parent / 'tests'
         print(f'Run pytest in directory {path}')
         with _changedir(path):
-            status = pytest.main(pytest_args)
+            # using the normal warnings filter in pytest.ini does not work in conjunction with -W error
+            # -> throws an internal pytest error
+            # using addopts configuration does not work either, because it adds options before other CLI arguments
+            append_opts = ['-W', 'ignore:Module sugar was previously imported']
+            status = pytest.main(pytest_args + append_opts)
         sys.exit(status)
     else:
         raise ValueError(f'Unknown command: {command}')

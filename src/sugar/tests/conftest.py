@@ -18,7 +18,7 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if 'webtest' in item.keywords:
                 item.add_marker(skip_web)
-    # explicitely add filter warnings to markers so that they have a higher
+    # explicitly add filter warnings to markers so that they have a higher
     # priority than command line options, e.g. -W error
     for item in items:
         for fwarn in config.getini('filterwarnings'):
