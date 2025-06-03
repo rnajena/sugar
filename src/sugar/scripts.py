@@ -140,6 +140,7 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
     elif command == 'tutorial':
         copy_tutorial_files(**kw)
     elif command == 'test':
+        from sugar import __version__
         try:
             import pytest
         except ImportError:
@@ -148,6 +149,8 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
             sys.exit(msg)
         path = Path(__file__).parent / 'tests'
         print(f'Run pytest in directory {path}')
+        print(f'sugar {__version__}')
+        print()
         with _changedir(path):
             # using the normal warnings filter in pytest.ini does not work in conjunction with -W error
             # -> throws an internal pytest error
