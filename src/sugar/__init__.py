@@ -2,7 +2,7 @@
 Sugar -- A Python framework for bioinformatics
 """
 
-__version__ = '0.9.0'
+__version__ = '0.9.1-dev'
 
 from sugar.core.meta import Attr, Meta
 from sugar.core.fts import Feature, FeatureList, Location
