@@ -48,9 +48,9 @@ def _debug_wrong_symbol_size(ax, x, n):
     fig = ax.get_figure()
     dpiinv = fig.dpi_scale_trans.inverted()
     bbox = ax.get_window_extent().transformed(dpiinv)
-    symbol_size = bbox.width * fig.dpi * abs((x[-1] - x[0]) / (ax.get_xlim()[1] - ax.get_xlim()[0])) / n
+    symbol_size = bbox.width * abs((x[-1] - x[0]) / (ax.get_xlim()[1] - ax.get_xlim()[0])) / n * 100
     msg = ('Wrong symbol size\n'
-           f'{symbol_size=:.2f} = {bbox.width=:} * {fig.dpi=:} * abs({(x[-1] - x[0])} / ({ax.get_xlim()[1]=:.2f} - {ax.get_xlim()[0]=:.2f})) / {n}')
+           f'{symbol_size=:.2f} = {bbox.width=:} * abs({(x[-1] - x[0])} / ({ax.get_xlim()[1]=:.2f} - {ax.get_xlim()[0]=:.2f})) / {n} * 100')
     return msg
 
 
@@ -62,12 +62,12 @@ def test_aspect_symbol_size(outdir):
     with mpl.rc_context({'figure.autolayout': False,'figure.constrained_layout.use': False,
                          'figure.subplot.left': 0.1, 'figure.subplot.right':  0.9}):
         for adjustable in ('box', 'datalim'):
-            fig = plt.figure(figsize=(12.5, 8), dpi=100)
+            fig = plt.figure(figsize=(12.5, 8), dpi=400)
             ax = fig.add_subplot()
             ax.set_adjustable(adjustable)
             ax.set_xlim(-5, 15)
             ax.set_ylim(-2, 12)
-            seqs.plot_alignment(outdir / f'test_plot_ali_aspect1_{adjustable}.png', ax=ax, symbols=True, color=None, aspect=2, extent=[0, 10, 0, 10], show_spines=True)
+            seqs.plot_alignment(outdir / f'test_plot_ali_aspect1_{adjustable}.png', ax=ax, symbols=True, color=None, aspect=2, extent=[0, 10, 0, 10], show_spines=True, dpi=300)
             assert ax.get_aspect() == 0.04
             text = [child for child in ax.get_children() if hasattr(child, 'get_text') and child.get_text() == 'A'][0]
             assert round(text.get_fontsize(), 1) == 5.0, _debug_wrong_symbol_size(ax, x=(0, 10), n=100)
@@ -79,7 +79,7 @@ def test_aspect_symbol_size(outdir):
             ax = fig.add_subplot()
             ax.set_adjustable(adjustable)
             ax.set_xlim(-2, 2)
-            seqs.plot_alignment(outdir / f'test_plot_ali_aspect2_{adjustable}.png', ax=ax, symbols=True, color=None, aspect=2, show_spines=True, scale_symbol_size=1/1.925)
+            seqs.plot_alignment(outdir / f'test_plot_ali_aspect2_{adjustable}.png', ax=ax, symbols=True, color=None, aspect=2, show_spines=True, scale_symbol_size=1/1.925, dpi=100)
             assert ax.get_aspect() == 2
             text = [child for child in ax.get_children() if hasattr(child, 'get_text') and child.get_text() == 'A'][0]
             assert round(text.get_fontsize(), 1) == 10.0, _debug_wrong_symbol_size(ax, x=(-0.5, 1.5), n=2*1.925)

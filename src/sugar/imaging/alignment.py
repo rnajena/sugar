@@ -131,7 +131,7 @@ def plot_alignment(
         default is ``'black'``
     :param symbol_gap_color: the color of the gap symbol, default is ``'black'``
     :param symbol_size: The font size of the symbols, by default a visually appealing size is calculated
-    :param scale_symbol_size: Scale the default symbol size
+    :param scale_symbol_size: Scale factor for the automatically calculated symbol size, default is 1
     :param symbol_kw: A dictionary of additional parameters passed to matplotlib's :meth:`~matplotlib.axes.Axes.annotate`
     :param fts: Wether to highlight features, defaults to no highlighting,
         might be a FeatureList object or just True to use the features which are attached to the sequences object.
@@ -255,10 +255,15 @@ def plot_alignment(
         if 'horizontalalignment' not in symbol_kw:
             symbol_kw.setdefault('ha', 'center')
         if symbol_size is None:
-            fig.draw_without_rendering()
+            fig.draw_without_rendering()  # to set automatic axis limits
+            # transform bounding box of ax to inch
             bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
             ratio_covered = abs((x[-1] - x[0]) / (ax.get_xlim()[1] - ax.get_xlim()[0]))
-            symbol_size = scale_symbol_size * bbox.width * fig.dpi * ratio_covered / n
+            # Calculate the width of a single symbol box in inch.
+            # Font size is the font height specified in pixels with PPI (pixels per inch) of 72.
+            # With a typical aspect ratio of monospace fonts of 5:3, we would need a factor of 120 to fill the width of the symbol box
+            # We take slightly lower value of 100 here.
+            symbol_size = bbox.width * ratio_covered / n * 100 * scale_symbol_size
         elif scale_symbol_size != 1:
             warn('scale_symbol_size parameter is ignored if symbol_size is specified')
         for i in range(len(data)):
