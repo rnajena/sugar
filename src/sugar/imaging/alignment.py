@@ -91,6 +91,7 @@ def plot_alignment(
         symbol_color='black',
         symbol_gap_color='black',
         symbol_size=None,
+        scale_symbol_size=1,
         symbol_kw=None,
         fts=None,
         fts_display='facecolor',
@@ -130,6 +131,7 @@ def plot_alignment(
         default is ``'black'``
     :param symbol_gap_color: the color of the gap symbol, default is ``'black'``
     :param symbol_size: The font size of the symbols, by default a visually appealing size is calculated
+    :param scale_symbol_size: Scale the default symbol size
     :param symbol_kw: A dictionary of additional parameters passed to matplotlib's :meth:`~matplotlib.axes.Axes.annotate`
     :param fts: Wether to highlight features, defaults to no highlighting,
         might be a FeatureList object or just True to use the features which are attached to the sequences object.
@@ -253,10 +255,12 @@ def plot_alignment(
         if 'horizontalalignment' not in symbol_kw:
             symbol_kw.setdefault('ha', 'center')
         if symbol_size is None:
-            dpi = fig.dpi  # see issue #6
             fig.draw_without_rendering()
             bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-            symbol_size = bbox.width * dpi * abs((x[-1] - x[0]) / (ax.get_xlim()[1] - ax.get_xlim()[0])) / n
+            ratio_covered = abs((x[-1] - x[0]) / (ax.get_xlim()[1] - ax.get_xlim()[0]))
+            symbol_size = scale_symbol_size * bbox.width * fig.dpi * ratio_covered / n
+        elif scale_symbol_size != 1:
+            warn('scale_symbol_size parameter is ignored if symbol_size is specified')
         for i in range(len(data)):
             for j in range(n):
                 xy = 0.5 * (x[j] + x[j+1]), 0.5 * (y[i] + y[i+1])
