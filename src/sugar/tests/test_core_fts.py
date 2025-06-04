@@ -211,6 +211,21 @@ def test_fts_remove_overlapping():
             assert not ft1.overlaps(ft2)
 
 
+def test_fts_remove_overlapping_duplicate():
+    fts = read_fts()[:3]
+    fts[1].loc.start = 0
+    fts[1].loc.stop = 5
+    ft = fts[0] = fts[2]
+    assert fts[0] == ft
+    assert len(fts.remove_overlapping()) == 2
+
+
 def test_fts_remove_nested():
     fts = read_fts()
     assert len(fts.copy().remove_nested()) == 1
+
+
+def test_fts_remove_nested_duplicate():
+    fts = read_fts()[:2]
+    fts[0] = fts[1]
+    assert len(fts.remove_nested()) == 1

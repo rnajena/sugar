@@ -1080,10 +1080,20 @@ class FeatureList(collections.UserList):
         """
         return deepcopy(self)
 
+    def remove_duplicates(self):
+        """
+        Remove duplicate features
+        """
+        self.reverse()
+        self.data = [ft for i, ft in enumerate(self) if not ft in self[i+1:]]
+        self.reverse()
+        return self
+
     def remove_nested(self):
         """
         Remove nested features, i.e. features contained within others
         """
+        self.remove_duplicates()
         fts = sorted(self.data, key=len, reverse=True)
         remove = []
         for i, ft in enumerate(fts):
@@ -1105,6 +1115,7 @@ class FeatureList(collections.UserList):
         For example, to keep longer features, sort the list beforehand with
         ``fts.sort(len, reverse=True)``.
         """
+        self.remove_duplicates()
         remove = []
         for i, ft in enumerate(self):
             if ft in remove:
