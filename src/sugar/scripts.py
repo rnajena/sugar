@@ -32,6 +32,16 @@ def _start_ipy(seqs):
     print('Bye')
 
 
+def _output(seqs_or_fts, out, fmt, fmtout):
+    if out is None:
+        try:
+            print(seqs_or_fts.tofmtstr(fmtout or fmt or seqs_or_fts[0].meta._fmt))
+        except BrokenPipeError:
+            pass
+    else:
+        seqs_or_fts.write(out, fmt=fmtout)
+
+
 def cat(fname, fmt=None, out=None, fmtout=None, merge=False):
     """Concatenate sequence files, optionally merge and convert to different format (sugar cat, sugar merge)"""
     from sugar import BioBasket, read
@@ -40,13 +50,7 @@ def cat(fname, fmt=None, out=None, fmtout=None, merge=False):
         seqs += read(fn, fmt)
     if merge:
         seqs.merge()
-    if out is None:
-        try:
-            print(seqs.tofmtstr(fmtout or fmt or seqs[0].meta._fmt))
-        except BrokenPipeError:
-            pass
-    else:
-        seqs.write(out, fmt=fmtout)
+    _output(seqs, out, fmt, fmtout)
 
 
 def catf(fname, fmt=None, out=None, fmtout=None):
@@ -55,13 +59,26 @@ def catf(fname, fmt=None, out=None, fmtout=None):
     fts = FeatureList()
     for fn in fname:
         fts += read_fts(fn, fmt)
-    if out is None:
+    _output(fts, out, fmt, fmtout)
+
+
+def reverse_complement(fname, fmt, out=None, fmtout=None):
+    from sugar import read
+
+    try:
+        seqs = read(fname, fmt)
+    except Exception as ex1:
         try:
-            print(fts.tofmtstr(fmtout or fmt or fts[0].meta._fmt))
-        except BrokenPipeError:
-            pass
-    else:
-        fts.write(out, fmt=fmtout)
+            from sugar import BioSeq
+            for line in fname.splitlines():
+                print(BioSeq(line).rc())
+            return
+        except Exception as ex2:
+            raise ExceptionGroup(
+                'Expect sequence file or nucleotide string as input',
+                [ex1, ex2])
+    seqs.rc()
+    _output(seqs, out, fmt, fmtout)
 
 
 def translate(fname, fmt, out=None, fmtout=None, cds=False, **kw):
@@ -82,13 +99,7 @@ def translate(fname, fmt, out=None, fmtout=None, cds=False, **kw):
     if cds:
         seqs = seqs['cds']
     seqs.translate(**kw)
-    if out is None:
-        try:
-            print(seqs.tofmtstr(fmtout or fmt or seqs[0].meta._fmt))
-        except BrokenPipeError:
-            pass
-    else:
-        seqs.write(out, fmt=fmtout)
+    _output(seqs, out, fmt, fmtout)
 
 
 def copy_tutorial_files(out='.'):
@@ -135,6 +146,8 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
     elif command == 'index':
         from sugar.index.fastaindex import _fastaindex_cmd
         _fastaindex_cmd(**kw)
+    elif command == 'rc':
+        reverse_complement(fname, fmt=fmt, **kw)
     elif command == 'translate':
         translate(fname, fmt=fmt, **kw)
     elif command == 'tutorial':
@@ -185,6 +198,7 @@ def cli(cmd_args=None):
     p_merge = sub.add_parser('merge', help='merge sequences with the same id')
     p_print = sub.add_parser('print', help='print contents of seq file')
     p_printf = sub.add_parser('printf', help='print contents of fts file')
+    p_rc = sub.add_parser('rc', help='reverse complement of nucleotide sequence')
     p_trans = sub.add_parser('translate', help='translate nucleotide sequence')
     p_tutorial = sub.add_parser('tutorial', help='copy data files used in the tutorial to current directory')
     msg = 'run sugar test suite'
@@ -213,8 +227,9 @@ def cli(cmd_args=None):
     p_print.add_argument('--no-showgc', help='do not show GC content', action='store_false', dest='showgc')
     for p in (p_cat, p_catf, p_merge):
         p.add_argument('fname', help='filename(s) in', nargs='+')
-    p_trans.add_argument('fname', help='filename in')
-    for p in (p_cat, p_catf, p_merge, p_trans):
+    p_rc.add_argument('fname', help='filename in or string')
+    p_trans.add_argument('fname', help='filename in or string')
+    for p in (p_cat, p_catf, p_merge, p_rc, p_trans):
         p.add_argument('-o', '--out', help='filename out')
         p.add_argument('-f', '--fmt', help='format in')
         p.add_argument('-fo', '--fmtout', help='format out')

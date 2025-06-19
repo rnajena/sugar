@@ -61,6 +61,15 @@ def test_load(capsys):
     assert 'Bye' in captured.out
 
 
+def test_rc():
+    assert b'CAT' == check_output('sugar rc ATG'.split()).strip()
+    with tempfilename() as fname:
+        read().write(fname, 'fasta')
+        assert check_output(f'sugar rc {fname}'.split()).startswith(b'>')
+        with tempfilename() as fname2:
+            assert b'' == check_output(f'sugar rc {fname} -o {fname2} -fo sjson'.split())
+
+
 def test_translate():
     assert b'S*R' == check_output('sugar translate --complete TCTTGAAGG'.split()).strip()
     assert b'MS' == check_output('sugar translate ATGTCTTGAAGG'.split()).strip()
@@ -70,11 +79,13 @@ def test_translate():
         with tempfilename() as fname2:
             assert b'' == check_output(f'sugar translate --complete {fname} -o {fname2} -fo sjson'.split())
 
+
 def test_tutorial(tmp_path_cd):
     assert b'' == check_output('sugar tutorial'.split())
     fnames = [f.name for f in tmp_path_cd.iterdir()]
     assert 'hits.blastn' in fnames
     assert len(fnames) == 5
+
 
 def test_index():
     # TODO: write test for index script

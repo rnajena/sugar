@@ -1,3 +1,5 @@
+dev:
+  * scripts: add sugar rc command to get the reverse complement of a nt sequence
 v0.9.0:
   * add dna-features-viewer-lite as dependency
   * core:
