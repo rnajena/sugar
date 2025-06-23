@@ -54,7 +54,7 @@ jobs:
             python: "3.13"
             options: full warnings
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ contains(matrix.options, 'warnings') }}
+    continue-on-error: ${{ contains(matrix.options, 'full') }}
     env:
       # set additional runtest options (--web, -W error)
       test_options: ${{ contains(matrix.options, 'full') && '--web' || '' }} ${{ contains(matrix.options, 'warnings') && '-W error' || '' }}
