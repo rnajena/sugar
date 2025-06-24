@@ -14,7 +14,8 @@ It thus provides classes and functions for working with DNA and RNA sequences, a
 
 ### Installation
 
-Use pip, e.g.
+Sugar requires a Python version `>=3.11`.
+Use pip to install the package, e.g.
 
 ```
 pip install rnajena-sugar
