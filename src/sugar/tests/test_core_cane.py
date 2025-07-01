@@ -245,6 +245,17 @@ def test_select_seqs():
     assert len(seqs2) < len(seqs)
 
 
+def test_select_seqs_warn_not():
+    seqs = read()
+    with pytest.warns(match='Attribute'):
+        seqs2 = seqs.select(notpresentattr=5)
+        seqs3 = seqs.select(notpresentattr_noteq=5)
+        seqs4 = seqs.select(notpresentattr_ne=5)
+    assert len(seqs2) == 0
+    assert len(seqs3) == 2
+    assert len(seqs4) == 2
+
+
 def test_groupby_fts_nested():
     fts = read_fts()
     d = fts.groupby(('type', len))

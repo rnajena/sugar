@@ -80,6 +80,16 @@ def _sorted(objs, keys=None, reverse=False, attr=None):
     return objs
 
 
+def _getattr_warn(obj, key, default=None):
+    """
+    Like getattr with default value, but warns if obj does not have the attribute
+    """
+    if not hasattr(obj, key):
+        warnings.warn(f'Attribute "{key}" not present in {obj.__class__.__name__} object')
+    return getattr(obj, key, default)
+
+
+
 def _select(objs, attr='meta', **kwargs):
     r"""
     Select objects, used by several objects in sugar.core
@@ -118,8 +128,8 @@ def _select(objs, attr='meta', **kwargs):
         if op is None:
             op = getattr(operator, kop)
         getv = ((lambda obj: allowed_funcs[key](obj)) if key in allowed_funcs else
-                (lambda obj: getattr(obj, key, None)) if attr is None else
-                (lambda obj: getattr(getattr(obj, attr), key, None)))
+                (lambda obj: _getattr_warn(obj, key, None)) if attr is None else
+                (lambda obj: _getattr_warn(getattr(obj, attr), key, None)))
         match (applynot, applylower):
             case (False, False): filt = lambda obj: op(getv(obj), value)
             case (True, False): filt = lambda obj: not op(getv(obj), value)
