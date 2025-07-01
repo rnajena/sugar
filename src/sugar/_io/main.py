@@ -18,7 +18,7 @@ import tempfile
 from urllib.parse import urlparse
 
 from sugar.core.fts import FeatureList
-from sugar.core.seq import BioBasket, BioSeq
+from sugar.core.seq import BioBasket
 from sugar._io.util import ARCHIVE_EXTS, EPS, FMTS_ALL
 
 
