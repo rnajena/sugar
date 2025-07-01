@@ -5,7 +5,9 @@ Helper functions for _io module
 from importlib.metadata import entry_points
 import shutil
 
-
+# Lists in this dictionary define the detection order when reading
+# a file without specifying the format.
+# More common and easier to detect formats should be earlier in the list.
 FMTS = {'seqs': ['fasta', 'genbank', 'stockholm', 'gff', 'sjson'],
         'fts': ['gff', 'gtf', 'genbank', 'infernal', 'mmseqs', 'blast', 'tsv', 'csv', 'sjson']}
 
@@ -21,6 +23,7 @@ def _epsname_fts_key(epsname):
     return _epsname_key(epsname, what='fts')
 
 
+# All formats including format plugins defined in other modules
 EPS = {'seqs': entry_points(group='sugar.io'),
        'fts': entry_points(group='sugar.io.fts')}
 FMTS_ALL = {'seqs': sorted(EPS['seqs'].names, key=_epsname_key),

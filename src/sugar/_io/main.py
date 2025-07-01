@@ -98,9 +98,6 @@ def detect_ext(fname, what='seqs'):
                 return fmt
 
 
-_ARCHIVE_EXTS = ['.zip', '.gz.tar', '.bz.tar', '.xz.tar', '.tar']
-
-
 def _resolve_archive(writer):
     @wraps(writer)
     def new_writer(objs, fname, *args, archive=None, **kw):
@@ -111,7 +108,9 @@ def _resolve_archive(writer):
             raise ValueError(msg)
         if isinstance(fname, str):
             if archive is not False:
-                for ext in _ARCHIVE_EXTS:
+                # we do not use the list _io.util.ARCHIVE_EXTS here,
+                # because we need to check .bz.tar and cohorts before .tar
+                for ext in ['.zip', '.gz.tar', '.bz.tar', '.xz.tar', '.tar']:
                     if fname.endswith(ext):
                         archive2 = ext.replace('.', '')
                         if isinstance(archive, str) and archive != archive2:
