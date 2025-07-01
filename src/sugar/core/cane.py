@@ -462,8 +462,14 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
                         break
                     has_stop = False
                     if gap is not None and any(g in seq.data for g in gap):
-                        # TODO: need to account for gaps
+                        warnings.warn('The stop position of the last ORF is set to the end of the sequence for `need_stop=False` in gap mode')
                         i2 = len(seq)
+                        # TODO: need to account for gaps
+                        # num_chars_from_end = (len(seq) - sum(seq.str.count(g) for g in gap) - framefwd) % 3
+                        # while num_chars_from_end > 0:
+                        #     i2 -= 1
+                        #     if seq.data[i2] not in gap:
+                        #         num_chars_from_end -= 1
                     else:
                         i2 = len(seq) - (len(seq) - framefwd) % 3
             orf = _inds2orf(i1, i2, frame, len(seq), seqid=seq.id, ftype=ftype, has_start=i1 in start_pos, has_stop=has_stop)

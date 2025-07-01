@@ -132,6 +132,26 @@ def test_find_orfs_extended():
     assert len(orfs3c) == len(seq.find_orfs(need_start='once', nested='no', gap='-'))
 
 
+def test_find_orfs_gaps():
+    teststr = 'CCC_CAT_GC_____T_GAC_CTA_CCC_CAT_CAT_GTG_ACC_CCC_CTG_ACC_CAT_GCC_CTG_ACC_ATG_CCC_C'
+    seq1 = BioSeq(teststr.replace('_', ''))
+    seq2 = BioSeq(teststr)
+    orfs1 = seq1.find_orfs()
+    orfs2 = seq2.find_orfs(gap='_')
+    assert len(orfs2) == len(orfs1)
+    for o1, o2 in zip(orfs1, orfs2):
+        assert o2.meta.rf == o1.meta.rf
+        assert seq1[o1] == seq2[o2].str.replace('_', '')
+    orfs1 = seq1.find_orfs(need_start='never', need_stop=False)
+    with pytest.warns(match='stop position'):
+        orfs2 = seq2.find_orfs(gap='_', need_start='never', need_stop=False)
+    assert len(orfs2) == len(orfs1)
+    for o1, o2 in zip(orfs1, orfs2):
+        assert o2.meta.rf == o1.meta.rf
+        if len(seq2[o2].str.replace('_', '')) % 3 == 0:
+            assert seq1[o1] == seq2[o2].str.replace('_', '')
+
+
 def test_find_orfs_vs_orffinder():
     teststr = 'CCC_CAT_GCT_GAC_CTA_CCC_CAT_CAT_GTG_ACC_CCC_CTG_ACC_CAT_GCC_CTG_ACC_ATG_CCC_C'
     seq = BioSeq(teststr.replace('_', ''))
@@ -221,7 +241,6 @@ def test_find_orfs_vs_orffinder():
         assert orf.meta.rf == rf
         assert orf.loc.start == len(seq) - end
         assert orf.loc.stop == len(seq) - start
-
 
 
 def test_select_fts_second_modus():
