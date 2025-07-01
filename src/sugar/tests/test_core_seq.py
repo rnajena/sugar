@@ -316,3 +316,13 @@ def test_seqs_tostr():
 def test_seqs_reverse_complement():
     seqs = read()
     assert seqs.copy().reverse().complement() == seqs.rc()
+
+
+def test_seqs_init():
+    seqs1 = BioBasket(['ATG'])
+    with pytest.warns(match='initialized with a seq'):
+        seqs2 = BioBasket(seqs1[0])
+    with pytest.warns(match='initialized with a seq'):
+        seqs3 = BioBasket('ATG')
+    assert seqs2 == seqs1
+    assert seqs3 == seqs1

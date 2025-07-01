@@ -699,6 +699,10 @@ class BioBasket(collections.UserList):
     attribute.
     """
     def __init__(self, data=None, meta=None):
+        if isinstance(data, (str, BioSeq)):
+            warn(f'{self.__class__.__name__} object initialized with a sequence. '
+                 'To hide this warning initialize with a list of sequences.')
+            data = [data]
         if data is None:
             data = []
         if hasattr(data, 'meta'):
