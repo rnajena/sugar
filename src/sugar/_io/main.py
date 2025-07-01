@@ -148,6 +148,12 @@ def _allow_to_str(writer):
     return new_writer
 
 
+def _raise_empty_file(fname):
+    with _file_opener(fname, mode='r', binary=True) as f:
+        if len(f.read().strip()) == 0:
+            raise IOError('Try to read empty file or file-like object')
+
+
 def __get_ext(fname):
     return os.path.split(fname)[1].split('.', 1)[-1]
 
@@ -252,6 +258,7 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, **kw):
     if fmt is None:
         fmt = detect(fname, encoding=encoding, **kw)
     if fmt is None:
+        _raise_empty_file(fname)
         raise IOError('Format cannot be auto-detected')
     fmt = fmt.lower()
     module = EPS['seqs'][fmt].load()
@@ -321,6 +328,7 @@ def read(fname, fmt=None, *, mode='r', encoding=None, **kw):
     if fmt is None:
         fmt = detect(fname, **kw)
     if fmt is None:
+        _raise_empty_file(fname)
         raise IOError('Format cannot be auto-detected')
     fmt = fmt.lower()
     module = EPS['seqs'][fmt].load()
@@ -369,6 +377,7 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
     if fmt is None:
         fmt = detect(fname, what='fts', **kw)
     if fmt is None:
+        _raise_empty_file(fname)
         raise IOError('Format cannot be auto-detected')
     fmt = fmt.lower()
     module = EPS['fts'][fmt].load()

@@ -144,3 +144,16 @@ def test_download_uncompress():
 def test_download_zip():
     url = 'https://raw.githubusercontent.com/rnajena/sugar/master/src/sugar/tests/data/io_test.zip'
     assert read()[0] in read(url)
+
+
+def test_empty_file():
+    with tempfilename() as fname:
+        with open(fname, 'wb') as f:
+            f.write(b'   \n')
+        with pytest.raises(match='empty file'):
+            read(fname)
+        with pytest.raises(match='empty file'):
+            read_fts(fname)
+        with pytest.raises(match='empty file'):
+            for _ in iter_(fname):
+                pass
