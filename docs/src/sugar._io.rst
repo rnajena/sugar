@@ -11,6 +11,7 @@ Submodules
    main
    fasta
    genbank
+   embl
    sjson
    stockholm
    tab.blast

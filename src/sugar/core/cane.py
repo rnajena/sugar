@@ -382,7 +382,7 @@ def find_orfs(seq, rf='all', start='start', stop='stop', need_start='always', ne
         Use the `.BioSeq.fts` and `.BioBasket.fts` properties to overwrite features with the found ORFs.
 
     ..note::
-        Python's `re.matchall()` is used internally to find start and stop codons.
+        Python's `python:re.matchall()` is used internally to find start and stop codons.
         The limitations of this function apply; for example, matches cannot overlap.
         Care must be taken in special cases.
         For instance, if ORFs do not need to start with a start codon,

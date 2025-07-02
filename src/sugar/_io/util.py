@@ -8,8 +8,8 @@ import shutil
 # Lists in this dictionary define the detection order when reading
 # a file without specifying the format.
 # More common and easier to detect formats should be earlier in the list.
-FMTS = {'seqs': ['fasta', 'genbank', 'stockholm', 'gff', 'sjson'],
-        'fts': ['gff', 'gtf', 'genbank', 'infernal', 'mmseqs', 'blast', 'tsv', 'csv', 'sjson']}
+FMTS = {'seqs': ['fasta', 'genbank', 'embl', 'stockholm', 'gff', 'sjson'],
+        'fts': ['gff', 'gtf', 'genbank', 'embl', 'infernal', 'mmseqs', 'blast', 'tsv', 'csv', 'sjson']}
 
 
 def _epsname_key(epsname, what='seqs'):

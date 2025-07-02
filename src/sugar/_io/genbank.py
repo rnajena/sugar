@@ -106,13 +106,16 @@ def iter_genbank(f, exclude=()):
         line = line.rstrip()
         if line.strip() == '':
             continue
-        elif line.strip() == '//':
-            if fttype is not None:
-                ft = Feature(type=fttype, locs=_parse_locs(locs),
-                                meta=Meta(_genbank=ftmeta))
-                fts.append(ft)
-                fttype = None
-                meta.fts = FeatureList(fts)
+        if fttype is not None and (
+                line.strip() == '//' or parse == 'fts' and len(line[:20].strip()) > 0):
+            # create a new feature
+            ft = Feature(type=fttype, locs=_parse_locs(locs),
+                            meta=Meta(_genbank=ftmeta))
+            fts.append(ft)
+            fttype = None
+            meta.fts = FeatureList(fts)
+        if line.strip() == '//':
+            # create a new sequence object
             assert len(misc) == 0
             assert fttype is None
             meta._genbank = attrs
@@ -121,10 +124,6 @@ def iter_genbank(f, exclude=()):
                 if 'fts' in meta:
                     for ft in meta.fts:
                         ft.meta.seqid = meta.id
-            try:
-                del meta._genbank.reference  # references could be parsed in a list, not implemented
-            except Exception:
-                pass
             if 'translation' in exclude and 'fts' in meta:
                 for feature in meta.fts:
                     try:
@@ -145,10 +144,10 @@ def iter_genbank(f, exclude=()):
             parse = 'header'
             seq = ''
             continue
-        if parse == 'header':
-            if not line.startswith(' ') and len(line)>0:
-                key = line[:12].lower().strip()
-                subkey = None
+        if parse in ('header', 'reference'):
+            if len(line)>0:
+                if line[:12].strip() != '':
+                    key = line[:12].lower().strip()
                 if key == 'features':
                     parse = 'fts'
                     key = None
@@ -159,31 +158,18 @@ def iter_genbank(f, exclude=()):
                     val = ''
                 if key == 'locus':
                     val = ', '.join(val.split())
-                attrs[key] = val
-            elif line.startswith(' ' * 12) and len(line.strip()) > 0:
-                if subkey:
-                    attrs[key][subkey] = attrs[key][subkey] + ' ' + line.strip()
-                else:
-                    attrs[key] = attrs[key] + ' ' + line.strip()
-            elif line.startswith(' ') and len(line.strip()) > 0:
-                subkey = line[:12].lower().strip()
-                try:
-                    val = line.strip().split(maxsplit=1)[1]
-                except Exception:
-                    val = ''
-                attrs[key] = Attr(id=attrs[key])
-                attrs[key][subkey] = val
+                if key == 'reference':
+                    parse = 'reference'
+                if line[0] == ' ' and parse == 'reference':
+                    key = 'reference'
+                if key == 'organism' and line[:12].strip() == '':
+                    key = 'taxonomy'
+                attrs[key] = val if key not in attrs else attrs[key] + '; ' + val
         elif parse == 'fts':
-            # if 'fts' in exclude and 'seq' in exclude:
-            #     continue
             if 'fts' in exclude:
                 continue
             if len(line[:20].strip()) > 0:
-                if fttype is not None:
-                    ft = Feature(type=fttype, locs=_parse_locs(locs),
-                                 meta=Meta(_genbank=ftmeta))
-                    fts.append(ft)
-                    fttype = None
+                assert fttype is None
                 key = line[:20].strip().split()[0]
                 # subkey = None
                 if key.lower() == 'origin':

@@ -64,6 +64,7 @@ exclude_patterns = ['_build']
 rst_epilog = """
 .. _BinarySeachFile: https://github.com/trichter/binarysearchfile
 .. _BLAST: https://blast.ncbi.nlm.nih.gov
+.. _EMBL: https://ena-docs.readthedocs.io/en/latest/submit/fileprep/flat-file-example.html
 .. _FASTA: https://en.wikipedia.org/wiki/FASTA_format
 .. _Genbank: https://www.insdc.org/submitting-standards/feature-table
 .. _GFF: https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md

@@ -1,5 +1,7 @@
 dev:
   * scripts: add sugar rc command to get the reverse complement of a nt sequence
+  * io:
+    - add read support for ENA and UniProt EMBL flat file format
 v0.9.0:
   * add dna-features-viewer-lite as dependency
   * core:

@@ -10,7 +10,7 @@ Installation
     Plotting <tutorial_imaging>
     More bits <tutorial_misc>
 
-Sugar requires a Python version `>=3.11`.
+Sugar requires a Python version ``>=3.11``.
 The package is hosted on PyPi and can be installed with ``pip``::
 
     pip install rnajena-sugar
