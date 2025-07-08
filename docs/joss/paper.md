@@ -21,7 +21,7 @@ bibliography: paper.bib
 
 Modern bioinformatics requires the use of a variety of tools [e.g. BLAST for homology detection, @blast] and databases [e.g. GenBank, @genbank]. Custom scripts often need to use the results of these tools, which are available in different formats.
 
-``Sugar`` is a Python framework for bioinformatics and aims to facilitate rapid application development.
+``Sugar`` is a Python framework for bioinformatics which aims to facilitate rapid application development.
 The package allows to read and write various sequence and annotation formats, i.e. FASTA, GenBank, Stockholm, GFF, GTF, BLAST and others. Since ``sugar`` uses a plugin system for reading and writing, new file formats can be added not only within the ``sugar`` package, but also within other packages, allowing for low barrier inclusion of new formats.
 ``Sugar`` includes classes for representing DNA/RNA sequences and annotations. The main functionality is exposed through methods of these classes and is therefore readily available.
 
@@ -33,9 +33,8 @@ Online documentation and tutorials are available on the GitHub project site.
 
 Other well-known frameworks for bioinformatics are Biopython [@biopython] and Biotite [@biotite].
 Launched in 2000, Biopython contains a large collection of freely available tools. In contrast, ``sugar`` tries to focus on the basics of IO as well as sequence and annotation (resp. feature) manipulation. In Table \ref{code}, we compare the code for reading a FASTA sequence file using ``sugar`` and Biopython, respectively. In addition, the ``sugar`` code example demonstrates a typical bioinformatics file manipulation task, which is not easily possible with Biopython alone due to its lack of a GFF writer. The excellent Biotite package also handles DNA/RNA sequences and has an additional focus on protein structures.
-``Sugar`` should not be seen as an alternative to these other packages, but rather as a complement. Therefore, adapters for these packages are provided, which can easily convert ``sugar`` sequence objects into the corresponding objects of the Biopython and Biotite packages, and vice versa.
-In addition, ``sugar`` annotation objects can be converted
-to corresponding objects of the DNA features viewer package [@ftsviewer] for easy plotting.
+``Sugar`` should not be seen as an alternative to these other packages, but rather as a complement. Therefore, adapters are provided, which can easily convert ``sugar`` objects into the corresponding objects of the Biopython and Biotite packages, and vice versa.
+In addition, ``sugar`` annotation objects can be plotted employing the DNA features viewer package [@ftsviewer].
 
 ------                                      ------
 `from sugar import read, read_fts`{.python} `from Bio import SeqIO`{.python}
