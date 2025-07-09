@@ -1,0 +1,12 @@
+CLUSTAL W example file, this is not a valid clustal file. It is only intended for testing purposes.
+
+abc   GCAUGCAUCUGCAUACAAACGUACGCAUGCAUCA 10
+def   ---------------------------------- 10
+xyz   ---------------------------------- 10
+
+
+abc   GUCGAUACAUACGUACGUCGGGCGUACGU-CGAC
+def   ---------------CGCGAUGCAUGCAU-CGAU
+xyz   -----------CAUGCAUCGUACGUACGCAUGAC
+                 ....**************.****
+
