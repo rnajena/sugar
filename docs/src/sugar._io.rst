@@ -9,9 +9,10 @@ Submodules
 .. autosummary::
 
    main
+   clustal
+   embl
    fasta
    genbank
-   embl
    sjson
    stockholm
    tab.blast

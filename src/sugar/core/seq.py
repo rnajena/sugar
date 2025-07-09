@@ -90,6 +90,11 @@ class _BioSeqStr():
         return self.__parent.data.isupper()
 
     def ljust(self, width, *args):
+        """
+        The ``ljust()`` and ``rjust()`` methods can be used to fill up an alignment with gaps.
+
+        Example: ``seqs.ljust(500, '-')``
+        """
         self.__parent.data = self.__parent.data.ljust(width, *args)
         return self.__parent
 
