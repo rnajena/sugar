@@ -25,7 +25,9 @@ jobs:
           wget https://raw.githubusercontent.com/rnajena/sugar/master/assets/create_sugar_logo.py
       - name: create logo
         run: |
-          python create_sugar_logo.py
+          python create_sugar_logo.py sugar_logo.png
+          python create_sugar_logo.py sugar_logo_transparent.png --transparent
+          python create_sugar_logo.py sugar_logo_dark.png --transparent --color1 0.9 --color2 0.5
       - name: commit logo
         run: |
           git config --global user.name 'trichter'
