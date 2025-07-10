@@ -40,8 +40,12 @@ def download_logo(modifier=''):
     import urllib.request
     logo = Path(__file__).parent / f'_static/sugar_logo{modifier}.png'
     url = f'https://raw.githubusercontent.com/rnajena/sugar/logo/sugar_logo{modifier}.png'
-    urllib.request.urlretrieve(url, logo)
-    return logo.name
+    try:
+        urllib.request.urlretrieve(url, logo)
+    except OSError:
+        print(f'No logo at {url}')
+    else:
+        return logo.name
 
 
 def write_table(what):
