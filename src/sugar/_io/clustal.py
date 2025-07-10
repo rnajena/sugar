@@ -1,6 +1,6 @@
 # (C) 2024, Tom Eulenfeld, MIT license
 """
-`Clustal`_ reader
+`Clustal`_ IO
 """
 from warnings import warn
 from sugar import BioBasket, BioSeq, __version__

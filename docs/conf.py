@@ -35,11 +35,11 @@ def parse_version():
 #     return sorted(modules)
 
 
-def download_logo():
+def download_logo(modifier=''):
     from pathlib import Path
     import urllib.request
-    logo = Path(__file__).parent / '_static/sugar_logo.png'
-    url = 'https://raw.githubusercontent.com/rnajena/sugar/logo/sugar_logo.png'
+    logo = Path(__file__).parent / f'_static/sugar_logo{modifier}.png'
+    url = f'https://raw.githubusercontent.com/rnajena/sugar/logo/sugar_logo{modifier}.png'
     urllib.request.urlretrieve(url, logo)
     return logo.name
 
@@ -76,6 +76,7 @@ rst_epilog = """
 .. _biopython: https://biopython.org
 .. _biotite: https://www.biotite-python.org
 .. _DNAFeaturesViewer: https://edinburgh-genome-foundry.github.io/DnaFeaturesViewer
+.. _Clustal: https://en.wikipedia.org/wiki/Clustal
 """
 
 extensions = ['sphinx.ext.autodoc',
@@ -103,9 +104,11 @@ autodoc_default_options = {
 html_theme = 'furo'
 html_static_path = ['_static']
 html_title = f'S*R for your RNA <br>v{release} docs'
-html_logo = '_static/' + download_logo()
+#html_logo = '_static/' + download_logo()
 html_show_sphinx  = True
 html_theme_options = {
+    'light_logo': download_logo(),
+    'dark_logo': download_logo('_dark'),
     'footer_icons' : [],
     "source_edit_link": "https://github.com/rnajena/sugar/edit/master/docs/{filename}",
     #"source_view_link": "_sources/src/{filename}.txt",
