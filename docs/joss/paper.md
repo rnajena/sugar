@@ -37,11 +37,11 @@ Launched in 2000, Biopython contains a large collection of freely available tool
 In addition, ``sugar`` annotation objects can be plotted employing the DNA features viewer package [@ftsviewer].
 
 ------                                      ------
-`from sugar import read, read_fts`{.python} `from Bio import SeqIO`{.python}
-`seqs = read('seqs.fasta')`{.python}        `seqs = list(SeqIO.parse('seqs.fasta', 'fasta'))`{.python}
-`fts = read_fts('hits.blastn')`{.python}
-`seqs.fts = fts`{.python}
-`seqs.write('seqs_annotated.gff')`{.python}
+`from sugar import read, read_fts`          `from Bio import SeqIO`
+`seqs = read('seqs.fasta')`                 `seqs = list(SeqIO.parse('seqs.fasta', 'fasta'))`
+`fts = read_fts('hits.blastn')`
+`seqs.fts = fts`
+`seqs.write('seqs_annotated.gff')`
 -----                                       ------
 Table: Comparison of code to read a FASTA file using ``sugar`` (left) and Biopython (right).
 The code example using ``sugar`` also demonstrates reading of a BLAST result file, attaching the hit features to the sequences while discarding features belonging to different sequences, and writing the sequences with the corresponding features to a GFF file including a FASTA directive. \label{code}
