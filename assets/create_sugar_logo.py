@@ -51,7 +51,7 @@ def create_logo(fname, seed=None, color1='k', color2='0.7', **kw):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('fname', nargs='?', help='output filename')
-    parser.add_argument('--seed', help='random seed (may be date in isoformat)')
+    parser.add_argument('--seed', help='random seed (may be date in isoformat, default is today)')
     parser.add_argument('--color1', help='first color', default='k')
     parser.add_argument('--color2', help='second color', default='0.7')
     parser.add_argument('--transparent', action='store_true', help='use transparent background')
