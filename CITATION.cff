@@ -1,0 +1,20 @@
+cff-version: "1.2.0"
+title: "Sugar: A Python framework for bioinformatics"
+authors:
+- family-names: Eulenfeld
+  given-names: Tom
+doi: 10.5281/zenodo.11388074
+message: If you find this software useful, please cite it.
+preferred-citation:
+  authors:
+  - family-names: Eulenfeld
+    given-names: Tom
+  date-published: 2025-07-24
+  doi: 10.21105/joss.08122
+  issn: 2475-9066
+  issue: 111
+  journal: Journal of Open Source Software
+  start: 8122
+  title: "Sugar: A Python framework for bioinformatics"
+  type: article
+  volume: 10
