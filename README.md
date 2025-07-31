@@ -49,3 +49,12 @@ The detailed changelog is available [here](https://github.com/rnajena/sugar/blob
 
 Contributions are welcome! -- e.g. report or fix bugs, discuss or add features, improve the documentation.
 See the [CONTRIBUTING.md](https://github.com/rnajena/sugar/blob/master/CONTRIBUTING.md) file for details.
+
+### Citation
+
+If you found this package useful, please consider citing it.
+
+Eulenfeld T (2025),
+Sugar: A Python framework for bioinformatics,
+Journal of Open Source Software, 10(111), 8122,
+doi:[10.21105/joss.08122](https://doi.org/10.21105/joss.08122)
