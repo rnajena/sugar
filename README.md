@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/rnajena/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/rnajena/sugar)
 [![pypi version](https://img.shields.io/pypi/v/rnajena-sugar.svg)](https://pypi.python.org/pypi/rnajena-sugar)
 [![python version](https://img.shields.io/pypi/pyversions/rnajena-sugar.svg)](https://python.org)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11388074.svg)](https://doi.org/10.5281/zenodo.11388074)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.08122/status.svg)](https://doi.org/10.21105/joss.08122)
 
 The sugar project aims to provide a lightweight framework to facilitate rapid application development for bioinformatics.
 
@@ -56,5 +56,5 @@ If you found this package useful, please consider citing it.
 
 Eulenfeld T (2025),
 Sugar: A Python framework for bioinformatics,
-Journal of Open Source Software, 10(111), 8122,
+*Journal of Open Source Software*, 10(111), 8122,
 doi:[10.21105/joss.08122](https://doi.org/10.21105/joss.08122)
