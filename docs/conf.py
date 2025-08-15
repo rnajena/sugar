@@ -1,6 +1,6 @@
 # Configuration file for the Sphinx documentation builder.
 # Build doc locally with
-# sphinx-build -anE -c . src _build
+# sphinx-build -anE . _build
 
 import os
 
