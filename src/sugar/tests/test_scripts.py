@@ -87,6 +87,12 @@ def test_tutorial(tmp_path_cd):
     assert len(fnames) == 5
 
 
+def test_logo(tmp_path_cd):
+    assert b'' == check_output('sugar logo sugar_logo.png'.split())
+    fnames = [f.name for f in tmp_path_cd.iterdir()]
+    assert 'sugar_logo.png' in fnames
+
+
 def test_index():
     # TODO: write test for index script
     pass
