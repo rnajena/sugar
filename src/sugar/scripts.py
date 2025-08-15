@@ -152,6 +152,9 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
         translate(fname, fmt=fmt, **kw)
     elif command == 'tutorial':
         copy_tutorial_files(**kw)
+    elif command == 'logo':
+        from sugar.imaging._logo import sugar_logo
+        sugar_logo(fname, **kw)
     elif command == 'test':
         from sugar import __version__
         try:
@@ -255,6 +258,17 @@ def cli(cmd_args=None):
     for p in (p_idxinfo, p_idxadd, p_idxfetch, p_idxprint, p_idxload):
         p.add_argument('-d', '--dbname', help='database file, by default last used')
     p_idxfetch.add_argument('-o', '--out', default='-')
+
+    p_logo = sub.add_parser('logo', help='create the sugar logo')
+    p_logo.add_argument('fname', nargs='?', help='output filename, by default show on screen')
+    p_logo.add_argument('--seed', help='random seed (may be date in isoformat, default is today)')
+    p_logo.add_argument('--color1', help='first color', default='k')
+    p_logo.add_argument('--color2', help='second color', default='0.7')
+    p_logo.add_argument('--transparent', action='store_true', help='use transparent background')
+    # hide logo command
+    cmds = list(sub.choices)
+    cmds.remove('logo')
+    sub.metavar = '{' + ','.join(cmds) + '}'
 
     # Get command line arguments and start run function
     args, pytest_args = parser.parse_known_args(cmd_args)
