@@ -108,8 +108,15 @@ autodoc_default_options = {
 html_theme = 'furo'
 html_static_path = ['_static']
 html_title = f'S*R for your RNA <br>v{release} docs'
-#html_logo = '_static/' + download_logo()
 html_show_sphinx  = True
+# I would prefer to directly link logos from
+# https://raw.githubusercontent.com/rnajena/sugar/logo/sugar_logo.png
+# https://raw.githubusercontent.com/rnajena/sugar/logo/sugar_logo_dark.png
+# But we can either use logo_url and only have the light logo or
+# we ue both the light and dark logo options from the theme,
+# which prepend _static/ to the logo name.
+# therefore we cannot use URLs here.
+# Another option would be to trigger the ReadTheDocs build daily or from within the logo job.
 html_theme_options = {
     'light_logo': download_logo(),
     'dark_logo': download_logo('_dark'),
