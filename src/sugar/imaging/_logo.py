@@ -11,6 +11,9 @@ from sugar.data import gcode
 
 
 def sugar_logo(fname, seed=None, color1='k', color2='0.7', **kw):
+    """
+    Create a random sugar logo
+    """
     import matplotlib.pyplot as plt
     from matplotlib.patches import Arc, Ellipse
     from matplotlib.transforms import Bbox
@@ -25,7 +28,7 @@ def sugar_logo(fname, seed=None, color1='k', color2='0.7', **kw):
     first_codon = random.choice(sorted(gc.ttinv[name[0]]))
     last_codon = random.choice(sorted(gc.ttinv[name[-1]]))
     with warnings.catch_warnings(action='ignore'):
-        # Ignore found U warnigns
+        # Ignore found U warnings
         seq = BioSeq(first_codon + name[1:-1] + last_codon).str.replace('T', 'U')
         i, j = seq.match('stop').span()
         aa = seq.copy().translate(complete=True)
