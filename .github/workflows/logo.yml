@@ -36,3 +36,6 @@ jobs:
           # git push
           git commit -a --amend --no-edit
           git push -f
+      - name: trigger ReadTheDocs build
+        run: |
+          curl -X POST -d "token=${{ secrets.READTHEDOCS_DEPLOY_TOKEN }}" ${{ secrets.READTHEDOCS_DEPLOY_URL }}

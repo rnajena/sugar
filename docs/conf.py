@@ -116,7 +116,7 @@ html_show_sphinx  = True
 # we ue both the light and dark logo options from the theme,
 # which prepend _static/ to the logo name.
 # therefore we cannot use URLs here.
-# Another option would be to trigger the ReadTheDocs build daily or from within the logo job.
+# Instead, the ReadTheDocs build is now triggered inside the Github Actions logo job.
 html_theme_options = {
     'light_logo': download_logo(),
     'dark_logo': download_logo('_dark'),
