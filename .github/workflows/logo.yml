@@ -2,6 +2,7 @@ name: logo
 on:
   schedule:
     - cron:  '42 1 * * *'
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
