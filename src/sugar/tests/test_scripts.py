@@ -3,6 +3,8 @@ from subprocess import check_output
 import sys
 import unittest.mock
 
+import pytest
+
 from sugar import read, read_fts
 from sugar.scripts import run
 from sugar.tests.util import tempfilename
@@ -88,6 +90,7 @@ def test_tutorial(tmp_path_cd):
 
 
 def test_logo(tmp_path_cd):
+    pytest.importorskip('matplotlib')
     assert b'' == check_output('sugar logo sugar_logo.png'.split())
     fnames = [f.name for f in tmp_path_cd.iterdir()]
     assert 'sugar_logo.png' in fnames
