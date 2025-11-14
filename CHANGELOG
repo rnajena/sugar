@@ -1,5 +1,16 @@
 dev:
-  * scripts: add sugar rc command to get the reverse complement of a nt sequence
+  * core:
+    - add Feature.locs.shift method to shift all locations by a given offset
+    - allow to initialize BioBasket object with a single sequence, but discourage this with a warning
+    - fix FeatureList.remove_nested method to work correctly with duplicate features
+  * scripts:
+    - add sugar rc command to get the reverse complement of a nt sequence
+  * imaging:
+    - add align and crop parameters for plot_ftsviewer to align specific features
+    - add possibility to set hatch patterns for features in ftsviewer plots
+      (by setting ft.meta._ftsviewer_hatch attribute)
+    - the same can be done for feature color and label (ft.meta._ftsviewer_color and ft.meta._ftsviewer_label),
+      but color and label are better set with options to the ftsviewer method
   * io:
     - add read support for ENA and UniProt EMBL flat file format
     - add read and write support for Clustal format
