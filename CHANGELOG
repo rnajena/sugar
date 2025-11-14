@@ -1,4 +1,4 @@
-### dev:
+### v1.0.0:
   * core:
     - add Feature.locs.shift method to shift all locations by a given offset
     - allow to initialize BioBasket object with a single sequence, but discourage this with a warning
