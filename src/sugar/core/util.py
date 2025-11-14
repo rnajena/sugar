@@ -45,6 +45,15 @@ def deprecated(msg):
     :param msg: The msg will be emitted as warning, when the function is called.
         Additionally, a warning is displayed in the doc string,
         if the term 'deprecated' is not found in the doc string.
+
+    Use it the following way:
+
+    ```
+    from sugar.core.util import deprecated
+    @deprecated("old_func is deprecated, use new_func instead")
+    def old_func(...):
+        ...
+    ```
     """
     def _deprecated(func):
         @functools.wraps(func)

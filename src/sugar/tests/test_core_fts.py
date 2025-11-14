@@ -144,8 +144,6 @@ def test_locs_magic_methods():
     assert fts.get('cDNA_match').loc > fts.get('cds').loc
     assert fts.get('cDNA_match').locs >= fts.get('cds').locs
     assert fts.get('cDNA_match').loc >= fts.get('cds').loc
-    with pytest.warns():  # deprecated
-        assert fts.get('cds').locs - fts.get('cds').locs == 0
 
 
 def test_locs_new():

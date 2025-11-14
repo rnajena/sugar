@@ -14,7 +14,6 @@ import sys
 from enum import IntFlag, StrEnum, auto
 from sugar.core.meta import Meta
 from sugar.core.util import _add_inplace_doc
-from sugar.core.util import deprecated
 
 
 class Defect(IntFlag):
@@ -361,16 +360,6 @@ class LocationTuple(tuple):
     distance = Location.distance
     overlaplen = Location.overlaplen
     overlaps = Location.overlaps
-
-    @deprecated('__sub__ is deprecated, use `LocationTuple.distance()` instead')
-    def __sub__(self, other):
-        """Return distance between the middle of both ranges"""
-        if isinstance(other, LocationTuple):
-            lr1 = self.range
-            lr2 = other.range
-            return (sum(lr1) - sum(lr2)) // 2
-        msg = f"'-' not supported between instances of '{type(self).__name__}' and '{type(other).__name__}'"
-        raise TypeError(msg)
 
     def _reverse(self, seqlen=0):
         """Return reversed LocationTuple"""
@@ -869,13 +858,6 @@ class FeatureList(collections.UserList):
             if (isinstance(type_, str) and ft.type.lower() == type_.lower() or
                     isinstance(type_, tuple) and ft.type.lower() in type_):
                 return ft
-
-    @deprecated('The filter method is deprecated, use `select()` instead')
-    def filter(self, **kw):
-        """
-        Filter features
-        """
-        return self.select(**kw)
 
     def select(self, type=None, *, inplace=False, strand=None, **kw):
         r"""

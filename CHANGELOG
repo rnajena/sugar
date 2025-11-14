@@ -3,6 +3,8 @@ dev:
     - add Feature.locs.shift method to shift all locations by a given offset
     - allow to initialize BioBasket object with a single sequence, but discourage this with a warning
     - fix FeatureList.remove_nested method to work correctly with duplicate features
+    - remove deprecated __sub__ method from LocationTuple class, use distance method instead
+    - remove deprecated filter methods from BioSeq and FeatureList classes, use select methods instead
   * scripts:
     - add sugar rc command to get the reverse complement of a nt sequence
   * imaging:

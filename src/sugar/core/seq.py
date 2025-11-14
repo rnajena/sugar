@@ -16,7 +16,6 @@ from sugar.data import CODES
 from sugar.core.fts import Feature, FeatureList, Location, LocationTuple
 from sugar.core.meta import Attr, Meta
 from sugar.core.util import _add_inplace_doc
-from sugar.core.util import deprecated
 
 
 CODES_INV = {frozenset(v): k for k, v in CODES.items()}
@@ -1168,13 +1167,6 @@ class BioBasket(collections.UserList):
         """
         from sugar.core.cane import _groupby
         return _groupby(self, keys, attr='meta', flatten=flatten)
-
-    @deprecated('The filter method is deprecated, use `select()` instead')
-    def filter(self, **kw):
-        """
-        Filter sequences
-        """
-        return self.select(**kw)
 
     def select(self, inplace=False, **kw):
         r"""
