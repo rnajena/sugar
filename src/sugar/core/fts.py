@@ -591,6 +591,9 @@ class Feature():
             or the str label itself,
             defaults to ``'name'`` and if that is not present in the metadata, ``'type'``.
         :param \*\*kw: All other kwargs are passed to `~dna_features_viewer.GraphicFeature`.
+
+        Instead of passing label, color and hatch to this function, corresponding values can also be passed via
+        the ``Feature.meta`` attribute with the keys ``'_ftsviewer_label'``, ``'_ftsviewer_color'`` and ``'_ftsviewer_hatch'``.
         """
         try:
             from dna_features_viewer import GraphicFeature
@@ -598,17 +601,24 @@ class Feature():
             raise ImportError('Please install dna_features_viewer to use ftsviewer functionality') from ex
         start, stop = self.locs.range
         strand = {'+': 1, '-': -1, '.': 0, '?': 0}[self.loc.strand]
-        if label == 'default':
+        if '_ftsviewer_label' in self.meta:
+            label = self.meta['_ftsviewer_label']
+        elif label == 'default':
             label = self.meta.get('name') or self.type
         elif isinstance(label, str):
             label = self.meta.get(label, label)
         elif label is not None:
             label = str(label(self))
+        if '_ftsviewer_color' in self.meta:
+            kw['color'] = self.meta['_ftsviewer_color']
+        if '_ftsviewer_hatch' in self.meta:
+            kw['hatch'] = self.meta['_ftsviewer_hatch']
         return GraphicFeature(
             start=start, end=stop, strand=strand,
             open_left=Defect.MISS_LEFT in self.loc.defect,
             open_right=Defect.MISS_RIGHT in self.locs[-1].defect,
-            label=label, **kw)
+            label=label,
+            **kw)
 
 
 class FeatureList(collections.UserList):
@@ -936,6 +946,7 @@ class FeatureList(collections.UserList):
     def toftsviewer(self, *, label='default', colorby='type', color=None,
                             circular=False,
                             seqlen=None, seq=None,
+                            first_index=0,
                             **kw):
         r"""
         Convert features to DNAFeaturesViewer_ `~dna_features_viewer.GraphicRecord`
@@ -976,8 +987,8 @@ class FeatureList(collections.UserList):
             try:
                 seqlen = len(seq)
             except TypeError:
-                seqlen = self.loc_range[1]
-        return GR(sequence_length=seqlen, sequence=str(seq), features=gfts, **kw2)
+                seqlen = self.loc_range[1] - first_index
+        return GR(sequence_length=seqlen, sequence=str(seq), features=gfts, first_index=first_index, **kw2)
 
     def plot_ftsviewer(self, *args, **kw):
         """
