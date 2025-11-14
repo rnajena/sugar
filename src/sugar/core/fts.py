@@ -222,6 +222,18 @@ class Location():
         """
         return sum(self.range) // 2
 
+    def shift(self, offset):
+        """
+        Shift the location by the given offset in-place
+
+        :param int offset: The offset to shift the location
+        :return: The shifted location
+        :rtype: `.Location`
+        """
+        self.start += offset
+        self.stop  += offset
+        return self
+
     def overlaps(self, other):
         """
         Whether the location/locations overlap with the other location/locations
@@ -326,6 +338,18 @@ class LocationTuple(tuple):
         Get the stop position of location tuple
         """
         return max(loc.stop for loc in self)
+
+    def shift(self, offset):
+        """
+        Shift the locations by the given offset in-place
+
+        :param int offset: The offset to shift the locations
+        :return: The shifted location tuple
+        :rtype: `.LocationTuple`
+        """
+        for loc in self:
+            loc.shift(offset)
+        return self
 
     __lt__ = Location.__lt__
     __le__ = Location.__le__

@@ -229,3 +229,13 @@ def test_fts_remove_nested_duplicate():
     fts = read_fts()[:2]
     fts[0] = fts[1]
     assert len(fts.remove_nested()) == 1
+
+
+def test_fts_shift():
+    fts = read_fts()
+    fts2 = fts.copy()
+    for ft, ft2 in zip(fts, fts2):
+        ft2.locs.shift(1000)
+        assert ft2.locs.start == ft.locs.start + 1000
+        assert ft2.locs.stop == ft.locs.stop + 1000
+        assert ft2.loc.stop == ft.loc.stop + 1000
