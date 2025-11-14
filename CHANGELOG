@@ -1,9 +1,9 @@
-dev:
+### dev:
   * core:
     - add Feature.locs.shift method to shift all locations by a given offset
     - allow to initialize BioBasket object with a single sequence, but discourage this with a warning
     - fix FeatureList.remove_nested method to work correctly with duplicate features
-    - remove deprecated __sub__ method from LocationTuple class, use distance method instead
+    - remove deprecated `__sub__` method from LocationTuple class, use distance method instead
     - remove deprecated filter methods from BioSeq and FeatureList classes, use select methods instead
   * scripts:
     - add sugar rc command to get the reverse complement of a nt sequence
@@ -16,7 +16,7 @@ dev:
   * io:
     - add read support for ENA and UniProt EMBL flat file format
     - add read and write support for Clustal format
-v0.9.0:
+### v0.9.0:
   * add dna-features-viewer-lite as dependency
   * core:
     - add tobiopython and frombiopython methods to Feature and FeatureList classes,
@@ -34,12 +34,12 @@ v0.9.0:
     - gff: allow lines to end with ; in the GFF3 reader
   * add sugar tutorial command to provide the data files used in the tutorial
   * documentation improvements thanks to JOSS reviews
-v0.8.0:
+### v0.8.0:
   * core:
     - extend select method, allow not and lower prefixes, allow to select fts by strandness
   * io:
     - gff: quote only necessary characters in GFF3 writer
-v0.7.0:
+### v0.7.0:
   * core:
     - add toftsviewer methods to FeatureList, Feature and BioSeq classes
     - BioBasket.countall can also count kmers
@@ -48,9 +48,9 @@ v0.7.0:
     - refactor and enhance find_orfs methods, some options changed
     - select methods: use equal operator if no operator is given, e.g. len=500 is equivalent to len_eq=500
   * imaging: add functionality to plot features, add plot_ftsviewer methods
-v0.6.0:
+### v0.6.0:
   * core: deprecate filter methods, use select instead
-v0.5.0:
+### v0.5.0:
   * core:
     - add tolists, topandas and frompandas methods to FeaturList
     - add tobiopython and frombiopython methods to BioSeq and BioBasket classes to convert to or convert from biopython objects
@@ -77,8 +77,7 @@ v0.5.0:
   * index: rename get method to get_basket, add get_seq method
   * add imaging module with plot_alignment function
   * substantially improve the documentation
-
-v0.4.0:
+### v0.4.0:
   * core:
     - add sort, filter and groupby methods to FeatureList and BioBasket
     - BioSeq.match: rename orf option to rf, allow tuple-like arguments
@@ -100,17 +99,14 @@ v0.4.0:
     - add read support for Infernal tblout files
     - stockholm: add support for multiline files
   * more minor and major changes ;)
-
-v0.3.0:
+### v0.3.0:
   * io.fasta: robust parsing of seq ids from header line, ignore comment lines
   * io.stockholm: add row2fts and fts2row functions to parse, write GC and similar lines
-
-v0.2.1:
+### v0.2.1:
   * translate: add check_start option
-v0.2.0:
+### v0.2.0:
   * io: add option to write files automatically into an archive
   * io.gff: allow to store comment lines while reading
   * scripts: add translate and feature commands
-
-v0.1.0:
+### v0.1.0:
   * initial release
