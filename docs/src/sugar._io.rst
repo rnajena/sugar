@@ -13,6 +13,7 @@ Submodules
    embl
    fasta
    genbank
+   meme
    sjson
    stockholm
    tab.blast
