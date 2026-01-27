@@ -147,10 +147,18 @@ def _allow_to_str(writer):
     return new_writer
 
 
-def _raise_empty_file(fname):
+def _raise_autodetection_error(fname):
     with _file_opener(fname, mode='r', binary=True) as f:
-        if len(f.read().strip()) == 0:
-            raise IOError('Try to read empty file or file-like object')
+        if len(f.read(1000).strip()) == 0:
+            if isinstance(fname, str):
+                msg = f'Try to read empty file at {fname}'
+            else:
+                msg = 'Try to read empty file-like object'
+            raise IOError(msg)
+    msg = 'Format cannot be auto-detected'
+    if isinstance(fname, str):
+        msg = msg + f' for file {fname}'
+    raise IOError(msg)
 
 
 def __get_ext(fname):
@@ -257,8 +265,7 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, **kw):
     if fmt is None:
         fmt = detect(fname, encoding=encoding, **kw)
     if fmt is None:
-        _raise_empty_file(fname)
-        raise IOError('Format cannot be auto-detected')
+        _raise_autodetection_error(fname)
     fmt = fmt.lower()
     module = EPS['seqs'][fmt].load()
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
@@ -327,8 +334,7 @@ def read(fname, fmt=None, *, mode='r', encoding=None, **kw):
     if fmt is None:
         fmt = detect(fname, **kw)
     if fmt is None:
-        _raise_empty_file(fname)
-        raise IOError('Format cannot be auto-detected')
+        _raise_autodetection_error(fname)
     fmt = fmt.lower()
     module = EPS['seqs'][fmt].load()
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
@@ -376,8 +382,7 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
     if fmt is None:
         fmt = detect(fname, what='fts', **kw)
     if fmt is None:
-        _raise_empty_file(fname)
-        raise IOError('Format cannot be auto-detected')
+        _raise_autodetection_error(fname)
     fmt = fmt.lower()
     module = EPS['fts'][fmt].load()
     with _file_opener(fname, mode=mode, binary=_binary(module, 'fts'), encoding=encoding) as f:
