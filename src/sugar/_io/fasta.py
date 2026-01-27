@@ -75,7 +75,9 @@ def iter_fasta(f, comments=None):
             if comments is not None:
                 comments.append(line)
         else:
-            data.append(line.strip())
+            line = line.strip()
+            if line:
+                data.append(line)
     if data is not None:
         yield _create_bioseq(data, id_, header)
 
