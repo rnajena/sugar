@@ -1,0 +1,4 @@
+Test file naming conventions:
+* example*.*: seqs reader auto-detection is checked by tests
+* fts_example*.*: fts reader auto-detection is checked by tests
+* files <module>_*.* are test files solely for the corresponding IO plugin/module

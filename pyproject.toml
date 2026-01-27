@@ -72,7 +72,7 @@ version = {attr = "sugar.__version__"}
 "sugar.data.data_tutorial" = ["*.*"]
 "sugar.imaging.color_schemes" = ["*.json"]
 "sugar.tests" = ["pytest.ini"]
-"sugar.tests.data" = ["*.*"]
+"sugar.tests.data" = ["*.*", "README"]
 
 [tool.setuptools.exclude-package-data]
 "sugar.data.data_submat" = ["README*"]
