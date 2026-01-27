@@ -56,6 +56,7 @@ mmseqs = "sugar._io.tab.mmseqs"
 infernal = "sugar._io.tab.infernal"
 tsv = "sugar._io.tab.xsv"
 csv = "sugar._io.tab.xsv"
+meme_txt = "sugar._io.meme"
 sjson = "sugar._io.sjson"
 
 [build-system]

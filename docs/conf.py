@@ -81,6 +81,7 @@ rst_epilog = """
 .. _biotite: https://www.biotite-python.org
 .. _DNAFeaturesViewer: https://edinburgh-genome-foundry.github.io/DnaFeaturesViewer
 .. _Clustal: https://en.wikipedia.org/wiki/Clustal
+.. _MEME: https://meme-suite.org
 """
 
 extensions = ['sphinx.ext.autodoc',
