@@ -4,6 +4,7 @@
     - honor seqid for Feature and FeatureList in BioBasket[] notation
   * io:
     - add read support for MEME txt format
+    - show filename in auto-detection error message
 ### v1.0.0:
   * core:
     - add Feature.locs.shift method to shift all locations by a given offset
