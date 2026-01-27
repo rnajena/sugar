@@ -180,11 +180,10 @@ def test_seqs_getitem_special_edgecases():
     assert seq3 == seq3[seq3.fts[1]]
 
 
-def test_seqs_getitem_typeerror():
+def test_seqs_getitem_featurelist():
     seqs = read()
     fts = seqs.fts
-    with pytest.raises(TypeError):
-        seqs[fts]
+    assert len(seqs[fts]) == len(fts)
 
 def test_sl_slicable_inplace():
     seqs = read()

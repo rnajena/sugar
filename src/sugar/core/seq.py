@@ -916,7 +916,13 @@ class BioBasket(collections.UserList):
             return self.data[i]
         elif isinstance(i, slice):
             seqs = self.__class__(self.data[i], meta=self.meta)
-        elif isinstance(i, (str, Feature, LocationTuple, Location)):
+        elif isinstance(i, (Feature, FeatureList)):
+            seqs = self.__class__(self.data, meta=self.meta)
+            if isinstance(i, Feature):
+                seqs.data = [seq._getitem(i, **kw) for seq in seqs.data if seq.id == i.seqid]
+            else:
+                seqs.data = [seq._getitem(ft, **kw) for ft in i for seq in seqs.data if seq.id == ft.seqid]
+        elif isinstance(i, (str, LocationTuple, Location)):
             seqs = self.__class__(self.data, meta=self.meta)
             seqs.data = [seq._getitem(i, **kw) for seq in seqs.data]
         elif len(i) == 2:
