@@ -1,6 +1,6 @@
 # requirements to build the docs
 furo
-sphinx
+sphinx<9
 sphinx_autorun
 biopython
 biotite

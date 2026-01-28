@@ -4,7 +4,6 @@
 
 import os
 
-
 os.environ['SPHINX_BUILD'] = '1'
 
 
