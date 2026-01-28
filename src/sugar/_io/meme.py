@@ -15,6 +15,9 @@ def is_fts_meme_txt(f, **kw):
 
 
 def _read_motifs_meme_txt(f):
+    """
+    Parse MEME txt file and return dictionary of motifs
+    """
     content = f.read()
     lines = content.splitlines()
     motif = None
@@ -45,6 +48,9 @@ def _read_motifs_meme_txt(f):
 _MEME_TXT_REGEX = r"\*+\nMOTIF\s+(?P<motif>\w+)\s+(?P<motif_no>[\w-]+).+E-value = (?P<evalue>[\d\.e+-]+)\s*\n\*+\n.*Motif\s+(?P=motif)\s+(?P=motif_no) sites sorted by position p-value\n-+\nSeq[\s\w-]+\n[-\s]+\n(?P<hitdata>.*?)\n-+\n"
 
 def _read_motifs_meme_txt_regex(f):
+    """
+    Parse MEME txt file with regex and return dictionary of motifs
+    """
     import re
     content = f.read()
     motifs = []
@@ -64,11 +70,18 @@ def _read_motifs_meme_txt_regex(f):
 
 
 @_add_fmt_doc('read_fts')
-def read_fts_meme_txt(f, *, ftype=None, engine='regex', **kw):
+def read_fts_meme_txt(f, *, ftype=None, engine='regex'):
     """
     MEME txt reader
 
     :param str ftype: Feature type of returned features
+    :param str engine: Select ``'txt'`` or ``'regex'`` based parsing method, both should give the same result,
+        default is ``'regex'``
+
+    Returns a flat `.FeatureList` of all motif hits.
+    To get a dictionary of motifs call `FeatureList.groupby('motif')<.FeatureList.groupby>` or
+    `FeatureList.groupby('motif_id')<.FeatureList.groupby>` on the returned object.
+    Alternatively, use the `_read_motifs_meme_txt_regex` function directly.
     """
     if engine == 'regex':
         motifs = _read_motifs_meme_txt_regex(f)
