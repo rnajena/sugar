@@ -100,7 +100,6 @@ ipython_promptout = ''
 autodoc_default_options = {
     'members': True,
     'undoc-members': True,
-    'private-members': False,
     'show-inheritance': True,
     'member-order': 'groupwise',
 }

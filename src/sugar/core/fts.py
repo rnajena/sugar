@@ -174,7 +174,7 @@ class Location():
         Return reversed location
 
         :param seqlen: Length of the sequence which the location belongs to,
-        the default 0 wil return negative start and stop base locations.
+            the default 0 will return negative start and stop base locations.
         """
         loc = self
         start, stop = seqlen - loc.stop, seqlen - loc.start
