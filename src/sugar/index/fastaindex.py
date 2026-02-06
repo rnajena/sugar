@@ -439,4 +439,9 @@ def _fastaindex_cmd(idxcommand, dbname, mode=None, path=None, seqids=None,
             _start_ipy(seqs)
         case 'fetch':
             index = FastaIndex(dbname)
-            print(index.get_fasta(_parse_cmd_seqids(seqids)))
+            fasta = index.get_fasta(_parse_cmd_seqids(seqids))
+            if out == '_':
+                print(fasta)
+            else:
+                with open(out, 'w') as f:
+                    f.write(fasta)
