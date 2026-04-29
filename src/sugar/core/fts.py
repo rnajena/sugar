@@ -813,6 +813,7 @@ class FeatureList(collections.UserList):
                 ft.loc.strand if k == 'strand' else
                 ft.loc.defect if k == 'defect' else
                 ft.locs.range[0] if k == 'start' else
+                ft.locs.range[0] + 1 if k == 'start1' else
                 ft.locs.range[1] if k == 'stop' else
                 len(ft) if k == 'len' else
                 ft.meta.get(k)
