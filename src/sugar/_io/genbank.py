@@ -192,7 +192,7 @@ def iter_genbank(f, exclude=()):
                 if line.startswith('/'):
                     line = line.removeprefix('/')
                     if '=' in line:
-                        key2, val = line.split('=')
+                        key2, val = line.split('=', maxsplit=1)
                         if not val.startswith('"'):
                             try:
                                 val = int(val)
