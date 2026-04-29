@@ -61,7 +61,7 @@ def write_fts_tsv(fts, f, sep='\t', **kw):
     Write tab separated value (TSV) files with feature information
 
     :param str sep: Separator of the fields, defaults to ``'\t'``
-    :param vals: Parameters from the metadata or location to write,
+    :param keys: Parameters from the metadata or location to write,
         ``'len'`` is also allowed,
         might be a string or tuple, defaults to ``'type start stop strand'``
     :param \*\*kw: All other kwargs are passed to :meth:`pandas.DataFrame.to_csv()`
@@ -76,7 +76,7 @@ def write_fts_csv(fts, f, sep=',', **kw):
     Write comma separated value (CSV) files with feature information
 
     :param str sep: Separator of the fields, defaults to ``','``
-    :param vals: Parameters from the metadata or location to write,
+    :param keys: Parameters from the metadata or location to write,
         ``'len'`` is also allowed,
         might be a string or tuple, defaults to ``'type start stop strand'``
     :param \*\*kw: All other kwargs are passed to :meth:`pandas.DataFrame.to_csv()`
