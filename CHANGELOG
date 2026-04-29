@@ -5,6 +5,7 @@
   * io:
     - add read support for MEME txt format
     - show filename in auto-detection error message
+    - genbank: fix reading when two or more = signs are present on a single line
 ### v1.0.0:
   * core:
     - add Feature.locs.shift method to shift all locations by a given offset
