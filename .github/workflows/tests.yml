@@ -15,17 +15,18 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup conda
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
-          python-version: "3.13"
+          python-version: "3.14"
       - name: print conda environment info
         run: |
           conda info -a
           conda list
       - name: install package
         run: |
+          conda install -y pip
           pip install -v --no-deps .
       - name: check that package works
         run: |
@@ -36,23 +37,23 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python: ["3.11", "3.12", "3.13"]
+        python: ["3.11", "3.12", "3.13", "3.14"]
         options: ["subset"]
         include:
           - os: ubuntu-latest
-            python: "3.13"
+            python: "3.14"
             options: ""
           - os: ubuntu-latest
-            python: "3.13"
+            python: "3.14"
             options: full
           - os: macos-latest
-            python: "3.13"
+            python: "3.14"
             options: full
           - os: windows-latest
-            python: "3.13"
+            python: "3.14"
             options: full
           - os: ubuntu-latest
-            python: "3.13"
+            python: "3.14"
             options: full warnings
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ contains(matrix.options, 'full') }}
@@ -66,15 +67,15 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup conda
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           python-version: ${{ matrix.python }}
           channels: conda-forge,defaults
       - name: install dependencies
         run: |
-          conda install -y pytest pytest-cov ${{ env.deps }}
+          conda install -y pytest pytest-cov pip ${{ env.deps }}
       - name: install pip dependencies
         if: contains(matrix.options, 'full') || contains(matrix.options, 'subset')
         run:
@@ -90,7 +91,7 @@ jobs:
         run: |
           sugar test -s -r a --durations=10 --cov sugar --cov=. --cov-report=xml:${{ github.workspace }}/coverage.xml --cov-append ${{ env.test_options }}
       - name: upload coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
