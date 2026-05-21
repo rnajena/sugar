@@ -1,4 +1,4 @@
-### dev:
+### v1.1.0:
   * core:
     - allow to use FeatureList in BioBasket[] notation
     - honor seqid for Feature and FeatureList in BioBasket[] notation
