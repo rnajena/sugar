@@ -9,6 +9,7 @@ import copy
 from functools import reduce
 import io
 import math
+import re
 import sys
 from warnings import warn
 
@@ -204,7 +205,9 @@ class BioSeq():
     Therefore, method chaining can be used.
     """
 
-    def __init__(self, data, id='', meta=None, type=None):
+    def __init__(self, data, id='', meta=None, type=None, warn_u='once'):
+        assert type in (None, 'nt', 'aa')
+        assert warn_u in ('once', 'always', None, True, False)
         #: Property holding the data string
         self.data = str(data).upper()
         if hasattr(data, 'meta'):
@@ -217,15 +220,14 @@ class BioSeq():
         self.meta = Meta(meta)
         if id or 'id' not in self.meta:
             self.meta.id = id
-        assert type in (None, 'nt', 'aa')
         if type is None:
-            codes = set(CODES) | {'U'}
-            type = 'nt' if all(nb in codes for nb in self.data) else 'aa'
-        if type == 'nt' and 'U' in data:
+            codes = re.escape(''.join(set(CODES) | {'U'}))
+            type = 'nt' if re.search(rf'[^{codes}]', self.data) is None else 'aa'
+        if type == 'nt' and warn_u and 'U' in self.data:
             from warnings import warn
-            warn('Found U in nucleotide sequence, '
-                 'some methods will not work as expected')
-        #: type of the sequence, either ``'nt'`` or ``'aa'``
+            warn('Found U in nucleotide sequence, ' +
+                 (f'id {self.meta.id}, ' if warn_u == 'always' else '') +
+                 'the translate method will not work as expected')
         self.type = type
 
     def _repr_pretty_(self, p, cycle):
