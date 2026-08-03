@@ -658,6 +658,8 @@ class BioSeq():
 
         The original translate method of the str class can be used via ``BioBasket.str.translate()``.
         """
+        if self.type == 'aa':
+            raise ValueError('Sequence is already an amino acid sequence')
         from sugar.core.cane import translate
         self.data = translate(self.data, *args, **kw)
         self.type = 'aa'
