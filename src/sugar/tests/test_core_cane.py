@@ -10,6 +10,7 @@ def test_translate():
     aas = 'P-MX-PP-X-*G'
 
     assert translate(s, complete=True) == aas
+    assert translate(s.replace('T', 'U'), complete=True) == aas
     with pytest.warns(UserWarning, match='might be a stop'):
         assert translate(s[3:-3], warn=True) == aas[1:-2]
     assert translate(s[3:-3], warn=False) == aas[1:-2]
