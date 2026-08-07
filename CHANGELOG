@@ -3,7 +3,12 @@
     - warn when a nt seq with both T and U nts is initialized, add warn_mixed argument, deprecate warn_u argument
     - speed up these checks by using optimized code, significantly enhance read time for large genomes
   * cane:
-    - translate now also works with codons with Us
+    - translate now also works with RNA codons (U character)
+  * imaging:
+    - alignment: add a label argument to plot sequence labels
+    - these are automatically plotted for less-equal 20 sequences
+    - automatically choose color scheme
+    - automatically plot symbols for less-equal 20 sequences and less-equal 50 characters per sequence
 ### v1.1.0:
   * core:
     - allow to use FeatureList in BioBasket[] notation

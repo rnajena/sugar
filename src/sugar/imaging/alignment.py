@@ -11,7 +11,12 @@ from matplotlib.patches import Rectangle
 
 def _get_colordict(color, alphabet, default='white', gap='-', gap_color='white'):
     if color is None:
-        color = {l: 'C{}'.format(i % 10) for i, l in enumerate(alphabet)}
+        if set(alphabet) - {'G', 'C', 'A', 'T', 'U'} == set():
+            color = 'nt'
+        else:
+            color = 'blossom'
+    if color == 'nt':
+        color = {'T': 'C0', 'U': 'C0', 'A': 'C1', 'C': 'C2', 'G': 'C3'}
     try:
         color = to_rgb(color)
     except ValueError:
@@ -86,13 +91,15 @@ def plot_alignment(
         ax=None, figsize=None,
         extent=None, aspect=None,
         gap='- ',
-        color='gray', gap_color='white',
-        symbols=False,
+        color=None, gap_color='white',
+        symbols=None,
         symbol_color='black',
         symbol_gap_color='black',
         symbol_size=None,
         scale_symbol_size=1,
         symbol_kw=None,
+        labels=None,
+        label_kw=None,
         fts=None,
         fts_display='facecolor',
         fts_colorby='type',
@@ -120,19 +127,26 @@ def plot_alignment(
         default no shrinkage, ``aspect=2`` gives visually appealing plots if symbols are also plotted.
     :param gap: The characters recognized as gaps, default is ``'- '``
     :param color: The background color,
-        might be any constant color (defaults to ``'gray'``),
+        might be any constant color (e.g. ``'gray'``),
         a list of colors, or
-        None for the default matplotlib color cycle,
+        `'nt'` for a default nucleotide color scheme based on the default matplotlib color cycle, or
         a dictionary mapping the alphabet to colors, or
         a supported color scheme, see `.get_color_scheme()`, e.g. ``'flower'``.
+        By default the color is ``'nt'`` for alphabets comprising only nucleotide characters, and ``'flower'`` otherwise.
     :param gap_color: The color of gaps, default is ``'white'``
-    :param symbols: Wether to plot symbols (letters), default ``False``
+    :param symbols: Wether to plot symbols (letters), by default symbols are shown for less-equal 20 sequences and less-equal 50 characters.
+        Cane be one of `None` (the default), `True` or `False`.
     :param symbol_color: The color of the symbols, takes the same values as the color parameter,
         default is ``'black'``
     :param symbol_gap_color: the color of the gap symbol, default is ``'black'``
     :param symbol_size: The font size of the symbols, by default a visually appealing size is calculated
     :param scale_symbol_size: Scale factor for the automatically calculated symbol size, default is 1
     :param symbol_kw: A dictionary of additional parameters passed to matplotlib's :meth:`~matplotlib.axes.Axes.annotate`
+    :param labels: Sequence labels, by default IDs are shown for less-equal 20 sequences.
+        Can be one of `None` (the default), `True`, `False`, or
+        a string which will be auto-formatted with the sequences meta object, e.g. `'{id}'`, or
+        a function taking a sequence and returning the corresponding label
+    :param label_kw: A dictionary of additional parameters passed to matplotlib's :meth:`~matplotlib.axes.Axes.set_yticklabels` for the sequence labels
     :param fts: Wether to highlight features, defaults to no highlighting,
         might be a FeatureList object or just True to use the features which are attached to the sequences object.
     :param fts_display: How to display the features, one of ``'facecolor'`` (default) and ``'box'``,
@@ -167,12 +181,12 @@ def plot_alignment(
 
     >>> from sugar import read
     >>> seqs = read('https://osf.io/download/j2wyv')
-    >>> seqs.plot_alignment(show=True, figsize=(10, 4))
+    >>> seqs.plot_alignment(show=True, color='gray', figsize=(10, 4)))
 
     .. image:: ../_static/ali1.png
        :width: 60%
 
-    >>> seqs[:, 70:120].plot_alignment(show=True, color=None, figsize=(10,8),
+    >>> seqs[:, 70:120].plot_alignment(show=True, color='nt', figsize=(10,8),
     ...                                symbols=True, aspect=2, alpha=0.5)
 
     .. image:: ../_static/ali2.png
@@ -223,8 +237,7 @@ def plot_alignment(
                         if seq.data[si] in gap:
                             data_fts[i][si] = fts_color[fts_colorby(ft)] + (fts_color_gap_alpha,)
     if ax is None:
-        fig = plt.figure(figsize=figsize)
-        ax = fig.add_axes([0, 0, 1, 1])
+        fig, ax = plt.subplots(1, 1, figsize=figsize, layout="constrained")
     else:
         fig = ax.get_figure()
     x, y = _get_xy(extent, n, len(data))
@@ -245,6 +258,8 @@ def plot_alignment(
     if aspect is not None:
         aspect = abs(aspect * len(data) / n / (y[-1] - y[0]) * (x[-1] - x[0]))
         ax.set_aspect(aspect)
+    if symbols is None:
+        symbols = len(seqs) <= 20 and n <= 50
     if symbols:
         if symbol_kw is None:
             symbol_kw = {}
@@ -271,8 +286,26 @@ def plot_alignment(
                 xy = 0.5 * (x[j] + x[j+1]), 0.5 * (y[i] + y[i+1])
                 l = seqs[i].data[j]
                 ax.annotate(l, xy, color=symbol_color[l], size=symbol_size, **symbol_kw)
+    ax.set_yticks(y[:-1] + 0.5 * (y[1] - y[0]))
+    ax.tick_params(axis='y', which='both', length=0)
+    if labels is None:
+        labels = len(seqs) <= 20
+    if labels is True:
+        labels = '{id}'
+    if labels:
+        if label_kw is None:
+            label_kw = {}
+        label_kw.setdefault('family', 'monospace')
+        if 'verticalalignment' not in label_kw:
+            label_kw.setdefault('va', 'center_baseline')
+        if 'horizontalalignment' not in label_kw:
+            label_kw.setdefault('ha', 'right')
+        yticklabels = []
+        for i, seq in enumerate(seqs):
+            label = labels.format(**seq.meta) if isinstance(labels, str) else labels(seq)
+            yticklabels.append(label)
+        ax.set_yticklabels(yticklabels, **label_kw)
     _despine(ax, show_spines, spine_offset)
-    ax.set_yticks([])
     if xticks is not True:
         if xticks is False:
             xticks = []
