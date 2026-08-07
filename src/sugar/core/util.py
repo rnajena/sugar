@@ -60,7 +60,7 @@ def deprecated(msg):
         def dfunc(*args, **kw):
             warnings.warn(msg, category=SugarDeprecationWarning, stacklevel=2)
             return func(*args, **kw)
-        if hasattr(dfunc, '__doc__') and 'deprecated' not in dfunc.__doc__.lower():
+        if hasattr(dfunc, '__doc__') and dfunc.__doc__ is not None and 'deprecated' not in dfunc.__doc__.lower():
             ws = (len(dfunc.__doc__.lstrip('\n')) - len(dfunc.__doc__.lstrip())) * ' '
             dfunc.__doc__ = f'{ws}.. warning::\n{ws}\n{ws}    {msg}\n' + dfunc.__doc__
         return dfunc
@@ -91,7 +91,7 @@ def deprecate_arg(argname, msg):
             if argname in kw:
                 warnings.warn(msg, category=SugarDeprecationWarning, stacklevel=2)
             return func(*args, **kw)
-        if hasattr(dfunc, '__doc__') and 'deprecated' not in dfunc.__doc__.lower():
+        if hasattr(dfunc, '__doc__') and dfunc.__doc__ is not None and 'deprecated' not in dfunc.__doc__.lower():
             ws = (len(dfunc.__doc__.lstrip('\n')) - len(dfunc.__doc__.lstrip())) * ' '
             dfunc.__doc__ = dfunc.__doc__ + f'\n{ws}.. warning::\n{ws}\n{ws}    {msg}\n'
         return dfunc
