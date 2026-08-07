@@ -1,3 +1,9 @@
+### dev:
+  * core:
+    - warn when a nt seq with both T and U nts is initialized, add warn_mixed argument, deprecate warn_u argument
+    - speed up these checks by using optimized code, significantly enhance read time for large genomes
+  * cane:
+    - translate now also works with codons with Us
 ### v1.1.0:
   * core:
     - allow to use FeatureList in BioBasket[] notation
