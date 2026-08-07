@@ -11,16 +11,19 @@ def generate_gc(id_, name, aas, special_codons):
     starts = []
     stops = []
     for i, (b1, b2, b3) in enumerate(product('TCAG', repeat=3)):
-        codon = b1+b2+b3
-        tt[codon] = aas[i]
-        if special_codons[i] == 'M':
-            starts.append(codon)
-        if special_codons[i] == '*':
-            stops.append(codon)
+        codon = b1 + b2 + b3
+        codons = [codon, codon.replace('T', 'U')] if 'T' in codon else [codon]
+        for codon in codons:
+            tt[codon] = aas[i]
+            if special_codons[i] == 'M':
+                starts.append(codon)
+            if special_codons[i] == '*':
+                stops.append(codon)
     ttinv = {}
     for k, v in tt.items():
-        ttinv.setdefault(v, []).append(k)
-    # check for all codons which are possibly stop codons
+        if 'U' not in k:
+            ttinv.setdefault(v, []).append(k)
+    # check for all ambiguous codons which are possibly stop codons
     all_codes = set(CODES.keys()) - {'.', '-'}
     astops = []
     for i, (b1, b2, b3) in enumerate(product(all_codes, repeat=3)):
@@ -30,7 +33,9 @@ def generate_gc(id_, name, aas, special_codons):
         if any(bb1+bb2+bb3  in stops for bb1 in CODES[b1]
                for bb2 in CODES[b2] for bb3 in CODES[b3]):
             astops.append(codon)
-    # check for all codons which are possibly stop codons#
+            if 'T' in codon:
+                astops.append(codon.replace('T', 'U'))
+    # check for all ambiguous codons which are possibly start codons
     astarts = []
     for i, (b1, b2, b3) in enumerate(product(all_codes, repeat=3)):
         codon = b1 + b2 + b3
@@ -39,7 +44,9 @@ def generate_gc(id_, name, aas, special_codons):
         if any(bb1+bb2+bb3 in starts for bb1 in CODES[b1]
                for bb2 in CODES[b2] for bb3 in CODES[b3]):
             astarts.append(codon)
-    # check which codons with ambigous bases code for the same aa
+            if 'T' in codon:
+                astarts.append(codon.replace('T', 'U'))
+    # check which codons with ambiguous bases code for the same aa
     for i, (b1, b2, b3) in enumerate(product(all_codes, repeat=3)):
         codon = b1 + b2 + b3
         if codon in tt:
@@ -47,7 +54,10 @@ def generate_gc(id_, name, aas, special_codons):
         if len(s := set(tt[bb1+bb2+bb3] for bb1 in CODES[b1]
                         for bb2 in CODES[b2] for bb3 in CODES[b3])
                ) == 1:
-            tt[codon] = s.pop()
+            aa = s.pop()
+            tt[codon] = aa
+            if 'T' in codon:
+                tt[codon.replace('T', 'U')] = aa
     gc.update({'tt': tt, 'ttinv': ttinv,
                'starts': starts, 'astarts': astarts,
                'stops': stops, 'astops': astops})
@@ -72,6 +82,7 @@ with open('gc.prt') as f:
         elif line.strip().startswith('sncbieaa'):
             special_codons = filter_line(line, 'sncbieaa')
             gcs[id_] = generate_gc(id_, name, aas, special_codons)
+
 
 with open('gc.json', 'w') as f:
     json.dump(gcs, f)
