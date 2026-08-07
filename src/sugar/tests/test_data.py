@@ -28,15 +28,24 @@ def test_gcode():
     assert gc.id == 1
     assert gc.name == 'Standard'
     assert gc.tt['ATG'] == 'M'
+    assert gc.tt['AUG'] == 'M'
     assert gc.tt['GAY'] == 'D'
     assert gc.tt['CTN'] == 'L'
+    assert gc.tt['CUN'] == 'L'
     assert gc.tt['CTY'] == 'L'
+    assert gc.tt['CUY'] == 'L'
     assert gc.ttinv['D'] == {'GAT', 'GAC'}
     assert 'ATG' in gc.starts
+    assert 'AUG' in gc.starts
     assert 'ATG' not in gc.astarts
+    assert 'AUG' not in gc.astarts
     assert 'ATN' in gc.astarts
+    assert 'AUN' in gc.astarts
     assert 'NNN' in gc.astarts
     assert 'TAG' in gc.stops
+    assert 'UAG' in gc.stops
     assert 'TAG' not in gc.astops
+    assert 'UAG' not in gc.astops
     assert 'TAN' in gc.astops
+    assert 'UAN' in gc.astops
     assert 'NNN' in gc.astops
