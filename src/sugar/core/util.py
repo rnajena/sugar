@@ -67,6 +67,37 @@ def deprecated(msg):
     return _deprecated
 
 
+def deprecate_arg(argname, msg):
+    """
+    Decorator factory for deprecated function arguments
+
+    :param argname: The name of the argument that is deprecated.
+    :param msg: The msg will be emitted as warning, when the function is called.
+        Additionally, a warning is displayed in the doc string,
+        if the term 'deprecated' is not found in the doc string.
+
+    Use it the following way:
+
+    ```
+    from sugar.core.util import deprecate_arg
+    @deprecate_arg("old_arg", "old_arg is deprecated, use new_arg instead")
+    def func(new_arg, old_arg=None):
+        ...
+    ```
+    """
+    def _deprecate_arg(func):
+        @functools.wraps(func)
+        def dfunc(*args, **kw):
+            if argname in kw:
+                warnings.warn(msg, category=SugarDeprecationWarning, stacklevel=2)
+            return func(*args, **kw)
+        if hasattr(dfunc, '__doc__') and 'deprecated' not in dfunc.__doc__.lower():
+            ws = (len(dfunc.__doc__.lstrip('\n')) - len(dfunc.__doc__.lstrip())) * ' '
+            dfunc.__doc__ = dfunc.__doc__ + f'\n{ws}.. warning::\n{ws}\n{ws}    {msg}\n'
+        return dfunc
+    return _deprecate_arg
+
+
 def _func_kws(func):
     from inspect import signature
     params = signature(func).parameters

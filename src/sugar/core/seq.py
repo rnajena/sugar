@@ -196,7 +196,7 @@ class _BioBasketStr():
                 return results
         return method
 
-
+from sugar.core.util import deprecate_arg
 class BioSeq():
     """
     Class holding sequence data and metadata, exposing bioinformatics methods.
@@ -204,12 +204,12 @@ class BioSeq():
     Most methods work in-place by default, but return the BioSeq object again.
     Therefore, method chaining can be used.
     """
-
-    def __init__(self, data, id='', meta=None, type=None, warn_u='once'):
+    @deprecate_arg('warn_u', 'warn_u is deprecated')
+    def __init__(self, data, id='', meta=None, type=None, warn_mixed='once', warn_u=None):
         assert type in (None, 'nt', 'aa')
         assert warn_u in ('once', 'always', None, True, False)
         #: Property holding the data string
-        self.data = str(data).upper()
+        self.data = str(data).upper()  # TODO: get rid of automatic conversion to upper letters
         if hasattr(data, 'meta'):
             meta = data.meta
         elif 'meta' in data:
@@ -223,11 +223,12 @@ class BioSeq():
         if type is None:
             codes = re.escape(''.join(set(CODES) | {'U'}))
             type = 'nt' if re.search(rf'[^{codes}]', self.data) is None else 'aa'
-        if type == 'nt' and warn_u and 'U' in self.data:
+        if type == 'nt' and warn_mixed and 'U' in self.data and 'T' in self.data:
             from warnings import warn
-            warn('Found U in nucleotide sequence, ' +
-                 (f'id {self.meta.id}, ' if warn_u == 'always' else '') +
-                 'the translate method will not work as expected')
+            warn('Found U and T in nucleotide sequence' +
+                 (f' with id {self.meta.id}' if warn_mixed == 'always' else '') +
+                 ', some methods might not work as expected. ' +
+                 'Use `BioSeq.str.replace("U", "T")` or `BioSeq.str.replace("T", "U")` to convert the sequence to a consistent format.')
         self.type = type
 
     def _repr_pretty_(self, p, cycle):
