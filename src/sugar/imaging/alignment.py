@@ -168,7 +168,7 @@ def plot_alignment(
        define the groups, defaults to ``'type'``
     :param fts_box_lw: linewidth of the the boxes, default: 5
     :param fts_box_kw: Dictionary of additional parameters passed to matplotlib's `~matplotlib.patches.Rectangle` to create the feature boxes
-    :param show_spines,despine_offset: Parameters passed to seaborn's despine function,
+    :param show_spines,despine_offset: Parameters passed to the _despine function,
         the default ``show_spines=False`` removes axes spines
     :param xticks: True leaves the xticks (default), False turns them off, can also be a list of xticks
     :param dpi,transparent,bbox_inches: Parameters passed to :meth:`~matplotlib.figure.Figure.savefig` if the figure is saved
