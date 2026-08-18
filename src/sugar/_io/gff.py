@@ -288,7 +288,9 @@ def _write_fts_gxf(fts, f, header=None, header_sugar=True, flavor='gff'):
             if metaattr in meta:
                 meta[mf][gxfattr] = meta[metaattr]
         if flavor == 'gff' and ft.locs[0]._meta and hasattr(ft.locs[0].meta, '_gff'):
-            meta._gff = {k: v for k, v in meta._gff.items() + ft.locs[0].meta._gff.items()}
+            meta.setdefault('_gff', {})
+            # TODO: Implement | for Attr object
+            meta._gff = dict(meta._gff) | dict(ft.locs[0].meta._gff)
         if flavor == 'gff' and len(ft.locs) > 1 and 'ID' not in meta._gff:
             # TODO warn, test
             from random import choices
