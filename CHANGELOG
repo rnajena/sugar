@@ -9,6 +9,7 @@
     - these are automatically plotted for less-equal 20 sequences
     - automatically choose color scheme
     - automatically plot symbols for less-equal 20 sequences and less-equal 50 characters per sequence
+    - plot_ftsviewer: add align_strand option to automatically align the strand of genes of interest (align option)
 ### v1.1.0:
   * core:
     - allow to use FeatureList in BioBasket[] notation

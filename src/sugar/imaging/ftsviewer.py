@@ -5,6 +5,7 @@ from sugar.core.util import _pop_kws_for_func
 
 
 def _align_fts(grouped, align, *,
+               align_strand=None,
                crop=False,
                inplace=True,
                return_details=False
@@ -16,6 +17,8 @@ def _align_fts(grouped, align, *,
     :param align: Align features by this method or list of features,
         can be one of the strings ``'center'``, ``'first'``, ``'last'``,
         or a list or BioBasket of features to align each group to the the first found feature in the list.
+    :param align_strand: If set to ``'+'`` or ``'-'``, all features in a group are mirrored if the strand of the features to align against is different from the specified strand.
+        This option can only be chosen if a list or BioBasket of features is passed to the ``align`` keyword.
     :param crop: Crop the sequence lines to the first and last feature in each group after alignment,
         can be ``True`` to crop to the minimal region including all features,
         or an integer to add some extra space before the first features.
@@ -28,8 +31,25 @@ def _align_fts(grouped, align, *,
     """
     if isinstance(align, str) and align not in ('center', 'first', 'last'):
         raise ValueError(f'Unknown align method: {align}')
+    if align_strand not in (None, '+', '-'):
+        raise ValueError(f'Unknown align_strand: {align_strand}')
     # Because we change feature locations we have to make a copy of the features.
-    # Before, we have to search for the features to be centered.
+    if not inplace:
+        from copy import deepcopy
+        grouped = deepcopy(grouped)
+
+    # First we mirror groups
+    if align_strand is not None:
+        for gkey in grouped:
+            if not isinstance(align, str):
+                for ft in grouped[gkey]:
+                    if ft in align:
+                        if ft.loc.strand != align_strand:
+                            grouped[gkey].rc()
+                        assert ft.loc.strand == align_strand
+                        align.append(ft)
+                        break
+    # Second, we have to search for the features to be centered.
     pos_first_ft = {}
     stop_pos_last_ft = {}
     pos_align = {}
@@ -50,9 +70,7 @@ def _align_fts(grouped, align, *,
             else:
                 warn(f'No feature found for centering group {gkey}')
                 pos_align[gkey] = pos_first_ft[gkey]
-    if not inplace:
-        from copy import deepcopy
-        grouped = deepcopy(grouped)
+    # Now we shift the features in each group
     seq_start = {}
     for gkey in grouped:
         shift = - pos_align[gkey] + max(pos_align.values())
@@ -78,7 +96,7 @@ def plot_ftsviewer(
         fts: sugar.FeatureList, fname=None, *,
         seqs=None,
         groupby='seqid',
-        align=None, crop=False,
+        align=None, align_strand=None, crop=False,
         figsize=None, ncols=1, sharex=False, sharey=False, fig_kw={}, ax=None,
         xticks=False,
         axlabel=True, axlabel_kw={},
@@ -100,6 +118,8 @@ def plot_ftsviewer(
         can be one of the strings ``'center'``, ``'first'``, ``'last'``,
         or a list or BioBasket of features to align each group to the the first found feature in the list.
         By default no alignment is done. If align is used, you should set ``sharex=True``.
+    :param align_strand: If set to ``'+'`` or ``'-'``, all features in a group are mirrored if the strand of the features to align against is different from the specified strand.
+        This option can only be chosen if a list or BioBasket of features is passed to the ``align`` keyword.
     :param crop: If align is used, crop the sequence lines to the first and last feature in each group,
         can be ``True`` to crop to the minimal region including all features,
         or an integer to add some extra space before the first features.
@@ -154,7 +174,7 @@ def plot_ftsviewer(
     if align:
         if not sharex:
             warn('It is recommended to use sharex=True when align is used')
-        grouped, seq_start, pos_first_ft, stop_pos_last_ft = _align_fts(grouped, align, crop=crop, inplace=False, return_details=True)
+        grouped, seq_start, pos_first_ft, stop_pos_last_ft = _align_fts(grouped, align, align_strand=align_strand, crop=crop, inplace=False, return_details=True)
     else:
         first_index2 = None
     if ax is None:
