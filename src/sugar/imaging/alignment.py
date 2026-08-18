@@ -305,6 +305,8 @@ def plot_alignment(
             label = labels.format(**seq.meta) if isinstance(labels, str) else labels(seq)
             yticklabels.append(label)
         ax.set_yticklabels(yticklabels, **label_kw)
+    else:
+        ax.set_yticklabels([])
     _despine(ax, show_spines, spine_offset)
     if xticks is not True:
         if xticks is False:
