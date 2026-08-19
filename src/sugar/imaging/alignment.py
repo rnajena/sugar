@@ -86,6 +86,28 @@ def _despine(ax, show_spines, spine_offset):
 _FTS_ACCOUNT_FOR_GAPS = True
 
 
+def _set_default_text_kw(text_kw, ha):
+    if text_kw is None:
+        text_kw = {}
+    text_kw.setdefault('family', 'monospace')
+    if 'verticalalignment' not in text_kw:
+        text_kw.setdefault('va', 'center_baseline')
+    if 'horizontalalignment' not in text_kw:
+        text_kw.setdefault('ha', ha)
+    return text_kw
+
+def _calc_text_size_factor(fig, ax, datalim, use_width=True):
+    fig.draw_without_rendering()  # to set automatic axis limits
+    # transform bounding box of ax to inch
+    bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    axlim = (ax.get_xlim()[1] - ax.get_xlim()[0]) if use_width else (ax.get_ylim()[1] - ax.get_ylim()[0])
+    ratio_covered = abs((datalim[1] - datalim[0]) / axlim)
+    # Calculate the width of a single symbol box in inch.
+    # Font size is the font height specified in pixels with PPI (pixels per inch) of 72.
+    # With a typical aspect ratio of monospace fonts of 5:3, we would need a factor of 120 to fill the width of the symbol box
+    # We take slightly lower value of 100 here.
+    return (bbox.width if use_width else bbox.height) * ratio_covered * 100 #* scale_symbol_size / n
+
 def plot_alignment(
         seqs, fname=None, *,
         ax=None, figsize=None,
@@ -99,6 +121,8 @@ def plot_alignment(
         scale_symbol_size=1,
         symbol_kw=None,
         labels=None,
+        label_size=None,
+        scale_label_size=1,
         label_kw=None,
         fts=None,
         fts_display='facecolor',
@@ -146,6 +170,8 @@ def plot_alignment(
         Can be one of `None` (the default), `True`, `False`, or
         a string which will be auto-formatted with the sequences meta object, e.g. `'{id}'`, or
         a function taking a sequence and returning the corresponding label
+    :param label_size: The font size of the labels, by default a visually appealing size is calculated
+    :param scale_label_size: Scale factor for the automatically calculated label size, default is 1
     :param label_kw: A dictionary of additional parameters passed to matplotlib's :meth:`~matplotlib.axes.Axes.set_yticklabels` for the sequence labels
     :param fts: Wether to highlight features, defaults to no highlighting,
         might be a FeatureList object or just True to use the features which are attached to the sequences object.
@@ -267,13 +293,7 @@ def plot_alignment(
     if labels is True:
         labels = '{id}'
     if labels:
-        if label_kw is None:
-            label_kw = {}
-        label_kw.setdefault('family', 'monospace')
-        if 'verticalalignment' not in label_kw:
-            label_kw.setdefault('va', 'center_baseline')
-        if 'horizontalalignment' not in label_kw:
-            label_kw.setdefault('ha', 'right')
+        label_kw = _set_default_text_kw(label_kw, ha='right')
         yticklabels = []
         for i, seq in enumerate(seqs):
             label = labels.format(**seq.meta) if isinstance(labels, str) else labels(seq)
@@ -281,33 +301,23 @@ def plot_alignment(
         ax.set_yticklabels(yticklabels, **label_kw)
     else:
         ax.set_yticklabels([])
+    if label_size is None:
+        label_size = _calc_text_size_factor(fig, ax, y, use_width=False) / len(seqs) * scale_label_size
+    elif scale_label_size != 1:
+        warn('scale_label_size parameter is ignored if label_size is specified')
+    ax.tick_params(axis='y', labelsize=label_size)
     _despine(ax, show_spines, spine_offset)
     if xticks is not True:
         if xticks is False:
             xticks = []
         ax.set_xticks(xticks)
-
     if symbols is None:
         symbols = len(seqs) <= 20 and n <= 50
     if symbols:
-        if symbol_kw is None:
-            symbol_kw = {}
         symbol_color = _get_colordict(symbol_color, alphabet, default='black', gap=gap, gap_color=symbol_gap_color)
-        symbol_kw.setdefault('family', 'monospace')
-        if 'verticalalignment' not in symbol_kw:
-            symbol_kw.setdefault('va', 'center_baseline')
-        if 'horizontalalignment' not in symbol_kw:
-            symbol_kw.setdefault('ha', 'center')
+        symbol_kw = _set_default_text_kw(symbol_kw, ha='center')
         if symbol_size is None:
-            fig.draw_without_rendering()  # to set automatic axis limits
-            # transform bounding box of ax to inch
-            bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-            ratio_covered = abs((x[-1] - x[0]) / (ax.get_xlim()[1] - ax.get_xlim()[0]))
-            # Calculate the width of a single symbol box in inch.
-            # Font size is the font height specified in pixels with PPI (pixels per inch) of 72.
-            # With a typical aspect ratio of monospace fonts of 5:3, we would need a factor of 120 to fill the width of the symbol box
-            # We take slightly lower value of 100 here.
-            symbol_size = bbox.width * ratio_covered / n * 100 * scale_symbol_size
+            symbol_size = _calc_text_size_factor(fig, ax, x) / n * scale_symbol_size
         elif scale_symbol_size != 1:
             warn('scale_symbol_size parameter is ignored if symbol_size is specified')
         for i in range(len(data)):
