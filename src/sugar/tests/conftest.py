@@ -3,7 +3,6 @@ from copy import deepcopy
 from pathlib import Path
 import pytest
 
-
 def pytest_addoption(parser):
     parser.addoption('--web', action='store_true',
                  default=False, help='enable web tests')

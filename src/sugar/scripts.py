@@ -172,7 +172,7 @@ def run(command, pytest_args=None, pdb=False, fname=None, fmt=None, **kw):
             # -> throws an internal pytest error
             # using addopts configuration does not work either, because it adds options before other CLI arguments
             append_opts = ['-W', 'ignore:Module sugar was previously imported']
-            status = pytest.main(pytest_args + append_opts)
+            status = pytest.main(pytest_args + [str(path)] + append_opts)
         sys.exit(status)
     else:
         raise ValueError(f'Unknown command: {command}')
