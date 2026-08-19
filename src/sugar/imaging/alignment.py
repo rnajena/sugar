@@ -258,6 +258,35 @@ def plot_alignment(
     if aspect is not None:
         aspect = abs(aspect * len(data) / n / (y[-1] - y[0]) * (x[-1] - x[0]))
         ax.set_aspect(aspect)
+    # set tick labels before plotting symbols,
+    # so that the space which is taken by labels is taken into account for the automatic calculation of symbol size
+    ax.set_yticks(y[:-1] + 0.5 * (y[1] - y[0]))
+    ax.tick_params(axis='y', which='both', length=0)
+    if labels is None:
+        labels = len(seqs) <= 20
+    if labels is True:
+        labels = '{id}'
+    if labels:
+        if label_kw is None:
+            label_kw = {}
+        label_kw.setdefault('family', 'monospace')
+        if 'verticalalignment' not in label_kw:
+            label_kw.setdefault('va', 'center_baseline')
+        if 'horizontalalignment' not in label_kw:
+            label_kw.setdefault('ha', 'right')
+        yticklabels = []
+        for i, seq in enumerate(seqs):
+            label = labels.format(**seq.meta) if isinstance(labels, str) else labels(seq)
+            yticklabels.append(label)
+        ax.set_yticklabels(yticklabels, **label_kw)
+    else:
+        ax.set_yticklabels([])
+    _despine(ax, show_spines, spine_offset)
+    if xticks is not True:
+        if xticks is False:
+            xticks = []
+        ax.set_xticks(xticks)
+
     if symbols is None:
         symbols = len(seqs) <= 20 and n <= 50
     if symbols:
@@ -286,32 +315,7 @@ def plot_alignment(
                 xy = 0.5 * (x[j] + x[j+1]), 0.5 * (y[i] + y[i+1])
                 l = seqs[i].data[j]
                 ax.annotate(l, xy, color=symbol_color[l], size=symbol_size, **symbol_kw)
-    ax.set_yticks(y[:-1] + 0.5 * (y[1] - y[0]))
-    ax.tick_params(axis='y', which='both', length=0)
-    if labels is None:
-        labels = len(seqs) <= 20
-    if labels is True:
-        labels = '{id}'
-    if labels:
-        if label_kw is None:
-            label_kw = {}
-        label_kw.setdefault('family', 'monospace')
-        if 'verticalalignment' not in label_kw:
-            label_kw.setdefault('va', 'center_baseline')
-        if 'horizontalalignment' not in label_kw:
-            label_kw.setdefault('ha', 'right')
-        yticklabels = []
-        for i, seq in enumerate(seqs):
-            label = labels.format(**seq.meta) if isinstance(labels, str) else labels(seq)
-            yticklabels.append(label)
-        ax.set_yticklabels(yticklabels, **label_kw)
-    else:
-        ax.set_yticklabels([])
-    _despine(ax, show_spines, spine_offset)
-    if xticks is not True:
-        if xticks is False:
-            xticks = []
-        ax.set_xticks(xticks)
+
     if fname is not None:
         fig.savefig(fname, dpi=dpi, transparent=transparent, bbox_inches=bbox_inches)
         if show:
