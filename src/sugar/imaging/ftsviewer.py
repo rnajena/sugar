@@ -133,7 +133,9 @@ def plot_ftsviewer(
     :param fig_kw: dict of other parameters passed to `plt.subplots <matplotlib.pyplot.subplots>`
     :param ax: Instead of specifying the figure with figsize, etc. one may pass an axes instance to draw
         the annotation in, make sure to only have a single annotation group
-    :param axlabel: Plot the name of each group in the axis, default: True
+    :param axlabel: Plot the name of each group in the axis, default: True, turn off with False or None, can be
+        alternatively a string which will be auto-formatted with the features meta object, e.g. ``'{seqid}'``,
+        or a function taking a group of features and returning the corresponding label
     :param axlabel_kw: Dict of corresponding options passed to :meth:`~matplotlib.axes.Axes.annotate`
     :param same_colors: Wether to use the same color mapping in all subplots, default True.
     :param dpi,transparent,bbox_inches: Parameters passed to :meth:`~matplotlib.figure.Figure.savefig` if the figure is saved
@@ -216,7 +218,7 @@ def plot_ftsviewer(
             axlabel_kw.setdefault('xy', (0, 0.8))
             axlabel_kw.setdefault('xycoords', 'axes fraction')
             axlabel_kw.setdefault('va', 'top')
-            l_ = ' '.join(map(str, gkey)) if axlabel is True else grouped[gkey][0].meta[axlabel]
+            l_ = ' '.join(map(str, gkey)) if axlabel is True else axlabel.format(**grouped[gkey][0].meta) if isinstance(axlabel, str) else axlabel(grouped[gkey])
             ax.annotate(l_, **axlabel_kw)
     if sharex:
         x0lim = min(x[0] for x in xlims)

@@ -101,12 +101,17 @@ def _calc_text_size_factor(fig, ax, datalim, use_width=True):
     # transform bounding box of ax to inch
     bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     axlim = (ax.get_xlim()[1] - ax.get_xlim()[0]) if use_width else (ax.get_ylim()[1] - ax.get_ylim()[0])
-    ratio_covered = abs((datalim[1] - datalim[0]) / axlim)
+    ratio_covered = abs((datalim[-1] - datalim[0]) / axlim)
     # Calculate the width of a single symbol box in inch.
     # Font size is the font height specified in pixels with PPI (pixels per inch) of 72.
     # With a typical aspect ratio of monospace fonts of 5:3, we would need a factor of 120 to fill the width of the symbol box
     # We take slightly lower value of 100 here.
-    return (bbox.width if use_width else bbox.height) * ratio_covered * 100 #* scale_symbol_size / n
+    # For height, we take a factor of 50, which is a bit lower than 72 which would fill the full height
+    if use_width:
+        factor = bbox.width * ratio_covered * 100
+    else:
+        factor = bbox.height * ratio_covered * 50
+    return factor #* scale_symbol_size / n
 
 def plot_alignment(
         seqs, fname=None, *,
@@ -120,7 +125,7 @@ def plot_alignment(
         symbol_size=None,
         scale_symbol_size=1,
         symbol_kw=None,
-        labels=None,
+        label=None,
         label_size=None,
         scale_label_size=1,
         label_kw=None,
@@ -166,7 +171,7 @@ def plot_alignment(
     :param symbol_size: The font size of the symbols, by default a visually appealing size is calculated
     :param scale_symbol_size: Scale factor for the automatically calculated symbol size, default is 1
     :param symbol_kw: A dictionary of additional parameters passed to matplotlib's :meth:`~matplotlib.axes.Axes.annotate`
-    :param labels: Sequence labels, by default IDs are shown for less-equal 20 sequences.
+    :param label: Show sequence labels, by default IDs are shown for less-equal 20 sequences.
         Can be one of `None` (the default), `True`, `False`, or
         a string which will be auto-formatted with the sequences meta object, e.g. `'{id}'`, or
         a function taking a sequence and returning the corresponding label
@@ -286,18 +291,23 @@ def plot_alignment(
         ax.set_aspect(aspect)
     # set tick labels before plotting symbols,
     # so that the space which is taken by labels is taken into account for the automatic calculation of symbol size
+    _despine(ax, show_spines, spine_offset)
+    if xticks is not True:
+        if xticks is False:
+            xticks = []
+        ax.set_xticks(xticks)
     ax.set_yticks(y[:-1] + 0.5 * (y[1] - y[0]))
     ax.tick_params(axis='y', which='both', length=0)
-    if labels is None:
-        labels = len(seqs) <= 20
-    if labels is True:
-        labels = '{id}'
-    if labels:
+    if label is None:
+        label = len(seqs) <= 20
+    if label is True:
+        label = '{id}'
+    if label:
         label_kw = _set_default_text_kw(label_kw, ha='right')
         yticklabels = []
         for i, seq in enumerate(seqs):
-            label = labels.format(**seq.meta) if isinstance(labels, str) else labels(seq)
-            yticklabels.append(label)
+            l_ = label.format(**seq.meta) if isinstance(label, str) else label(seq)
+            yticklabels.append(l_)
         ax.set_yticklabels(yticklabels, **label_kw)
     else:
         ax.set_yticklabels([])
@@ -306,11 +316,6 @@ def plot_alignment(
     elif scale_label_size != 1:
         warn('scale_label_size parameter is ignored if label_size is specified')
     ax.tick_params(axis='y', labelsize=label_size)
-    _despine(ax, show_spines, spine_offset)
-    if xticks is not True:
-        if xticks is False:
-            xticks = []
-        ax.set_xticks(xticks)
     if symbols is None:
         symbols = len(seqs) <= 20 and n <= 50
     if symbols:

@@ -67,10 +67,12 @@ def test_aspect_symbol_size(outdir):
             ax.set_adjustable(adjustable)
             ax.set_xlim(-5, 15)
             ax.set_ylim(-2, 12)
-            seqs.plot_alignment(outdir / f'test_plot_ali_aspect1_{adjustable}.png', ax=ax, symbols=True, color=None, aspect=2, extent=[0, 10, 0, 10], show_spines=True, dpi=300)
+            seqs.plot_alignment(outdir / f'test_plot_ali_aspect1_{adjustable}.png', ax=ax, symbols=True, color=None, aspect=2, extent=[0, 10, 0, 10], show_spines=True, dpi=300, label=True)
             assert ax.get_aspect() == 0.04
             text = [child for child in ax.get_children() if hasattr(child, 'get_text') and child.get_text() == 'A'][0]
             assert round(text.get_fontsize(), 1) == 5.0, _debug_wrong_symbol_size(ax, x=(0, 10), n=100)
+            text = ax.get_yticklabels()[0]
+            assert round(text.get_fontsize(), 1) == 5.0  # check label size
             plt.close(fig)
 
         seqs = seqs[:, :2]
@@ -79,7 +81,7 @@ def test_aspect_symbol_size(outdir):
             ax = fig.add_subplot()
             ax.set_adjustable(adjustable)
             ax.set_xlim(-2, 2)
-            seqs.plot_alignment(outdir / f'test_plot_ali_aspect2_{adjustable}.png', ax=ax, symbols=True, color=None, aspect=2, show_spines=True, scale_symbol_size=1/1.925, dpi=100)
+            seqs.plot_alignment(outdir / f'test_plot_ali_aspect2_{adjustable}.png', ax=ax, symbols=True, color=None, aspect=2, show_spines=True, scale_symbol_size=1/1.925, dpi=100, label=False)
             assert ax.get_aspect() == 2
             text = [child for child in ax.get_children() if hasattr(child, 'get_text') and child.get_text() == 'A'][0]
             assert round(text.get_fontsize(), 1) == 10.0, _debug_wrong_symbol_size(ax, x=(-0.5, 1.5), n=2*1.925)
