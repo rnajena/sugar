@@ -29,6 +29,7 @@ def _align_fts(grouped, align, *,
         and stop_pos_last_ft is a dict mapping group keys to the stop position of the last feature (after alignment).
     :return: Aligned and grouped features, or a tuple if ``return_details=True``
     """
+    # TODO: Check plots for align=BioBasket, align_strand='+' and crop=False, what is expected?
     if isinstance(align, str) and align not in ('center', 'first', 'last'):
         raise ValueError(f'Unknown align method: {align}')
     if align_strand not in (None, '+', '-'):
