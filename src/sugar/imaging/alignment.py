@@ -287,7 +287,10 @@ def plot_alignment(
                                    color=fts_color[fts_colorby(ftgroup[0])], alpha=fts_alpha,
                                    lw=fts_box_lw, **fts_box_kw))
     if aspect is not None:
-        aspect = abs(aspect * len(data) / n / (y[-1] - y[0]) * (x[-1] - x[0]))
+        if aspect == 'equal':
+            aspect = 1
+        if aspect != 'auto':
+            aspect = abs(aspect * len(data) / n / (y[-1] - y[0]) * (x[-1] - x[0]))
         ax.set_aspect(aspect)
     # set tick labels before plotting symbols,
     # so that the space which is taken by labels is taken into account for the automatic calculation of symbol size
