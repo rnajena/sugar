@@ -116,7 +116,7 @@ def _calc_text_size_factor(fig, ax, datalim, use_width=True):
 def plot_alignment(
         seqs, fname=None, *,
         ax=None, figsize=None,
-        extent=None, aspect=None,
+        extent=None, aspect='default',
         gap='- ',
         color=None, gap_color='white',
         symbols=None,
@@ -153,7 +153,9 @@ def plot_alignment(
     :param extent: The extent of the plotted alignment in data coordinates ``[xmin, xmax, ymin, ymax]``,
         the default plots each symbol and sequence at integer coordinates
     :param aspect: Wether to shrink the axis to guarantee the given aspect ratio,
-        default no shrinkage, ``aspect=2`` gives visually appealing plots if symbols are also plotted.
+        ``aspect=2`` gives visually appealing plots if symbols are also plotted
+        default is 2 if symbols are plotted and ``'auto'`` to fill the whole figure otherwise.
+        Use ``None`` to not set any aspect at all.
     :param gap: The characters recognized as gaps, default is ``'- '``
     :param color: The background color,
         might be any constant color (e.g. ``'gray'``),
@@ -231,8 +233,23 @@ def plot_alignment(
     .. image:: ../_static/ali3.png
        :width: 40%
     """
+    # set default values for parameters
+    lens = [len(seq) for seq in seqs]
+    n = max(lens)
     if gap is None:
         gap = ''
+    if symbols is None:
+        symbols = len(seqs) <= 20 and n <= 50
+    if aspect == 'default':
+        aspect = 2 if symbols else 'auto'
+    elif aspect == 'equal':
+        aspect = 1
+    if label is None:
+        label = len(seqs) <= 20
+    if label is True:
+        label = '{id}'
+
+    # define colors
     alphabet = sorted(set(''.join(str(seq) for seq in seqs)) - set(gap))
     color = _get_colordict(color, alphabet, gap=gap, gap_color=gap_color)
     if fts:
@@ -243,12 +260,13 @@ def plot_alignment(
         raise ValueError('fts_color_gap_alpha has to be a number 0 <= alpha <= 1')
     if fts_color_gap_alpha < 1 and fts_alpha is None:
         fts_alpha = 1
-    lens = [len(seq) for seq in seqs]
-    n = max(lens)
+
+    # check seq lengths
     if len(set(lens)) > 1:
         warn('fill up short sequences with empty space')
         seqs = seqs.copy().str.ljust(n)
 
+    # collect feature data for fts_display == 'facecolor'
     data = [[color[l] for l in seq.data] for seq in seqs]
     if fts and fts_display == 'facecolor':
         ftsd = fts.groupby('seqid')
@@ -267,6 +285,8 @@ def plot_alignment(
                     for si in range(start, stop):
                         if seq.data[si] in gap:
                             data_fts[i][si] = fts_color[fts_colorby(ft)] + (fts_color_gap_alpha,)
+
+    # create fig and ax, plot alignment and features
     if ax is None:
         fig, ax = plt.subplots(1, 1, figsize=figsize, layout="constrained")
     else:
@@ -286,25 +306,23 @@ def plot_alignment(
             ax.add_patch(Rectangle((x[bx1], min(y)), x[bx2] - x[bx1], abs(y[-1] - y[0]),
                                    color=fts_color[fts_colorby(ftgroup[0])], alpha=fts_alpha,
                                    lw=fts_box_lw, **fts_box_kw))
+
+    # calculate and set aspect ratio
     if aspect is not None:
-        if aspect == 'equal':
-            aspect = 1
         if aspect != 'auto':
             aspect = abs(aspect * len(data) / n / (y[-1] - y[0]) * (x[-1] - x[0]))
         ax.set_aspect(aspect)
+
+    _despine(ax, show_spines, spine_offset)
     # set tick labels before plotting symbols,
     # so that the space which is taken by labels is taken into account for the automatic calculation of symbol size
-    _despine(ax, show_spines, spine_offset)
+    # calculate label size, plot sequence labels, plot x ticks and labels
     if xticks is not True:
         if xticks is False:
             xticks = []
         ax.set_xticks(xticks)
     ax.set_yticks(y[:-1] + 0.5 * (y[1] - y[0]))
     ax.tick_params(axis='y', which='both', length=0)
-    if label is None:
-        label = len(seqs) <= 20
-    if label is True:
-        label = '{id}'
     if label:
         label_kw = _set_default_text_kw(label_kw, ha='right')
         yticklabels = []
@@ -319,8 +337,8 @@ def plot_alignment(
     elif scale_label_size != 1:
         warn('scale_label_size parameter is ignored if label_size is specified')
     ax.tick_params(axis='y', labelsize=label_size)
-    if symbols is None:
-        symbols = len(seqs) <= 20 and n <= 50
+
+    # calculate symbol size, plot symbols
     if symbols:
         symbol_color = _get_colordict(symbol_color, alphabet, default='black', gap=gap, gap_color=symbol_gap_color)
         symbol_kw = _set_default_text_kw(symbol_kw, ha='center')
@@ -334,6 +352,7 @@ def plot_alignment(
                 l = seqs[i].data[j]
                 ax.annotate(l, xy, color=symbol_color[l], size=symbol_size, **symbol_kw)
 
+    # save and/or show figure
     if fname is not None:
         fig.savefig(fname, dpi=dpi, transparent=transparent, bbox_inches=bbox_inches)
         if show:
