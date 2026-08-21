@@ -672,6 +672,16 @@ class FeatureList(collections.UserList):
         from sugar.core._adapter import biopython2fts
         return biopython2fts(obj, cls=cls)
 
+    @staticmethod
+    def fromfmtstr(in_, fmt=None, **kw):
+        """
+        Read features from a string
+        """
+        from sugar import read_fts
+        if not isinstance(in_, bytes):
+            in_ = in_.encode('latin1')
+        return read_fts(io.BytesIO(in_), fmt=fmt, **kw)
+
     def __str__(self):
         return self.tostr()
 
