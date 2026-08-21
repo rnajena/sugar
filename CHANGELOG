@@ -2,6 +2,7 @@
   * core:
     - warn when a nt seq with both T and U nts is initialized, add warn_mixed argument, deprecate warn_u argument
     - speed up these checks by using optimized code, significantly enhance read time for large genomes
+    - add FeatureList.fromfmtstr to read features from a string
   * cane:
     - translate now also works with RNA codons (U character)
   * imaging:
@@ -10,6 +11,7 @@
     - automatically choose color scheme
     - automatically plot symbols for less-equal 20 sequences and less-equal 50 characters per sequence
     - plot_ftsviewer: add align_strand option to automatically align the strand of genes of interest (align option)
+  * other small fixes and changes, see commit log
 ### v1.1.0:
   * core:
     - allow to use FeatureList in BioBasket[] notation
