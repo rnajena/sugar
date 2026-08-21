@@ -870,13 +870,16 @@ class FeatureList(collections.UserList):
                     isinstance(type_, tuple) and ft.type.lower() in type_):
                 return ft
 
-    def select(self, type=None, *, inplace=False, strand=None, **kw):
+    def select(self, type=None, *, inplace=False,
+               start=None, stop=None, strand=None, **kw):
         r"""
         Select features
 
         Two different operating modi can be used, or both.
         Use the ``type`` argument to select features of one type (use a string)
         or of different types (use a list).
+        Use the ``start``, ``stop`` and ``strand`` arguments to select features
+        based on their location. This selects whole features, use the `slice` method to slice features.
 
         All other kwargs must be of the form
         ``key_op=value``, where op is one of
@@ -888,6 +891,9 @@ class FeatureList(collections.UserList):
         ``fts.select(...) | fts.select(...)``
 
         :param type: String or list of multiple strings
+        :param start: All features ending after start location are sleected.
+        :param stop: All features starting before stop location are selected.
+        :param strand: All features on the given strand are selected.
         :param inplace: Whether to modify the original object (default: False)
         :param \*\*kw: Selection criteria
         :return: Selected features
@@ -910,6 +916,10 @@ class FeatureList(collections.UserList):
                     isinstance(type, tuple) and ft.type.lower() in type)]
         if strand is not None:
             selected = [ft for ft in selected if ft.loc.strand == strand]
+        if start is not None or stop is not None:
+            selected = [ft for ft in selected
+                        if (start is None or ft.locs.stop >= start) and
+                           (stop is None or ft.locs.start <= stop)]
         selected = _select(selected, **kw)
         if inplace:
             self.data = selected
