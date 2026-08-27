@@ -267,7 +267,10 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, **kw):
     if fmt is None:
         _raise_autodetection_error(fname)
     fmt = fmt.lower()
-    module = EPS['seqs'][fmt].load()
+    try:
+        module = EPS['seqs'][fmt].load()
+    except KeyError:
+        raise ValueError(f'Unsupported sequence format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["seqs"])}')
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
         if hasattr(module, funcname := f'iter_{fmt}'):
             seqs = getattr(module, funcname)(f, **kw)
@@ -336,7 +339,10 @@ def read(fname, fmt=None, *, mode='r', encoding=None, **kw):
     if fmt is None:
         _raise_autodetection_error(fname)
     fmt = fmt.lower()
-    module = EPS['seqs'][fmt].load()
+    try:
+        module = EPS['seqs'][fmt].load()
+    except KeyError:
+        raise ValueError(f'Unsupported sequence format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["seqs"])}')
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
         if hasattr(module, funcname := f'read_{fmt}'):
             seqs = getattr(module, funcname)(f, **kw)
@@ -384,7 +390,10 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
     if fmt is None:
         _raise_autodetection_error(fname)
     fmt = fmt.lower()
-    module = EPS['fts'][fmt].load()
+    try:
+        module = EPS['fts'][fmt].load()
+    except KeyError:
+        raise ValueError(f'Unsupported feature format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["fts"])}')
     with _file_opener(fname, mode=mode, binary=_binary(module, 'fts'), encoding=encoding) as f:
         if hasattr(module, funcname := f'read_fts_{fmt}'):
             fts = getattr(module, funcname)(f, **kw)
@@ -423,7 +432,10 @@ def write(seqs, fname, fmt=None, *, mode='w', encoding=None, **kw):
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
     fmt = fmt.lower()
-    module = EPS['seqs'][fmt].load()
+    try:
+        module = EPS['seqs'][fmt].load()
+    except KeyError:
+        raise ValueError(f'Unsupported sequence format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["seqs"])}')
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
         if hasattr(module, funcname := f'append_{fmt}') and 'a' in mode:
             for seq in seqs:
@@ -464,7 +476,10 @@ def write_fts(fts, fname=None, fmt=None, *, mode='w', **kw):
     if fmt is None:
         raise IOError('Format cannot be auto-detected')
     fmt = fmt.lower()
-    module = EPS['fts'][fmt].load()
+    try:
+        module = EPS['fts'][fmt].load()
+    except KeyError:
+        raise ValueError(f'Unsupported feature format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["fts"])}')
     with _file_opener(fname, mode=mode, binary=_binary(module, 'fts')) as f:
         if hasattr(module, 'binary_fmt_fts') and module.binary_fmt_fts and 'b' not in mode:
             mode = 'b' + mode
