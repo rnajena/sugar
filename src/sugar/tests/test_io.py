@@ -157,3 +157,29 @@ def test_empty_file():
         with pytest.raises(match='empty file'):
             for _ in iter_(fname):
                 pass
+
+
+def test_unknown_format_detected():
+    with tempfilename() as fname:
+        with open(fname, 'wb') as f:
+            f.write(b'crazy unknown format\n')
+        with pytest.raises(match='cannot be auto-detected'):
+            read(fname)
+        with pytest.raises(match='cannot be auto-detected'):
+            read_fts(fname)
+        with pytest.raises(match='cannot be auto-detected'):
+            for _ in iter_(fname):
+                pass
+
+
+def test_unknown_format_specified():
+    with tempfilename() as fname:
+        with open(fname, 'wb') as f:
+            f.write(b'crazy unknown format\n')
+        with pytest.raises(match='Unsupported sequence format'):
+            read(fname, 'crazyfmt')
+        with pytest.raises(match='Unsupported feature format'):
+            read_fts(fname, 'crazyfmt')
+        with pytest.raises(match='Unsupported sequence format'):
+            for _ in iter_(fname, 'crazyfmt'):
+                pass

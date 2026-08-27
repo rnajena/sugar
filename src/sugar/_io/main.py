@@ -98,6 +98,34 @@ def detect_ext(fname, what='seqs'):
                 return fmt
 
 
+_MAP_WHAT = {'seqs': 'sequence', 'fts': 'feature'}
+
+
+def _detect_read_fmt_and_return_module(fname, fmt, what='seqs', **kw):
+    assert what in ('seqs', 'fts')
+    if fmt is None:
+        fmt = detect(fname, what=what, **kw)
+    if fmt is None:
+        with _file_opener(fname, mode='r', binary=True) as f:
+            if len(f.read(1000).strip()) == 0:
+                if isinstance(fname, str):
+                    msg = f'Try to read empty file at {fname}'
+                else:
+                    msg = 'Try to read empty file-like object'
+                raise IOError(msg)
+        msg = ('{_MAP_WHAT[what].capitalize()} format cannot be auto-detected' +
+                f' for file {fname}. ' if isinstance(fname, str) else '. ' +
+                f'Supported formats are: {", ".join(FMTS_ALL[what])}')
+        raise IOError(msg)
+    fmt = fmt.lower()
+    try:
+        module = EPS[what][fmt].load()
+    except KeyError:
+        raise ValueError(f'Unsupported {_MAP_WHAT[what]} format: {fmt}. '
+                         f'Supported formats are: {", ".join(FMTS_ALL[what])}')
+    return fmt, module
+
+
 def _resolve_archive(writer):
     @wraps(writer)
     def new_writer(objs, fname, *args, archive=None, **kw):
@@ -145,20 +173,6 @@ def _allow_to_str(writer):
         else:
             return writer(objs, fname=fname, fmt=fmt, **kw)
     return new_writer
-
-
-def _raise_autodetection_error(fname):
-    with _file_opener(fname, mode='r', binary=True) as f:
-        if len(f.read(1000).strip()) == 0:
-            if isinstance(fname, str):
-                msg = f'Try to read empty file at {fname}'
-            else:
-                msg = 'Try to read empty file-like object'
-            raise IOError(msg)
-    msg = 'Format cannot be auto-detected'
-    if isinstance(fname, str):
-        msg = msg + f' for file {fname}'
-    raise IOError(msg)
 
 
 def __get_ext(fname):
@@ -262,21 +276,14 @@ def iter_(fname, fmt=None, *, mode='r', encoding=None, **kw):
     .. note::
         Calling ``iter_()`` without the ``fname`` argument returns an example sequences iterator.
     """
-    if fmt is None:
-        fmt = detect(fname, encoding=encoding, **kw)
-    if fmt is None:
-        _raise_autodetection_error(fname)
-    fmt = fmt.lower()
-    try:
-        module = EPS['seqs'][fmt].load()
-    except KeyError:
-        raise ValueError(f'Unsupported sequence format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["seqs"])}')
+    fmt, module = _detect_read_fmt_and_return_module(fname, fmt, 'seqs', encoding=encoding, **kw)
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
         if hasattr(module, funcname := f'iter_{fmt}'):
             seqs = getattr(module, funcname)(f, **kw)
             for seq in seqs:
                 seq.meta._fmt = fmt
                 yield seq
+            return
         elif hasattr(module, funcname := f'read_{fmt}'):
             seqs = getattr(module, funcname)(f, **kw)
         else:
@@ -334,15 +341,7 @@ def read(fname, fmt=None, *, mode='r', encoding=None, **kw):
     .. note::
         Calling ``read()`` without the ``fname`` argument returns an example sequences object.
     """
-    if fmt is None:
-        fmt = detect(fname, **kw)
-    if fmt is None:
-        _raise_autodetection_error(fname)
-    fmt = fmt.lower()
-    try:
-        module = EPS['seqs'][fmt].load()
-    except KeyError:
-        raise ValueError(f'Unsupported sequence format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["seqs"])}')
+    fmt, module = _detect_read_fmt_and_return_module(fname, fmt, 'seqs', encoding=encoding, **kw)
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
         if hasattr(module, funcname := f'read_{fmt}'):
             seqs = getattr(module, funcname)(f, **kw)
@@ -385,15 +384,7 @@ def read_fts(fname, fmt=None, *, mode='r', encoding=None, **kw):
     .. note::
         Calling ``read_fts()`` without the ``fname`` argument returns an example features object.
     """
-    if fmt is None:
-        fmt = detect(fname, what='fts', **kw)
-    if fmt is None:
-        _raise_autodetection_error(fname)
-    fmt = fmt.lower()
-    try:
-        module = EPS['fts'][fmt].load()
-    except KeyError:
-        raise ValueError(f'Unsupported feature format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["fts"])}')
+    fmt, module = _detect_read_fmt_and_return_module(fname, fmt, 'fts', encoding=encoding, **kw)
     with _file_opener(fname, mode=mode, binary=_binary(module, 'fts'), encoding=encoding) as f:
         if hasattr(module, funcname := f'read_fts_{fmt}'):
             fts = getattr(module, funcname)(f, **kw)
@@ -451,7 +442,7 @@ def write(seqs, fname, fmt=None, *, mode='w', encoding=None, **kw):
 
 @_resolve_archive
 @_allow_to_str
-def write_fts(fts, fname=None, fmt=None, *, mode='w', **kw):
+def write_fts(fts, fname=None, fmt=None, *, mode='w', encoding=None, **kw):
     """
     Write features to file, use it via `.FeatureList.write()` or `.Feature.write()`
 
@@ -480,7 +471,7 @@ def write_fts(fts, fname=None, fmt=None, *, mode='w', **kw):
         module = EPS['fts'][fmt].load()
     except KeyError:
         raise ValueError(f'Unsupported feature format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["fts"])}')
-    with _file_opener(fname, mode=mode, binary=_binary(module, 'fts')) as f:
+    with _file_opener(fname, mode=mode, binary=_binary(module, 'fts'), encoding=encoding) as f:
         if hasattr(module, 'binary_fmt_fts') and module.binary_fmt_fts and 'b' not in mode:
             mode = 'b' + mode
         if hasattr(module, funcname := f'write_fts_{fmt}'):
