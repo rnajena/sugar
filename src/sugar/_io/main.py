@@ -126,6 +126,22 @@ def _detect_read_fmt_and_return_module(fname, fmt, what='seqs', **kw):
     return fmt, module
 
 
+def _detect_write_fmt_and_return_module(fname, fmt, what='seqs'):
+    assert what in ('seqs', 'fts')
+    if fmt is None:
+        fmt = detect_ext(fname, what)
+    if fmt is None:
+        msg = f'{_MAP_WHAT[what].capitalize()} format cannot be auto-detected from extension'
+        raise IOError(msg)
+    fmt = fmt.lower()
+    try:
+        module = EPS[what][fmt].load()
+    except KeyError:
+        raise ValueError(f'Unsupported {_MAP_WHAT[what]} format: {fmt}. '
+                         f'Supported formats are: {", ".join(FMTS_ALL[what])}')
+    return fmt, module
+
+
 def _resolve_archive(writer):
     @wraps(writer)
     def new_writer(objs, fname, *args, archive=None, **kw):
@@ -173,10 +189,6 @@ def _allow_to_str(writer):
         else:
             return writer(objs, fname=fname, fmt=fmt, **kw)
     return new_writer
-
-
-def __get_ext(fname):
-    return os.path.split(fname)[1].split('.', 1)[-1]
 
 
 def _resolve_fname(example_fname='!data/example.gb'):
@@ -418,15 +430,7 @@ def write(seqs, fname, fmt=None, *, mode='w', encoding=None, **kw):
 
     {format_table}
     """
-    if fmt is None:
-        fmt = detect_ext(fname)
-    if fmt is None:
-        raise IOError('Format cannot be auto-detected')
-    fmt = fmt.lower()
-    try:
-        module = EPS['seqs'][fmt].load()
-    except KeyError:
-        raise ValueError(f'Unsupported sequence format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["seqs"])}')
+    fmt, module = _detect_write_fmt_and_return_module(fname, fmt, 'seqs')
     with _file_opener(fname, mode=mode, binary=_binary(module), encoding=encoding) as f:
         if hasattr(module, funcname := f'append_{fmt}') and 'a' in mode:
             for seq in seqs:
@@ -462,15 +466,7 @@ def write_fts(fts, fname=None, fmt=None, *, mode='w', encoding=None, **kw):
 
     {format_table}
     """
-    if fmt is None:
-        fmt = detect_ext(fname, 'fts')
-    if fmt is None:
-        raise IOError('Format cannot be auto-detected')
-    fmt = fmt.lower()
-    try:
-        module = EPS['fts'][fmt].load()
-    except KeyError:
-        raise ValueError(f'Unsupported feature format: {fmt}. Supported formats are: {", ".join(FMTS_ALL["fts"])}')
+    fmt, module = _detect_write_fmt_and_return_module(fname, fmt, 'fts')
     with _file_opener(fname, mode=mode, binary=_binary(module, 'fts'), encoding=encoding) as f:
         if hasattr(module, 'binary_fmt_fts') and module.binary_fmt_fts and 'b' not in mode:
             mode = 'b' + mode

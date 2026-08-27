@@ -183,3 +183,29 @@ def test_unknown_format_specified():
         with pytest.raises(match='Unsupported sequence format'):
             for _ in iter_(fname, 'crazyfmt'):
                 pass
+
+
+def test_unkown_write_format():
+    seqs = read()
+    with tempfilename() as fname:
+        with pytest.raises(match='Unsupported sequence format'):
+            seqs.write(fname, 'crazyfmt')
+    fts = read_fts()
+    with tempfilename() as fname:
+        with pytest.raises(match='Unsupported feature format'):
+            fts.write(fname, 'crazyfmt')
+
+
+def test_write_to_str():
+    seqs = read()
+    fasta = seqs.write(fmt='fasta')
+    assert isinstance(fasta, str)
+    assert '>' in fasta
+    with pytest.raises(match='Specify fname or fmt'):
+        seqs.write()
+    fts = read_fts()
+    gff = fts.write(fmt='gff')
+    assert isinstance(gff, str)
+    assert 'gff-version' in gff
+    with pytest.raises(match='Specify fname or fmt'):
+        fts.write()
