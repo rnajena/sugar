@@ -1,4 +1,4 @@
-### dev:
+### v1.2.0:
   * core:
     - warn when a nt seq with both T and U nts is initialized, add warn_mixed argument, deprecate warn_u argument
     - speed up these checks by using optimized code, significantly enhance read time for large genomes
