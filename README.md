@@ -1,6 +1,6 @@
 <img src="https://raw.github.com/rnajena/sugar/logo/sugar_logo.png" alt="logo" width="200">
 
-## A Python framework for bioinformatics
+## Sequence and Annotation Toolkit for Python
 [![build status](https://github.com/rnajena/sugar/workflows/tests/badge.svg)](https://github.com/rnajena/sugar/actions)
 [![docs status](https://readthedocs.org/projects/rnajena-sugar/badge/?version=latest)](https://rnajena-sugar.readthedocs.io)
 [![codecov](https://codecov.io/gh/rnajena/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/rnajena/sugar)
