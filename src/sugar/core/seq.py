@@ -474,8 +474,8 @@ class BioSeq():
                 raise TypeError(f"Index of type '{type(index).__name__}' not supported")
         # from bisect import bisect
         nogaps = [i for i, nt in enumerate(self.data) if nt not in gap]
-        adj = lambda i: nogaps[i] if i is not None and i < len(nogaps) else None
-        adj_stop = lambda i: nogaps[i-1]+1 if i is not None and 0 < i < len(nogaps) else 0 if i == 0 else None
+        adj = lambda i: None if i is None else nogaps[i] if i < len(nogaps) else len(nogaps)
+        adj_stop = lambda i: None if i is None else nogaps[i-1]+1 if 0 < i <= len(nogaps) else 0 if i == 0 else len(nogaps)
         if isinstance(index, int):
             index = adj(index)
         elif isinstance(index, slice):

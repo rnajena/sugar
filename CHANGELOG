@@ -1,3 +1,5 @@
+### v1.2.2
+  * small fix in BioSeq._getindex when slicing the end of a sequence
 ### v1.2.1
   * imaging:
     - fix fts box plotting for new matplotlib versions
