@@ -64,6 +64,9 @@ def _read_motifs_meme_txt_regex(f):
         hitdata = match.group('hitdata')
         for line in hitdata.splitlines():
             seqid, strand, start, pvalue, *_ = line.split()
+            if strand not in '+-.':
+                ## protein hit
+                strand, start, pvalue = '.', strand, start
             motif['hits'].append({'seqid': seqid, 'strand': strand, 'start': int(start)-1, 'pvalue': float(pvalue)})
         motifs.append(motif)
     return motifs
