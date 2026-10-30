@@ -1,4 +1,4 @@
-### dev
+### v1.2.1
   * imaging:
     - fix fts box plotting for new matplotlib versions
     - fix error when no seqid labels are plotted
