@@ -304,6 +304,8 @@ def _write_fts_gxf(fts, f, header=None, header_sugar=True, flavor='gff'):
             seqid = _quote_gff3(seqid)
             source = _quote_gff3(source)
         score = meta[mf].pop('score', '.')
+        if score is None:
+            score = '.'
         phase = meta[mf].pop('phase' if flavor == 'gff' else 'frame', '.')
         type_ = meta[mf].pop('type', None) or meta.get('type') or '.'
         for i, loc in enumerate(ft.locs):
