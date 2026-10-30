@@ -179,6 +179,8 @@ def write_stockholm(seqs, f, header_sugar=True):
     except AttributeError:
         pass
     else:
+        if 'SQ' in gf:
+            gf.SQ = str(len(seqs))
         for key, value in gf.items():
             lines.append(f'#=GF {key} {value}')
     for seq in seqs:
