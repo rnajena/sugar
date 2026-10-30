@@ -271,7 +271,7 @@ def plot_alignment(
     if fts and fts_display == 'facecolor':
         ftsd = fts.groupby('seqid')
         if fts_alpha is not None:
-            data_fts = [[(1, 1, 1, 0) for l in seq.data] for seq in seqs]
+            data_fts = [[(1., 1., 1., 0.) for l in seq.data] for seq in seqs]
         for i, seq in enumerate(seqs):
             for ft in ftsd.get(seq.id, []):
                 slice = seq.slindex(gap=gap if _FTS_ACCOUNT_FOR_GAPS else None)[ft]
@@ -285,7 +285,6 @@ def plot_alignment(
                     for si in range(start, stop):
                         if seq.data[si] in gap:
                             data_fts[i][si] = fts_color[fts_colorby(ft)] + (fts_color_gap_alpha,)
-
     # create fig and ax, plot alignment and features
     if ax is None:
         fig, ax = plt.subplots(1, 1, figsize=figsize, layout="constrained")
@@ -332,11 +331,12 @@ def plot_alignment(
         ax.set_yticklabels(yticklabels, **label_kw)
     else:
         ax.set_yticklabels([])
-    if label_size is None:
-        label_size = _calc_text_size_factor(fig, ax, y, use_width=False) / len(seqs) * scale_label_size
-    elif scale_label_size != 1:
-        warn('scale_label_size parameter is ignored if label_size is specified')
-    ax.tick_params(axis='y', labelsize=label_size)
+    if label:
+        if label_size is None:
+            label_size = _calc_text_size_factor(fig, ax, y, use_width=False) / len(seqs) * scale_label_size
+        elif scale_label_size != 1:
+            warn('scale_label_size parameter is ignored if label_size is specified')
+        ax.tick_params(axis='y', labelsize=label_size)
 
     # calculate symbol size, plot symbols
     if symbols:
